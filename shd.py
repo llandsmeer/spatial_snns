@@ -30,9 +30,9 @@ class SHD(typing.NamedTuple):
     @classmethod
     def load(cls, fn, limit=None):
         if fn == 'train':
-            fn = '/home/llandsmeer/repos/llandsmeer/spatial_delays/shd_train.h5'
+            fn = 'shd_train.h5'
         elif fn == 'test':
-            fn = '/home/llandsmeer/repos/llandsmeer/spatial_delays/shd_test.h5'
+            fn = 'shd_test.h5'
         mkhandle = gzip.open if fn.endswith('.gz') else open
         with mkhandle(fn, 'rb') as f:
             ds = h5py.File(f)

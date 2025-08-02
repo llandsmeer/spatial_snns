@@ -1,3 +1,4 @@
+import sys
 import jax
 import functools
 import time
@@ -14,17 +15,29 @@ import optax
 import shd
 import networks
 
-DOWNSAMPLE = 10 # 1, 2, 4, 5, 7, 10, 14, 20
+ndim = None
+nhidden = 300
 
-train = shd.SHD.load('train', limit=100)
+if len(sys.argv) > 1:
+    ndim = int(sys.argv[1]) if sys.argv[1] != 'None' else None
+
+if len(sys.argv) > 2:
+    nhidden = int(sys.argv[2])
+
+DOWNSAMPLE = 1 # 1, 2, 4, 5, 7, 10, 14, 20
+
+train = shd.SHD.load('train', limit=None)
 params = networks.HyperParameters(
-        ndim=None,
+        ndim=ndim,
         ninput=700//DOWNSAMPLE,
-        nhidden=300//DOWNSAMPLE,
+        nhidden=nhidden//DOWNSAMPLE,
         ifactor=100,
         rfactor=0.1
         )
 net = params.build()
+
+fndir = f'{params.ndim}_{params.nhidden}'
+os.makedirs(f'saved/{fndir}')
 
 @functools.partial(jax.jit, static_argnames=['aux'])
 def loss(net, in_spikes, label, aux=True):
@@ -63,9 +76,9 @@ key = jax.random.PRNGKey(0)
 
 ll = []
 
-batch_size = 4
+batch_size = 8
 try:
-    for ii in range(1000):
+    for ii in range(10000):
         key, nxt = jax.random.split(key)
         idxs = jax.random.randint(nxt, (batch_size,), 0, train.size)
         a = time.time()
@@ -80,7 +93,7 @@ try:
         # print('\t'.join(f'{k}:{v:.2f}' for k, v in g._asdict().items()))
         print(f'{ii} {l:.3f}->{l2:.3f} {d-c:.2f}s {c-b:.2f}s {b-a:.2f}s')
         if ii % 10 == 0:
-            net.save(f'saved/{ii:04d}')
+            net.save(f'saved/{fndirs}/{ii:05d}')
         ll.append((l, l2))
 except:
     pass
@@ -90,9 +103,6 @@ plt.plot(ll[:,1], 'o')
 plt.show()
 
 breakpoint()
-
-
-
 
 
 
