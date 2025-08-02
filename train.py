@@ -1,10 +1,11 @@
+import os
 import sys
 import jax
 import functools
 import time
 import jax.numpy as jnp
 
-jax.config.update("jax_debug_nans", True)
+# jax.config.update("jax_debug_nans", True)
 # jax.config.update("jax_disable_jit", True)
 # jax.config.update("jax_enable_x64", True)
 
@@ -36,7 +37,9 @@ params = networks.HyperParameters(
         )
 net = params.build()
 
-fndir = f'{params.ndim}_{params.nhidden}'
+lr = 1e-4
+
+fndir = f'{params.ndim}_{params.nhidden}_{lr}'
 os.makedirs(f'saved/{fndir}')
 
 @functools.partial(jax.jit, static_argnames=['aux'])
@@ -69,7 +72,7 @@ def batched_update(opt_state, net, in_spikes, label):
 # lbl = train.labels[idx]
 # l, (lg, s) = loss(net, inp, lbl)
 
-optimizer = optax.adam(1e-3)
+optimizer = optax.adam(lr)
 opt_state = optimizer.init(net)
 
 key = jax.random.PRNGKey(0)
@@ -78,7 +81,7 @@ ll = []
 
 batch_size = 8
 try:
-    for ii in range(10000):
+    for ii in range(1000000):
         key, nxt = jax.random.split(key)
         idxs = jax.random.randint(nxt, (batch_size,), 0, train.size)
         a = time.time()
@@ -88,10 +91,11 @@ try:
         b = time.time()
         opt_state, net, l, g = batched_update(opt_state, net, inp, lbl)
         c = time.time()
-        l2 = batched_loss(net, inp, lbl)
-        d = time.time()
+        # l2 = batched_loss(net, inp, lbl)
+        # d = time.time()
         # print('\t'.join(f'{k}:{v:.2f}' for k, v in g._asdict().items()))
-        print(f'{ii} {l:.3f}->{l2:.3f} {d-c:.2f}s {c-b:.2f}s {b-a:.2f}s')
+        # print(f'{ii} {l:.3f}->{l2:.3f} {d-c:.2f}s {c-b:.2f}s {b-a:.2f}s')
+        print(f'{ii} {l:.3f} {c-b:.2f}s {b-a:.2f}s')
         if ii % 10 == 0:
             net.save(f'saved/{fndirs}/{ii:05d}')
         ll.append((l, l2))

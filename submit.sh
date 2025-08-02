@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=spatial
+#SBATCH --job-name=spatial2
 #SBATCH --partition=gpu_h100
 #SBATCH --gpus=1
 #SBATCH --ntasks=1
