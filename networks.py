@@ -34,12 +34,12 @@ class HyperParameters(typing.NamedTuple):
         delays = 4 + .5*jax.random.normal(key, (a,b)).flatten()
         return delays
     def random_weight(self, a, b, key, zero=False, factor=1):
-        W = jax.random.normal(key, (a,b))
+        W = jax.random.uniform(key=key, shape=(a,b), minval=-0.2, maxval=0.8)
         if zero:
             assert a == b
             W = zero_diagonal(W)
-        weight = factor/(a*b) * W**2
-        return weight
+        weight = factor/(a*b) * W
+        return jnp.abs(weight)
 
 class NoDelayNetwork(typing.NamedTuple):
     iw: jax.Array
@@ -52,12 +52,12 @@ class NoDelayNetwork(typing.NamedTuple):
             iw = hyper.random_weight(hyper.nhidden, hyper.ninput, keys[0], zero=False, factor=hyper.ifactor),
             rw = hyper.random_weight(hyper.nhidden, hyper.nhidden, keys[1], factor=hyper.rfactor)
             )
-    def sim(self, iapp):
+    def sim(self, iapp, **kwargs):
         return DelayNetwork(
                 self.iw,
                 self.rw,
                 jnp.zeros_like(self.iw).flatten(),
-                jnp.zeros_like(self.rw).flatten()).sim(iapp)
+                jnp.zeros_like(self.rw).flatten()).sim(iapp, **kwargs)
     def save(self, fn):
         import numpy
         numpy.savez_compressed(fn, iw=self.iw, rw=self.rw)
@@ -80,7 +80,7 @@ class DelayNetwork(typing.NamedTuple):
             idelay = hyper.random_delay(hyper.nhidden, hyper.ninput, keys[2]),
             rdelay = hyper.random_delay(hyper.nhidden, hyper.nhidden, keys[3])
             )
-    def sim(self, ispikes):
+    def sim(self, ispikes, **kwargs):
         ninput = self.iw.shape[1]
         nhidden = self.rw.shape[0]
         return sim.sim(
@@ -91,11 +91,11 @@ class DelayNetwork(typing.NamedTuple):
             idelay=self.idelay,
             rdelay=self.rdelay,
             ispikes=ispikes,
-            dt=0.05,
-            tau_syn=2.,
-            tau_mem=10.,
+            dt=kwargs.get('dt', 0.05),
+            tau_syn=kwargs.get('tau_syn', 2.),
+            tau_mem=kwargs.get('tau_mem', 10.),
             vthres=1.0,
-            max_delay_ms=20.,
+            max_delay_ms=kwargs.get('max_delay_ms', 20.),
             Q=QUEUE
             )
 
@@ -114,12 +114,12 @@ class SpatialNetwork(typing.NamedTuple):
             ipos = hyper.random_pos(hyper.ninput, keys[2]),
             rpos = hyper.random_pos(hyper.nhidden, keys[3])
             )
-    def sim(self, iapp):
+    def sim(self, iapp, **kwargs):
         return DelayNetwork(
                 self.iw,
                 self.rw,
-                sptial_to_delay(self.ipos),
-                sptial_to_delay(self.rpos)).sim(iapp)
+                spatial_to_delay(self.rpos, self.ipos),
+                spatial_to_delay(self.rpos)).sim(iapp, **kwargs)
     def save(self, fn):
         import numpy
         numpy.savez_compressed(fn, iw=self.iw, rw=self.rw, ipos=self.ipos, rpos=self.rpos)
@@ -132,11 +132,17 @@ def diagonal_const(arr, c):
     n = arr.shape[0]
     return arr * (1 - jnp.eye(n)) + jnp.eye(n) * c
 
-def sptial_to_delay(r):
-    d = jax.vmap(lambda ri: jnp.sqrt(1e-2+((r - ri)**2).sum(axis=1)))(r)
-    d = diagonal_const(d, 1000000)
-    d = d.flatten()
-    return d
+def spatial_to_delay(r, from_=None):
+    if from_ is not None:
+        d = jax.vmap(lambda ri: jnp.sqrt(1e-2+((from_ - ri)**2).sum(axis=1)))(r)
+        # d.shape is here (r.shape[0], from_.shape[0])
+        d = d.flatten()
+        return d
+    else:
+        d = jax.vmap(lambda ri: jnp.sqrt(1e-2+((r - ri)**2).sum(axis=1)))(r)
+        d = diagonal_const(d, 1000000)
+        d = d.flatten()
+        return d
 
 if __name__ == '__main__':
     import matplotlib.pyplot as plt

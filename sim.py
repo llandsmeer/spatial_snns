@@ -48,23 +48,26 @@ def sim(
     def step(state, inp):
         t, ispikes_t = inp
         v, inp_syn, rec_syn = state
-        isyn = (iweight @ inp_syn.isyn.reshape((nhidden,ninput)).sum(0)) + \
-               (rweight @ rec_syn.isyn.reshape((nhidden,nhidden)).sum(0))
-        isyn = isyn
+        # previous code read @
+        # however input seen is different from different viewpoints
+        # isyn = (iweight @ inp_syn.isyn.reshape((nhidden,ninput)).sum(0)) + \
+        #       (rweight @ rec_syn.isyn.reshape((nhidden,nhidden)).sum(0))
+        isyn = (iweight * inp_syn.isyn.reshape((nhidden,ninput))).sum(1) + \
+               (rweight * rec_syn.isyn.reshape((nhidden,nhidden))).sum(1)
         vnext, s = lif_step(v, isyn, tau_mem, dt, vthres)
-        inp_syn = inp_syn_step(inp_syn, ts=t, s=jnp.repeat(ispikes_t, nhidden))
-        rec_syn = rec_syn_step(rec_syn, ts=t, v=jnp.repeat(v, nhidden),
-                       vnext=jnp.repeat(vnext, nhidden))
+        inp_syn = inp_syn_step(inp_syn, ts=t, s=jnp.tile(ispikes_t, nhidden))
+        rec_syn = rec_syn_step(rec_syn, ts=t, v=jnp.tile(v, nhidden),
+                       vnext=jnp.tile(vnext, nhidden))
         #vnext = clip_gradient(-100, 100, vnext)
         state = vnext, inp_syn, rec_syn
         state = jax.tree.map(lambda x: grad_forget(x), state)
-        return state, s
+        return state, (s, v)
     ts = jnp.arange(N) * dt
     if checkpoint_every is None:
-        _, s = jax.lax.scan(step, state, xs=(ts, ispikes))
+        _, (s, v) = jax.lax.scan(step, state, xs=(ts, ispikes))
     else:
-        _, s = checkpointed_scan(step, state, xs=(ts, ispikes), checkpoint_every=checkpoint_every)
-    return s
+        _, (s, v) = checkpointed_scan(step, state, xs=(ts, ispikes), checkpoint_every=checkpoint_every)
+    return s, v
 
 @jax.custom_jvp
 def superspike(x):
@@ -95,6 +98,9 @@ grad_forget.defvjp(grad_forget_fwd, grad_forget_bwd)
 def lif_step(U: jax.Array, I: jax.Array, tau_mem: float, dt: float, vth: float =1):
     S = superspike(U - vth)
     beta = jnp.exp(-dt/tau_mem)
+    if not isinstance(tau_mem, float):
+        beta = jnp.where(tau_mem > 0, beta, jnp.ones_like(tau_mem))
+        S = jnp.where(tau_mem > 0, S, jnp.zeros_like(S))
     U_next = (1 - S) * (beta * U + I*dt)
     return U_next, S
 

@@ -10,11 +10,17 @@ def cached(f):
     def wrapped(self, *a, **k):
         key = a, tuple(k.keys()), tuple(k.values())
         try:
-            return cache[key]
+            o = cache[key]
+            print('CACHE HIT')
+            return o
         except KeyError:
             pass
+        print('RERUNNING')
         out = f(self, *a, **k)
+        print('RERUNNING')
+        out = jnp.array(out.block_until_ready())
         cache[key] = out
+        print('RERUN')
         return out
     wrapped.cache = cache
     return wrapped
@@ -54,6 +60,7 @@ class SHD(typing.NamedTuple):
             )
     @cached
     def indicator(self, idx, dt=0.05, tsextra=0, pad=False):
+        print('CACHE MIS', idx)
         t = jnp.round(1e3 * self.times[idx] / dt).astype(int)
         u = self.units[idx]
         if pad:
@@ -62,7 +69,7 @@ class SHD(typing.NamedTuple):
         else:
             n = t.max() + 1 + tsextra
         # x = jnp.zeros((700, n)).at[u,t].set(1)
-        x = jnp.zeros((n, 700)).at[t, u].set(1)
+        x = jnp.zeros((n, 700), dtype=bool).at[t, u].set(True)
         # print(n, x.shape)
         return x
     def indicators_labels(self, idxs, dt=0.05, tsextra=0):
