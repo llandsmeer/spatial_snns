@@ -16,11 +16,9 @@ class NetworkWithReadout(typing.NamedTuple):
     w: jax.Array
     def sim(self, iapp, **kwargs):
         s, v = self.net.sim(iapp, **kwargs)
-        del v
-        breakpoint()
-        x = w @ s
-        breakpoint()
-        return x.sum(0)
+        o = jnp.einsum('oh,th->o', self.w, s)
+        o = jax.tree.map(lambda x: sim.grad_modify(x), o)
+        return o, v, s.mean(0)
     def save(self, fn):
         import numpy
         self.net.save(fn)
@@ -34,9 +32,9 @@ class HyperParameters(typing.NamedTuple):
     ifactor: float = 1.
     rfactor: float = 1.
     def build(self, key: jax.Array|None=None):
-        key, readkey = jax.random.split(key)
         if key is None:
             key = jax.random.PRNGKey(0)
+        key, readkey = jax.random.split(key)
         if self.ndim == 0:
             net = NoDelayNetwork.make(self, key)
         elif self.ndim == float('inf') or self.ndim is None:

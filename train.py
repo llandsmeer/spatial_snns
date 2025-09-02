@@ -9,9 +9,13 @@ import functools
 import time
 import jax.numpy as jnp
 
+#os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+print(jax.default_backend())
+print(jax.devices()[0].device_kind)
+
 # jax.config.update("jax_debug_nans", True)
 # jax.config.update("jax_disable_jit", True)
-# jax.config.update("jax_enable_x64", True)
+jax.config.update("jax_enable_x64", True)
 
 import matplotlib.pyplot as plt
 import optax
@@ -32,6 +36,7 @@ parser.add_argument('--nhidden', type=int, default=100, help='Number of hidden u
 parser.add_argument('--batch_size', type=int, default=4, help='Batch size')
 parser.add_argument('--downsample', type=int, default=1, help='Downsample factor (int)')
 parser.add_argument('--load_limit', type=none_or_int, default=None, help='Load limit no samples')
+parser.add_argument('--load_limit_test', type=none_or_int, default=None, help='Load limit no test samples')
 parser.add_argument('--lr', type=float, default=1e-3, help='Learning rate')
 parser.add_argument('--force', default=False, action='store_true', help='Overwrite')
 parser.add_argument('--debug', default=False, action='store_true', help='Start pdb on error')
@@ -53,6 +58,7 @@ print()
 
 #train = shd.SHD.load('train', limit=None)
 train = shd.SHD.load('train', limit=args.load_limit)
+test = shd.SHD.load('test', limit=args.load_limit_test)
 params = networks.HyperParameters(
         ndim=args.ndim,
         ninput=700//args.downsample,
@@ -71,19 +77,48 @@ os.makedirs(f'saved/{fndir}', exist_ok=args.force)
 
 @functools.partial(jax.jit, static_argnames=['aux'])
 def loss(net, in_spikes, label, aux=True):
-    out_spikes, v = net.sim(in_spikes, tau_mem=tau_mem, dt=args.dt)
-    logits = v[-1,:20]
+    ws, v, f = net.sim(in_spikes, tau_mem=tau_mem, dt=args.dt)
+    logits = ws
     l = optax.softmax_cross_entropy_with_integer_labels(
             logits, label)
     l = l # + (logits < 1) * v[:,:20].mean(0)
+    l = l + ((f - 0.01) ** 2).sum()
     if aux:
-        return l, (jax.nn.softmax(logits), out_spikes.mean(0))
+        return l, (jax.nn.softmax(logits), v)
     else:
         return l
 
 def batched_loss(net, in_spikes, labels):
     ls = jax.vmap(functools.partial(loss, aux=False), in_axes=(None, 0, 0))(net, jnp.array(in_spikes), jnp.array(labels))
     return ls.mean()
+
+@jax.jit
+def performance(net, in_spikes, labels):
+    def step(carry, x):
+        inp, lbl = x
+        ws, v, f = net.sim(inp, tau_mem=tau_mem, dt=args.dt)
+        del v
+        top3 = jnp.argsort(ws)[-3:]
+        top1_hit = (top3[-1] == lbl).astype(jnp.int32)
+        top3_hit = jnp.any(top3 == lbl).astype(jnp.int32)
+        return (carry[0] + top1_hit, carry[1] + top3_hit, carry[2] + f), None
+    (top1_count, top3_count), _ = jax.lax.scan(
+        step,
+        (0, 0, jnp.zeros(args.nhidden)),
+        (in_spikes, labels)
+    )
+    return 100*top1_count / len(labels), 100*top3_count / len(labels), f / len(labels)
+@jax.jit
+def performance(net, in_spikes, labels):
+    def get_logits(x):
+        ws, v, f = net.sim(x, tau_mem=tau_mem, dt=args.dt)
+        return ws, f
+    logits, f = jax.vmap(get_logits)(in_spikes)
+    f = f.mean(0)
+    top3 = jnp.argsort(logits, axis=1)[:,-3:]
+    top1p = 100 * (top3[:,-1] == labels).mean()
+    top3p = 100 * (top3 == labels[:,None]).any(1).mean()
+    return top1p, top3p, f
 
 loss_and_grad = jax.jit(jax.value_and_grad(loss, argnums=0, has_aux=True))
 batched_loss_and_grad = jax.jit(jax.value_and_grad(batched_loss, argnums=0, has_aux=False))
@@ -92,7 +127,7 @@ batched_loss_and_grad = jax.jit(jax.value_and_grad(batched_loss, argnums=0, has_
 def batched_update(opt_state, net, in_spikes, label):
     print('compiling')
     l, g = batched_loss_and_grad(net, in_spikes, label)
-    updates, opt_state = optimizer.update(g, opt_state)
+    updates, opt_state = optimizer.update(g, opt_state, net)
     net = optax.apply_updates(net, updates)
     return opt_state, net, l, jax.tree.map(lambda x: x.ptp(), g)
 
@@ -101,26 +136,80 @@ def batched_update(opt_state, net, in_spikes, label):
 # lbl = train.labels[idx]
 # l, (lg, s) = loss(net, inp, lbl)
 
-optimizer = optax.adam(args.lr)
+clip_factor = 2.0
+weight_decay = 1e-5
+warmup_steps = 500
+tbptt_len = 50  # truncate sequences for backprop
+
+schedule = optax.warmup_cosine_decay_schedule(
+    init_value=0.0,
+    peak_value=args.lr,
+    warmup_steps=warmup_steps,
+    decay_steps=10000,
+    end_value=args.lr * 0.1
+)
+
+optimizer = optax.chain(
+    optax.adaptive_grad_clip(clipping=clip_factor, eps=0.001),
+    optax.add_decayed_weights(weight_decay),
+    optax.scale_by_adam(),
+    optax.scale_by_schedule(schedule),
+    optax.scale(-1.0)
+)
+
+
 opt_state = optimizer.init(net)
 
 key = jax.random.PRNGKey(0)
 
 ll = []
 
+topii = []
+top1p = []
+top3p = []
+top1p_train = []
+top3p_train = []
+
+inp, lbl = test.indicators_labels(idxs=jnp.arange(test.size), dt=args.dt)
+lbl_test = jnp.array(lbl)
+inp = jnp.array(inp)
+inp = inp[:,:,::args.downsample].block_until_ready()
+inp_test = inp
+
+inp, lbl = train.indicators_labels(idxs=jnp.arange(train.size), dt=args.dt)
+lbl_train = jnp.array(lbl)
+inp = jnp.array(inp)
+inp = inp[:,:,::args.downsample].block_until_ready()
+inp_train = inp
+
 try:
     for ii in range(1000000):
         # print('IW', net.iw.min(), net.iw.max(), net.iw.mean(), net.iw.std())
         # print('RW', net.rw.min(), net.rw.max(), net.rw.mean(), net.rw.std())
         ##
+        if ii % 10 == 0:
+            print('TEST')
+            t1p, t3p, f = performance(net, inp_test, lbl_test)
+            t1p_train, t3p_train, ft = performance(net, inp_train, lbl_train)
+            print('FREQ', f.min(), f.max(), f.mean())
+            print('FREQtrain', ft.min(), ft.max(), ft.mean())
+            topii.append(ii)
+            top1p.append(t1p)
+            top3p.append(t3p)
+            top1p_train.append(t1p_train)
+            top3p_train.append(t3p_train)
+            print('TOP1', t1p, 'TOP3', t3p)
+            print('TOP1train', t1p_train, 'TOP3train', t3p_train)
         key, nxt = jax.random.split(key)
         idxs = jax.random.randint(nxt, (args.batch_size,), 0, train.size)
         a = time.time()
 
-        inp, lbl = train.indicators_labels(idxs=idxs, dt=args.dt)
-        lbl = jnp.array(lbl)
-        inp = jnp.array(inp)
-        inp = inp[:,:,::args.downsample].block_until_ready()
+        # inp, lbl = train.indicators_labels(idxs=idxs, dt=args.dt)
+        # lbl = jnp.array(lbl)
+        # inp = jnp.array(inp)
+        # inp = inp[:,:,::args.downsample].block_until_ready()
+        inp = inp_train[idxs]
+        lbl = lbl_train[idxs]
         ###
         #s, v = net.sim(inp[0], tau_mem=tau_mem, dt=args.dt)
         #logits = v[-1,:20]
@@ -130,6 +219,7 @@ try:
         ###
         b = time.time()
         opt_state, net, l, g = batched_update(opt_state, net, inp, lbl)
+        print(g)
         l = l.block_until_ready()
         c = time.time()
 
@@ -149,7 +239,13 @@ except KeyboardInterrupt:
 ll = jnp.array(ll)
 # plt.plot(ll[:,0], 'o')
 # plt.plot(ll[:,1], 'o')
-plt.plot(ll, 'o')
+plt.plot(topii, top1p, 'o-', label='top1 (test)')
+plt.plot(topii, top3p, '-', label='top3 (test)')
+plt.plot(topii, top1p_train, 'o--', label='top1 (train)')
+plt.plot(topii, top3p_train, '--', label='top3 (train)')
+plt.legend()
+plt.show()
+plt.plot(ll, 'o', label='train')
 plt.show()
 
 breakpoint()
@@ -157,7 +253,19 @@ breakpoint()
 
 
 
+f = lambda tree: jax.tree.map(lambda x: (float(jnp.min(x)), float(jnp.max(x))), tree)
 
+# NetworkWithReadout(net=DelayNetwork(
+#     iw=(-0.0675046919030234, 0.0758294276957268),
+#     rw=(-0.053958577439816746, 0.06031096309966367),
+#     idelay=(1.8681221046298968, 6.112585124498017),
+#     rdelay=(1.9129557305044265, 5.873335145410393)),
+#     w=(-0.05746382569791777, 0.04729931499965209))
+
+# print(jnp.isnan(g.iw).sum())
+# print(jnp.isnan(g.rw).sum())
+# print(jnp.isnan(g.iw).sum())
+# print(jnp.isnan(g.rw).sum())
 
 # print(jnp.isnan(g.iw).sum())
 # print(jnp.isnan(g.rw).sum())

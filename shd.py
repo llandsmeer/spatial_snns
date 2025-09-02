@@ -4,32 +4,14 @@ import h5py
 import gzip
 import typing
 import matplotlib.pyplot as plt
-
-def cached(f):
-    cache = {}
-    def wrapped(self, *a, **k):
-        key = a, tuple(k.keys()), tuple(k.values())
-        try:
-            o = cache[key]
-            print('CACHE HIT')
-            return o
-        except KeyError:
-            pass
-        print('RERUNNING')
-        out = f(self, *a, **k)
-        print('RERUNNING')
-        out = jnp.array(out.block_until_ready())
-        cache[key] = out
-        print('RERUN')
-        return out
-    wrapped.cache = cache
-    return wrapped
+import tqdm
 
 class SHD(typing.NamedTuple):
     units:  typing.List[jax.Array]
     times:  typing.List[jax.Array]
     labels: jax.Array
     tmax:   float
+    indicator_cache: dict[tuple, jax.Array]
     @property
     def size(self):
         return len(self.times)
@@ -43,12 +25,13 @@ class SHD(typing.NamedTuple):
         with mkhandle(fn, 'rb') as f:
             ds = h5py.File(f)
             take = ... if limit is None else slice(limit)
-            times = [jnp.array(x) for x in ds['spikes/times'][take]] # type: ignore
+            times = [jnp.array(x) for x in tqdm.tqdm(ds['spikes/times'][take])] # type: ignore
             return cls(
-                units=[jnp.array(x) for x in ds['spikes/units'][take]], # type: ignore
+                units=[jnp.array(x) for x in tqdm.tqdm(ds['spikes/units'][take])], # type: ignore
                 times=times,
                 labels=jnp.array(ds['labels'][take]), # type: ignore
-                tmax=float(jnp.max(jnp.array([jnp.max(x) for x in times])))
+                tmax=float(jnp.max(jnp.array([jnp.max(x) for x in times]))),
+                indicator_cache=dict()
                 )
     def plot(self, idx, color=None):
         if color is None:
@@ -58,8 +41,10 @@ class SHD(typing.NamedTuple):
             self.units[idx],
             color=color
             )
-    @cached
     def indicator(self, idx, dt=0.05, tsextra=0, pad=False):
+        key = idx, dt, tsextra, pad
+        if key in self.indicator_cache:
+            return self.indicator_cache[key]
         print('CACHE MIS', idx)
         t = jnp.round(1e3 * self.times[idx] / dt).astype(int)
         u = self.units[idx]
@@ -71,6 +56,7 @@ class SHD(typing.NamedTuple):
         # x = jnp.zeros((700, n)).at[u,t].set(1)
         x = jnp.zeros((n, 700), dtype=bool).at[t, u].set(True)
         # print(n, x.shape)
+        self.indicator_cache[key] = x
         return x
     def indicators_labels(self, idxs, dt=0.05, tsextra=0):
         return [self.indicator(int(idx), dt=dt, tsextra=tsextra, pad=True)

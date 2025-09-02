@@ -43,7 +43,7 @@ def sim(
     rec_syn_step = jax.jit(type(rec_syn).timestep_spike_detect_pre)
     v = jnp.zeros(nhidden)
     state = v, inp_syn, rec_syn
-    state = jax.tree.map(lambda x: grad_forget(x), state)
+    state = jax.tree.map(lambda x: grad_modify(x), state)
     N = ispikes.shape[0]
     def step(state, inp):
         t, ispikes_t = inp
@@ -60,8 +60,8 @@ def sim(
                        vnext=jnp.tile(vnext, nhidden))
         #vnext = clip_gradient(-100, 100, vnext)
         state = vnext, inp_syn, rec_syn
-        state = jax.tree.map(lambda x: grad_forget(x), state)
-        return state, (s, v)
+        state = jax.tree.map(lambda x: grad_modify(x), state)
+        return state, (grad_modify(s), v)
     ts = jnp.arange(N) * dt
     if checkpoint_every is None:
         _, (s, v) = jax.lax.scan(step, state, xs=(ts, ispikes))
@@ -90,10 +90,13 @@ clip_gradient.defvjp(clip_gradient_fwd, clip_gradient_bwd)
 @jax.custom_vjp
 def grad_forget(x): return x
 def grad_forget_fwd(x): return x, ()
-def grad_forget_bwd(res, g): return (g / (1 + jnp.linalg.norm(g)),)
+def grad_forget_bwd(res, g): 
+    return (g / (1 + jnp.linalg.norm(g)),)
 grad_forget.defvjp(grad_forget_fwd, grad_forget_bwd)
 
 # def grad_forget(x): return clip_gradient(-100, 100, x)
+grad_modify = lambda x: grad_forget(clip_gradient(-5, 5, x))
+
 
 def lif_step(U: jax.Array, I: jax.Array, tau_mem: float, dt: float, vth: float =1):
     S = superspike(U - vth)
