@@ -11,21 +11,41 @@ QUEUE = sim.implementations.FIFORing.sized(5)
 if QUEUE is sim.implementations.SingleSpike:
     print('QUEUE is SingleSpike!')
 
+class NetworkWithReadout(typing.NamedTuple):
+    net: 'NoDelayNetwork | DelayNetwork | SpatialNetwork'
+    w: jax.Array
+    def sim(self, iapp, **kwargs):
+        s, v = self.net.sim(iapp, **kwargs)
+        del v
+        breakpoint()
+        x = w @ s
+        breakpoint()
+        return x.sum(0)
+    def save(self, fn):
+        import numpy
+        self.net.save(fn)
+        numpy.savez_compressed(fn+'_read', w=self.w)
+
 class HyperParameters(typing.NamedTuple):
     nhidden: int
     ninput: int = 700
+    noutput: int | None = None
     ndim: int | None = None
     ifactor: float = 1.
     rfactor: float = 1.
     def build(self, key: jax.Array|None=None):
+        key, readkey = jax.random.split(key)
         if key is None:
             key = jax.random.PRNGKey(0)
         if self.ndim == 0:
-            return NoDelayNetwork.make(self, key)
+            net = NoDelayNetwork.make(self, key)
         elif self.ndim == float('inf') or self.ndim is None:
-            return DelayNetwork.make(self, key)
+            net = DelayNetwork.make(self, key)
         else:
-            return SpatialNetwork.make(self, key)
+            net = SpatialNetwork.make(self, key)
+        if self.noutput is None:
+            return net
+        return NetworkWithReadout(net, self.random_weight(self.noutput, self.nhidden, key=readkey))
     def random_pos(self, n, key):
         assert self.ndim is not None and self.ndim > 0
         pos = 10 * jax.random.normal(key, (n,  self.ndim))

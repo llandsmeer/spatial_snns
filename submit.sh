@@ -24,5 +24,5 @@ B_index=$((SLURM_ARRAY_TASK_ID % 3))
 A=${A_values[$A_index]}
 B=${B_values[$B_index]}
 
-python3 train.py "$A" "$B"
+python3 train.py --ndim "$A" --nhidden "$B" --load_limit None --lr 1e-3
 

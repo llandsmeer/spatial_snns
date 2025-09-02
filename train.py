@@ -58,11 +58,13 @@ params = networks.HyperParameters(
         ninput=700//args.downsample,
         nhidden=args.nhidden,
         ifactor=400,
-        rfactor=35
+        rfactor=35,
+        noutput=20,
         )
 net = params.build()
 
 tau_mem = jnp.array([0]*20 + [10.] * (args.nhidden-20))
+tau_mem = 10.
 
 fndir = f'{params.ndim}_{params.nhidden}_{args.lr}'
 os.makedirs(f'saved/{fndir}', exist_ok=args.force)
