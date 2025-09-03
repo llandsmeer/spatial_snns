@@ -13,17 +13,15 @@ import jax.numpy as jnp
 print(jax.default_backend())
 print(jax.devices()[0].device_kind)
 
-# jax.config.update("jax_debug_nans", True)
+jax.config.update("jax_debug_nans", True)
 # jax.config.update("jax_disable_jit", True)
 jax.config.update("jax_enable_x64", True)
 
 import matplotlib.pyplot as plt
 import optax
 
-
 import shd
 import networks
-
 
 import sys
 print(time.ctime())

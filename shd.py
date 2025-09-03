@@ -5,6 +5,13 @@ import gzip
 import typing
 import matplotlib.pyplot as plt
 import tqdm
+import functools
+
+@functools.partial(jax.jit, static_argnames=('n',))
+def build(n, t, u):
+    base = jnp.zeros((n, 700), dtype=bool)
+    x = base.at[t, u].set(True)
+    return x
 
 class SHD(typing.NamedTuple):
     units:  typing.List[jax.Array]
@@ -53,8 +60,12 @@ class SHD(typing.NamedTuple):
             n = tmax + 1 + tsextra
         else:
             n = t.max() + 1 + tsextra
-        # x = jnp.zeros((700, n)).at[u,t].set(1)
-        x = jnp.zeros((n, 700), dtype=bool).at[t, u].set(True)
+        n = int(n)
+        # x = jnp.zeros((700, n)).at[u_pad,t_pad].set(1, mode='drop', wrap_negative_indices=False)
+        padding = 0, jnp.ceil(len(u) / 1024).astype(int) * 1024 - len(u)
+        u_pad = jnp.pad(u, padding, constant_values=-1)
+        t_pad = jnp.pad(t, padding, constant_values=-1)
+        x = build(n, t_pad, u_pad)
         # print(n, x.shape)
         self.indicator_cache[key] = x
         return x
