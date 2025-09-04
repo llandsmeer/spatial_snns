@@ -13,7 +13,7 @@ import jax.numpy as jnp
 print(jax.default_backend())
 print(jax.devices()[0].device_kind)
 
-jax.config.update("jax_debug_nans", True)
+# jax.config.update("jax_debug_nans", True)
 # jax.config.update("jax_disable_jit", True)
 jax.config.update("jax_enable_x64", True)
 
@@ -41,18 +41,28 @@ parser.add_argument('--debug', default=False, action='store_true', help='Start p
 parser.add_argument('--dt', type=float, default=0.05, help='Time step (bigger=faster, smaller=more accurate)')
 args = parser.parse_args()
 
+fndir = f'd{args.ndim}_h{args.nhidden}_lr{args.lr}_ll{args.load_limit}'
+os.makedirs(f'saved/{fndir}', exist_ok=args.force)
+fn_log = f'saved/{fndir}/log.txt'
+
+def log(*a, **k):
+    print(*a, **k)
+    with open(fn_log, 'a') as f:
+        print(*a, **k, file=f)
+
+
 if args.debug:
     def excepthook(type, value, tb):
         traceback.print_exception(type, value, tb)
-        print("\nStarting debugger...")
+        log("\nStarting debugger...")
         pdb.post_mortem(tb)
     sys.excepthook = excepthook
 
-print()
-print(' == CONFIG == ')
+log()
+log(' == CONFIG == ')
 for k, v in vars(args).items():
-    print(k.ljust(20), v)
-print()
+    log(k.ljust(20), v)
+log()
 
 #train = shd.SHD.load('train', limit=None)
 train = shd.SHD.load('train', limit=args.load_limit)
@@ -69,10 +79,6 @@ net = params.build()
 
 tau_mem = jnp.array([0]*20 + [10.] * (args.nhidden-20))
 tau_mem = 10.
-
-fndir = f'{params.ndim}_{params.nhidden}_{args.lr}'
-os.makedirs(f'saved/{fndir}', exist_ok=args.force)
-
 @functools.partial(jax.jit, static_argnames=['aux'])
 def loss(net, in_spikes, label, aux=True):
     ws, v, f = net.sim(in_spikes, tau_mem=tau_mem, dt=args.dt)
@@ -123,7 +129,7 @@ batched_loss_and_grad = jax.jit(jax.value_and_grad(batched_loss, argnums=0, has_
 
 @jax.jit
 def batched_update(opt_state, net, in_spikes, label):
-    print('compiling')
+    log('compiling')
     l, g = batched_loss_and_grad(net, in_spikes, label)
     updates, opt_state = optimizer.update(g, opt_state, net)
     net = optax.apply_updates(net, updates)
@@ -181,23 +187,23 @@ inp = inp[:,:,::args.downsample].block_until_ready()
 inp_train = inp
 
 try:
-    for ii in range(1000000):
-        # print('IW', net.iw.min(), net.iw.max(), net.iw.mean(), net.iw.std())
-        # print('RW', net.rw.min(), net.rw.max(), net.rw.mean(), net.rw.std())
+    for ii in range(10_000):
+        # log('IW', net.iw.min(), net.iw.max(), net.iw.mean(), net.iw.std())
+        # log('RW', net.rw.min(), net.rw.max(), net.rw.mean(), net.rw.std())
         ##
-        if ii % 10 == 0:
-            print('TEST')
+        if ii % 100 == 0:
+            log('TEST')
             t1p, t3p, f = performance(net, inp_test, lbl_test)
             t1p_train, t3p_train, ft = performance(net, inp_train, lbl_train)
-            print('FREQ', f.min(), f.max(), f.mean())
-            print('FREQtrain', ft.min(), ft.max(), ft.mean())
+            log('FREQ', f.min(), f.max(), f.mean())
+            log('FREQtrain', ft.min(), ft.max(), ft.mean())
             topii.append(ii)
             top1p.append(t1p)
             top3p.append(t3p)
             top1p_train.append(t1p_train)
             top3p_train.append(t3p_train)
-            print('TOP1', t1p, 'TOP3', t3p)
-            print('TOP1train', t1p_train, 'TOP3train', t3p_train)
+            log('TOP1', t1p, 'TOP3', t3p)
+            log('TOP1train', t1p_train, 'TOP3train', t3p_train)
         key, nxt = jax.random.split(key)
         idxs = jax.random.randint(nxt, (args.batch_size,), 0, train.size)
         a = time.time()
@@ -211,22 +217,22 @@ try:
         ###
         #s, v = net.sim(inp[0], tau_mem=tau_mem, dt=args.dt)
         #logits = v[-1,:20]
-        #print(logits.argmax().item(), lbl[0].item()) # , logits)
+        #log(logits.argmax().item(), lbl[0].item()) # , logits)
         # plt.plot(v)
         # plt.show()
         ###
         b = time.time()
         opt_state, net, l, g = batched_update(opt_state, net, inp, lbl)
-        print(g)
+        log(g)
         l = l.block_until_ready()
         c = time.time()
 
-        print(f'TRAIN {idxs} {ii} L={l:.3f} ttrain={c-b:.2f}s teval={b-a:.2f}s')
+        log(f'TRAIN {idxs} {ii} L={l:.3f} ttrain={c-b:.2f}s teval={b-a:.2f}s')
 
         # l2 = batched_loss(net, inp, lbl)
         # d = time.time()
-        # print('\t'.join(f'{k}:{v:.2f}' for k, v in g._asdict().items()))
-        # print(f'{ii} {l:.3f}->{l2:.3f} {d-c:.2f}s {c-b:.2f}s {b-a:.2f}s')
+        # log('\t'.join(f'{k}:{v:.2f}' for k, v in g._asdict().items()))
+        # log(f'{ii} {l:.3f}->{l2:.3f} {d-c:.2f}s {c-b:.2f}s {b-a:.2f}s')
         if ii % 10 == 0:
             net.save(f'saved/{fndir}/{ii:05d}')
         # ll.append((l, l2))
@@ -242,16 +248,19 @@ plt.plot(topii, top3p, '-', label='top3 (test)')
 plt.plot(topii, top1p_train, 'o--', label='top1 (train)')
 plt.plot(topii, top3p_train, '--', label='top3 (train)')
 plt.legend()
-plt.show()
+plt.savefig(f'saved/{fndir}/score.png')
+plt.savefig(f'saved/{fndir}/score.svg')
 plt.plot(ll, 'o', label='train')
-plt.show()
-
-breakpoint()
-
+plt.savefig(f'saved/{fndir}/loss.png')
+plt.savefig(f'saved/{fndir}/loss.svg')
 
 
+# breakpoint()
 
-f = lambda tree: jax.tree.map(lambda x: (float(jnp.min(x)), float(jnp.max(x))), tree)
+
+
+
+# f = lambda tree: jax.tree.map(lambda x: (float(jnp.min(x)), float(jnp.max(x))), tree)
 
 # NetworkWithReadout(net=DelayNetwork(
 #     iw=(-0.0675046919030234, 0.0758294276957268),
@@ -260,10 +269,10 @@ f = lambda tree: jax.tree.map(lambda x: (float(jnp.min(x)), float(jnp.max(x))), 
 #     rdelay=(1.9129557305044265, 5.873335145410393)),
 #     w=(-0.05746382569791777, 0.04729931499965209))
 
-# print(jnp.isnan(g.iw).sum())
-# print(jnp.isnan(g.rw).sum())
-# print(jnp.isnan(g.iw).sum())
-# print(jnp.isnan(g.rw).sum())
+# log(jnp.isnan(g.iw).sum())
+# log(jnp.isnan(g.rw).sum())
+# log(jnp.isnan(g.iw).sum())
+# log(jnp.isnan(g.rw).sum())
 
-# print(jnp.isnan(g.iw).sum())
-# print(jnp.isnan(g.rw).sum())
+# log(jnp.isnan(g.iw).sum())
+# log(jnp.isnan(g.rw).sum())
