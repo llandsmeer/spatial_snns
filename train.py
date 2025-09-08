@@ -41,7 +41,7 @@ parser.add_argument('--debug', default=False, action='store_true', help='Start p
 parser.add_argument('--dt', type=float, default=0.05, help='Time step (bigger=faster, smaller=more accurate)')
 args = parser.parse_args()
 
-fndir = f'd{args.ndim}_h{args.nhidden}_lr{args.lr}_ll{args.load_limit}'
+fndir = f'd{args.ndim}_h{args.nhidden}_lr{args.lr}_ll{args.load_limit}_dt{args.dt}'
 os.makedirs(f'saved/{fndir}', exist_ok=args.force)
 fn_log = f'saved/{fndir}/log.txt'
 
