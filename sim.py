@@ -47,6 +47,9 @@ def sim(
     N = ispikes.shape[0]
     def step(state, inp):
         t, ispikes_t = inp
+        # so we encore ispikes_t as a 32-bit int, where each bit is a corresponding bool
+        ispikes_t = jnp.unpackbits(ispikes_t.view('uint8')).astype('bool')
+        ispikes_t = ispikes_t[:700] # this won't work with downsampling
         v, inp_syn, rec_syn = state
         # previous code read @
         # however input seen is different from different viewpoints

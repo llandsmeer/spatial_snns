@@ -1,4 +1,5 @@
 import sys
+import tqdm
 import traceback
 import pdb
 
@@ -32,18 +33,21 @@ def none_or_int(value): return None if value == 'None' else int(value)
 parser.add_argument('--ndim', type=none_or_int, default=None, help='Dimension (None or int)')
 parser.add_argument('--nhidden', type=int, default=100, help='Number of hidden units')
 parser.add_argument('--batch_size', type=int, default=4, help='Batch size')
-parser.add_argument('--downsample', type=int, default=1, help='Downsample factor (int)')
+# parser.add_argument('--downsample', type=int, default=1, help='Downsample factor (int)')
 parser.add_argument('--load_limit', type=none_or_int, default=None, help='Load limit no samples')
 parser.add_argument('--load_limit_test', type=none_or_int, default=None, help='Load limit no test samples')
 parser.add_argument('--lr', type=float, default=1e-3, help='Learning rate')
 parser.add_argument('--force', default=False, action='store_true', help='Overwrite')
+parser.add_argument('--skip', default=False, action='store_true', help='Skip metadata loading')
 parser.add_argument('--debug', default=False, action='store_true', help='Start pdb on error')
 parser.add_argument('--dt', type=float, default=0.05, help='Time step (bigger=faster, smaller=more accurate)')
+parser.add_argument('--tmp', dest='save_dir', default='saved', action='store_const', const='/tmp/saved', help='Store in /tmp/saved')
 args = parser.parse_args()
 
+save_dir = args.save_dir
 fndir = f'd{args.ndim}_h{args.nhidden}_lr{args.lr}_ll{args.load_limit}_dt{args.dt}'
-os.makedirs(f'saved/{fndir}', exist_ok=args.force)
-fn_log = f'saved/{fndir}/log.txt'
+os.makedirs(f'{save_dir}/{fndir}', exist_ok=args.force)
+fn_log = f'{save_dir}/{fndir}/log.txt'
 
 def log(*a, **k):
     print(*a, **k)
@@ -65,11 +69,12 @@ for k, v in vars(args).items():
 log()
 
 #train = shd.SHD.load('train', limit=None)
-train = shd.SHD.load('train', limit=args.load_limit)
-test = shd.SHD.load('test', limit=args.load_limit_test)
+train = shd.SHD.load('train', limit=args.load_limit, skip=args.skip)
+test = shd.SHD.load('test', limit=args.load_limit_test, skip=args.skip)
+
 params = networks.HyperParameters(
         ndim=args.ndim,
-        ninput=700//args.downsample,
+        ninput=700, #//args.downsample,
         nhidden=args.nhidden,
         ifactor=400,
         rfactor=35,
@@ -96,6 +101,7 @@ def batched_loss(net, in_spikes, labels):
     ls = jax.vmap(functools.partial(loss, aux=False), in_axes=(None, 0, 0))(net, jnp.array(in_spikes), jnp.array(labels))
     return ls.mean()
 
+
 @jax.jit
 def performance(net, in_spikes, labels):
     def step(carry, x):
@@ -106,23 +112,41 @@ def performance(net, in_spikes, labels):
         top1_hit = (top3[-1] == lbl).astype(jnp.int32)
         top3_hit = jnp.any(top3 == lbl).astype(jnp.int32)
         return (carry[0] + top1_hit, carry[1] + top3_hit, carry[2] + f), None
-    (top1_count, top3_count), _ = jax.lax.scan(
+    (top1_count, top3_count, f), _ = jax.lax.scan(
         step,
         (0, 0, jnp.zeros(args.nhidden)),
-        (in_spikes, labels)
+        (in_spikes, labels),
+        unroll=8
     )
     return 100*top1_count / len(labels), 100*top3_count / len(labels), f / len(labels)
+
 @jax.jit
 def performance(net, in_spikes, labels):
+    @jax.jit
     def get_logits(x):
         ws, v, f = net.sim(x, tau_mem=tau_mem, dt=args.dt)
         return ws, f
+    # logits, f = jax.lax.map(get_logits, in_spikes, batch_size=64)
     logits, f = jax.vmap(get_logits)(in_spikes)
     f = f.mean(0)
     top3 = jnp.argsort(logits, axis=1)[:,-3:]
     top1p = 100 * (top3[:,-1] == labels).mean()
     top3p = 100 * (top3 == labels[:,None]).any(1).mean()
     return top1p, top3p, f
+def performance_split(net, in_spikes, labels):
+    BATCH_SIZE=64
+    n = len(in_spikes)
+    top1_list, top3_list, f_list = [], [], []
+    for i in tqdm.tqdm(range(0, n, BATCH_SIZE)):
+        batch_inputs = in_spikes[i:i+BATCH_SIZE]
+        batch_labels = labels[i:i+BATCH_SIZE]
+        top1, top3, f = performance(net, batch_inputs, batch_labels)
+        top1_list.append(top1)
+        top3_list.append(top3)
+        f_list.extend(f)
+    avg_top1 = sum(top1_list) / len(top1_list)
+    avg_top3 = sum(top3_list) / len(top3_list)
+    return avg_top1, avg_top3, jnp.array(f_list)
 
 loss_and_grad = jax.jit(jax.value_and_grad(loss, argnums=0, has_aux=True))
 batched_loss_and_grad = jax.jit(jax.value_and_grad(batched_loss, argnums=0, has_aux=False))
@@ -174,28 +198,36 @@ top3p = []
 top1p_train = []
 top3p_train = []
 
-inp, lbl = test.indicators_labels(idxs=jnp.arange(test.size), dt=args.dt)
-lbl_test = jnp.array(lbl)
-inp = jnp.array(inp)
-inp = inp[:,:,::args.downsample].block_until_ready()
-inp_test = inp
+inp_test, lbl_test = test.indicators_labels32(idxs=jnp.arange(test.size), dt=args.dt)
+#inp = jnp.array(inp)
+#inp = inp[:,:,::args.downsample].block_until_ready()
 
-inp, lbl = train.indicators_labels(idxs=jnp.arange(train.size), dt=args.dt)
-lbl_train = jnp.array(lbl)
-inp = jnp.array(inp)
-inp = inp[:,:,::args.downsample].block_until_ready()
-inp_train = inp
+inp_train, lbl_train = train.indicators_labels32(idxs=jnp.arange(train.size), dt=args.dt)
+# inp = inp[:,:,::args.downsample].block_until_ready()
 
 try:
-    for ii in range(10_000):
+    print('start_training')
+    for ii in range(100_000):
         # log('IW', net.iw.min(), net.iw.max(), net.iw.mean(), net.iw.std())
         # log('RW', net.rw.min(), net.rw.max(), net.rw.mean(), net.rw.std())
-        ##
         if ii % 100 == 0:
             log('TEST')
-            t1p, t3p, f = performance(net, inp_test, lbl_test)
-            t1p_train, t3p_train, ft = performance(net, inp_train, lbl_train)
+            t1p, t3p, f = performance_split(net, inp_test[:100], lbl_test[:100])
             log('FREQ', f.min(), f.max(), f.mean())
+            t1p_train, t3p_train, ft = performance_split(net, inp_train[:100], lbl_train[:100])
+            log('FREQtrain', ft.min(), ft.max(), ft.mean())
+            topii.append(ii)
+            top1p.append(t1p)
+            top3p.append(t3p)
+            top1p_train.append(t1p_train)
+            top3p_train.append(t3p_train)
+            log('TOP1', t1p, 'TOP3', t3p)
+            log('TOP1train', t1p_train, 'TOP3train', t3p_train)
+        if ii % 1000 == 999:
+            log('TEST')
+            t1p, t3p, f = performance_split(net, inp_test, lbl_test)
+            log('FREQ', f.min(), f.max(), f.mean())
+            t1p_train, t3p_train, ft = performance_split(net, inp_train[:1000], lbl_train[:1000])
             log('FREQtrain', ft.min(), ft.max(), ft.mean())
             topii.append(ii)
             top1p.append(t1p)
@@ -234,7 +266,7 @@ try:
         # log('\t'.join(f'{k}:{v:.2f}' for k, v in g._asdict().items()))
         # log(f'{ii} {l:.3f}->{l2:.3f} {d-c:.2f}s {c-b:.2f}s {b-a:.2f}s')
         if ii % 10 == 0:
-            net.save(f'saved/{fndir}/{ii:05d}')
+            net.save(f'{save_dir}/{fndir}/{ii:05d}')
         # ll.append((l, l2))
         ll.append(l)
 except KeyboardInterrupt:
@@ -248,11 +280,11 @@ plt.plot(topii, top3p, '-', label='top3 (test)')
 plt.plot(topii, top1p_train, 'o--', label='top1 (train)')
 plt.plot(topii, top3p_train, '--', label='top3 (train)')
 plt.legend()
-plt.savefig(f'saved/{fndir}/score.png')
-plt.savefig(f'saved/{fndir}/score.svg')
+plt.savefig(f'{save_dir}/{fndir}/score.png')
+plt.savefig(f'{save_dir}/{fndir}/score.svg')
 plt.plot(ll, 'o', label='train')
-plt.savefig(f'saved/{fndir}/loss.png')
-plt.savefig(f'saved/{fndir}/loss.svg')
+plt.savefig(f'{save_dir}/{fndir}/loss.png')
+plt.savefig(f'{save_dir}/{fndir}/loss.svg')
 
 
 # breakpoint()
