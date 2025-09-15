@@ -177,11 +177,23 @@ schedule = optax.warmup_cosine_decay_schedule(
     end_value=args.lr * 0.1
 )
 
+def scale_custom(scale: float, check=lambda key: False):
+    def init_fn(_): return ()
+    def update_fn(updates, state, params=None):
+        def f(path, up):
+            if check(path[-1].name):
+                return up * scale
+            return up
+        updates = jax.tree_util.tree_map_with_path(f, updates)
+        return updates, state
+    return optax.GradientTransformation(init_fn, update_fn)
+
 optimizer = optax.chain(
     optax.adaptive_grad_clip(clipping=clip_factor, eps=0.001),
     optax.add_decayed_weights(weight_decay),
     optax.scale_by_adam(),
     optax.scale_by_schedule(schedule),
+    scale_custom(10., lambda x: x in ('ipos', 'rpos')),
     optax.scale(-1.0)
 )
 
