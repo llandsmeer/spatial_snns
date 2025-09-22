@@ -37,6 +37,8 @@ parser.add_argument('--batch_size', type=int, default=4, help='Batch size')
 parser.add_argument('--load_limit', type=none_or_int, default=None, help='Load limit no samples')
 parser.add_argument('--load_limit_test', type=none_or_int, default=None, help='Load limit no test samples')
 parser.add_argument('--lr', type=float, default=1e-3, help='Learning rate')
+parser.add_argument('--ifactor', type=float, default=1, help='Extra ifactor multiplier')
+parser.add_argument('--rfactor', type=float, default=1, help='Extra ifactor multiplier')
 parser.add_argument('--force', default=False, action='store_true', help='Overwrite')
 parser.add_argument('--skip', default=False, action='store_true', help='Skip metadata loading')
 parser.add_argument('--debug', default=False, action='store_true', help='Start pdb on error')
@@ -76,8 +78,8 @@ params = networks.HyperParameters(
         ndim=args.ndim,
         ninput=700, #//args.downsample,
         nhidden=args.nhidden,
-        ifactor=400,
-        rfactor=35,
+        ifactor=400 * args.ifactor,
+        rfactor=35 * args.rfactor,
         noutput=20,
         )
 net = params.build()
@@ -219,7 +221,7 @@ inp_train, lbl_train = train.indicators_labels32(idxs=jnp.arange(train.size), dt
 
 try:
     print('start_training')
-    for ii in range(100_000):
+    for ii in range(10_000_000):
         # log('IW', net.iw.min(), net.iw.max(), net.iw.mean(), net.iw.std())
         # log('RW', net.rw.min(), net.rw.max(), net.rw.mean(), net.rw.std())
         if ii % 100 == 0:

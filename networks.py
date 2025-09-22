@@ -5,12 +5,6 @@ import sim
 import jax
 import jax.numpy as jnp
 
-QUEUE = sim.implementations.SingleSpike
-QUEUE = sim.implementations.FIFORing.sized(5)
-
-if QUEUE is sim.implementations.SingleSpike:
-    print('QUEUE is SingleSpike!')
-
 class NetworkWithReadout(typing.NamedTuple):
     net: 'NoDelayNetwork | DelayNetwork | SpatialNetwork'
     w: jax.Array
@@ -112,9 +106,7 @@ class DelayNetwork(typing.NamedTuple):
             dt=kwargs.get('dt', 0.05),
             tau_syn=kwargs.get('tau_syn', 2.),
             tau_mem=kwargs.get('tau_mem', 10.),
-            vthres=1.0,
-            max_delay_ms=kwargs.get('max_delay_ms', 20.),
-            Q=QUEUE
+            max_delay_timesteps=int(1+kwargs.get('max_delay_ms', 20.)/kwargs.get('dt', 0.05)),
             )
 
 class SpatialNetwork(typing.NamedTuple):
