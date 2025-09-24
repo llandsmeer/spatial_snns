@@ -5,6 +5,8 @@ import sim
 import jax
 import jax.numpy as jnp
 
+import numpy
+
 class NetworkWithReadout(typing.NamedTuple):
     net: 'NoDelayNetwork | DelayNetwork | SpatialNetwork'
     w: jax.Array
@@ -14,9 +16,20 @@ class NetworkWithReadout(typing.NamedTuple):
         o = jax.tree.map(lambda x: sim.grad_modify(x), o)
         return o, v, s.mean(0)
     def save(self, fn):
-        import numpy
         self.net.save(fn)
         numpy.savez_compressed(fn+'_read', w=self.w)
+    def load(self, fn):
+        if '.npz' in fn:
+            fn_read = fn.replace('.npz', '_read.npz')
+        else:
+            fn_read = fn + '_read'
+        with open(fn_read, 'rb') as f:
+            f = numpy.load(f)
+            w = f['w']
+        return NetworkWithReadout(
+                net=self.net.load(fn),
+                w=jnp.array(w)
+                )
 
 class HyperParameters(typing.NamedTuple):
     nhidden: int
@@ -71,8 +84,16 @@ class NoDelayNetwork(typing.NamedTuple):
                 jnp.zeros_like(self.iw).flatten(),
                 jnp.zeros_like(self.rw).flatten()).sim(iapp, **kwargs)
     def save(self, fn):
-        import numpy
         numpy.savez_compressed(fn, iw=self.iw, rw=self.rw)
+    def load(self, fn):
+        with open(fn, 'rb') as f:
+            f = numpy.load(f)
+            iw = jnp.array(f['iw'])
+            rw = jnp.array(f['rw'])
+        return NoDelayNetwork(
+                iw=iw,
+                rw=rw
+                )
 
 class DelayNetwork(typing.NamedTuple):
     iw: jax.Array
@@ -80,8 +101,20 @@ class DelayNetwork(typing.NamedTuple):
     idelay: jax.Array
     rdelay: jax.Array
     def save(self, fn):
-        import numpy
         numpy.savez_compressed(fn, iw=self.iw, rw=self.rw, idelay=self.idelay, rdelay=self.rdelay)
+    def load(self, fn):
+        with open(fn, 'rb') as f:
+            f = numpy.load(f)
+            iw = jnp.array(f['iw'])
+            rw = jnp.array(f['rw'])
+            id_ = jnp.array(f['idelay'])
+            rd_ = jnp.array(f['rdelay'])
+        return DelayNetwork(
+                iw=iw,
+                rw=rw,
+                idelay=id_,
+                rdelay=rd_
+                )
     @classmethod
     def make(cls, hyper: HyperParameters, key: jax.Array):
         assert hyper.ndim == float('inf') or hyper.ndim is None
@@ -131,8 +164,20 @@ class SpatialNetwork(typing.NamedTuple):
                 spatial_to_delay(self.rpos, self.ipos),
                 spatial_to_delay(self.rpos)).sim(iapp, **kwargs)
     def save(self, fn):
-        import numpy
         numpy.savez_compressed(fn, iw=self.iw, rw=self.rw, ipos=self.ipos, rpos=self.rpos)
+    def load(self, fn):
+        with open(fn, 'rb') as f:
+            f = numpy.load(f)
+            iw = jnp.array(f['iw'])
+            rw = jnp.array(f['rw'])
+            ipos = jnp.array(f['ipos'])
+            rpos = jnp.array(f['rpos'])
+        return SpatialNetwork(
+                iw=iw,
+                rw=rw,
+                ipos=ipos,
+                rpos=rpos
+                )
 
 def zero_diagonal(arr):
     n = arr.shape[0]

@@ -2,6 +2,7 @@ import sys
 import tqdm
 import traceback
 import pdb
+import glob
 
 import os
 import argparse
@@ -44,11 +45,14 @@ parser.add_argument('--skip', default=False, action='store_true', help='Skip met
 parser.add_argument('--debug', default=False, action='store_true', help='Start pdb on error')
 parser.add_argument('--dt', type=float, default=0.05, help='Time step (bigger=faster, smaller=more accurate)')
 parser.add_argument('--tmp', dest='save_dir', default='saved', action='store_const', const='/tmp/saved', help='Store in /tmp/saved')
+parser.add_argument('--reload', default=False, action='store_true', help='Reload previous')
 args = parser.parse_args()
 
 save_dir = args.save_dir
 fndir = f'd{args.ndim}_h{args.nhidden}_lr{args.lr}_ll{args.load_limit}_dt{args.dt}'
-os.makedirs(f'{save_dir}/{fndir}', exist_ok=args.force)
+done = -1
+if not args.reload:
+    os.makedirs(f'{save_dir}/{fndir}', exist_ok=args.force)
 fn_log = f'{save_dir}/{fndir}/log.txt'
 
 def log(*a, **k):
@@ -83,6 +87,15 @@ params = networks.HyperParameters(
         noutput=20,
         )
 net = params.build()
+
+if args.reload:
+    fns = sorted([x for x  in glob.glob(f'{save_dir}/{fndir}/*.npz') if not 'read' in x])[::-1]
+    try:
+        net = net.load(fns[0])
+        done = int(fns[0].split('/')[-1].split('.')[0])
+    except:
+        net = net.load(fns[1])
+        done = int(fns[0].split('/')[-1].split('.')[0])
 
 tau_mem = jnp.array([0]*20 + [10.] * (args.nhidden-20))
 tau_mem = 10.
@@ -222,6 +235,9 @@ inp_train, lbl_train = train.indicators_labels32(idxs=jnp.arange(train.size), dt
 try:
     print('start_training')
     for ii in range(10_000_000):
+        if ii < done:
+            print('skipping', ii)
+            continue
         # log('IW', net.iw.min(), net.iw.max(), net.iw.mean(), net.iw.std())
         # log('RW', net.rw.min(), net.rw.max(), net.rw.mean(), net.rw.std())
         if ii % 100 == 0:
@@ -280,7 +296,7 @@ try:
         # log('\t'.join(f'{k}:{v:.2f}' for k, v in g._asdict().items()))
         # log(f'{ii} {l:.3f}->{l2:.3f} {d-c:.2f}s {c-b:.2f}s {b-a:.2f}s')
         if ii % 10 == 0:
-            net.save(f'{save_dir}/{fndir}/{ii:05d}')
+            net.save(f'{save_dir}/{fndir}/{ii:08d}')
         # ll.append((l, l2))
         ll.append(l)
 except KeyboardInterrupt:
