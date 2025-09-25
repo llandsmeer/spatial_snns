@@ -46,7 +46,8 @@ def sim(
         ispikes_t = jnp.unpackbits(ispikes_t.view('uint8')).astype('bool')
         ispikes_t = ispikes_t[:ninputs] 
         dvdt = - v / tau_mem + isyn
-        S = superspike(v - vth)
+        S = heaviside(v - vth)
+        Ss = superspike(v - vth)
         synapse = synapse.enqueue_static(
                 t + inp_delay_timesteps,
                 inp_delay,
@@ -63,13 +64,15 @@ def sim(
                 jnp.tile(dvdt, nneurons),
                 tau_syn)
         synapse, (i_jump, v_jump) = synapse.pop(t)
-        # a = jnp.exp(-dt / (tau_mem*2)) * a + (v * 0.1) * dt
-        # v = (1 - S) * (beta * v + isyn*dt - a*dt) + v_jump
-        v = (1 - S) * (beta * v + isyn*dt) + v_jump
+        vnext_noreset = beta * v + isyn*dt + v_jump
+        vpre_noreset = -tau_mem * v + isyn*dt
+        vpost_reset = isyn*dt + i_jump * dt
+        # PREVIOUS (+superspike): v = (1 - S) * (beta * v + isyn*dt + v_jump)
+        v = v_reset(S, v, vpre_noreset, vpost_reset, vnext_noreset)
         isyn = isyn * alpha + i_jump
         state = (synapse, v, isyn, a)
         state = jax.tree.map(lambda x: grad_modify(x), state)
-        return state, (S, v)
+        return state, (Ss, v)
     #
     a = jnp.zeros_like(v)
     state = synapse, v, isyn, a
@@ -115,11 +118,27 @@ class LTIRingSynapse(typing.NamedTuple):
                 ), \
                 (i_jump, v_jump)
 
+@functools.partial(jax.custom_jvp)
+def v_reset(S, v, dvdt_pre, dvdt_post, vnext):
+    return jnp.where(S, 0.0, vnext)
+
+@v_reset.defjvp
+def v_reset_jvp(primals, tangents):
+    'Eq 40.'
+    S, v, dvdt_pre, dvdt_post, vnext = primals
+    S_t, v_t, dvdt_pre_t, dvdt_post_t, vnext_t = tangents
+    reset = 0 * vnext
+    dvdt_pre = jax.lax.select(dvdt_pre == 0, jnp.ones(dvdt_pre.shape), dvdt_pre) # prevent nans
+    reset_t = dvdt_post / dvdt_pre * v_t
+    primals_out = jnp.where(S, reset, vnext)
+    tangents_out = jnp.where(S, reset_t, vnext_t)
+    return primals_out, tangents_out
+
 @functools.partial(jax.custom_jvp, nondiff_argnames=['tau_syn'])
 def w_to_isyn_jump(tau_syn, w, delay, vpre, dvpre_dt):
+    'Eq 43. (vjump) & Eq 48 (ijump); modified'
     del delay, dvpre_dt, tau_syn, vpre
     return w, 0 * w
-    return w, jnp.zeros_like(w)
 
 @w_to_isyn_jump.defjvp
 def w_to_isyn_jump_jvp(tau_syn, primals, tangents):
@@ -128,8 +147,6 @@ def w_to_isyn_jump_jvp(tau_syn, primals, tangents):
     w_t, delay_t, vpre_t, dvpre_dt_t = tangents
     del dvpre_dt_t
     dvdt = jax.lax.select(dvpre_dt == 0, jnp.ones(dvpre_dt.shape), dvpre_dt) # prevent nans
-    dvdt = dvdt + 1e-5
-    # return (w, jnp.zeros_like(w)), (w, jnp.zeros_like(w))
     tpost_t = -1./dvdt * vpre_t + delay_t # eq 37., p15.
     isyn_jump = w
     isyn_jump_t = w_t*1 + w/tau_syn * tpost_t # eq 48., p16., generalized
@@ -155,6 +172,9 @@ def w_to_isyn_jump_jvp_static(tau_syn, primals, tangents):
     vpost_jump_t = - 1/tau_syn * tpost_t # eq 32
     vpost_jump_t =  vpost_jump_t * 0
     return (isyn_jump, 0*isyn_jump), (isyn_jump_t, vpost_jump_t)
+
+def heaviside(x):
+    return jnp.where(x < 0, 0.0, 1.0)
 
 @jax.custom_jvp
 def superspike(x):
@@ -184,6 +204,7 @@ grad_forget.defvjp(grad_forget_fwd, grad_forget_bwd)
 
 # def grad_forget(x): return clip_gradient(-100, 100, x)
 grad_modify = lambda x: grad_forget(clip_gradient(-5, 5, x))
+grad_modify = lambda x: grad_forget(x)
 
 
 def checkpointed_scan(step, state0, xs, checkpoint_every):

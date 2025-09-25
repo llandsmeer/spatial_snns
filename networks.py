@@ -13,7 +13,7 @@ class NetworkWithReadout(typing.NamedTuple):
     def sim(self, iapp, **kwargs):
         s, v = self.net.sim(iapp, **kwargs)
         o = jnp.einsum('oh,th->o', self.w, s)
-        o = jax.tree.map(lambda x: sim.grad_modify(x), o)
+        # o = jax.tree.map(lambda x: sim.grad_modify(x), o)
         return o, v, s.mean(0)
     def save(self, fn):
         self.net.save(fn)
