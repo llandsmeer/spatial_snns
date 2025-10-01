@@ -65,10 +65,11 @@ def sim(
                 tau_syn)
         synapse, (i_jump, v_jump) = synapse.pop(t)
         vnext_noreset = beta * v + isyn*dt + v_jump
-        vpre_noreset = -tau_mem * v + isyn*dt
-        vpost_reset = isyn*dt + i_jump * dt
+        dvdt_min_noreset = -tau_mem * v + isyn
+        dvdt_plus_reset = isyn + i_jump
         # PREVIOUS (+superspike): v = (1 - S) * (beta * v + isyn*dt + v_jump)
-        v = v_reset(S, v, vpre_noreset, vpost_reset, vnext_noreset)
+        v = v_reset(S, v, dvdt_min_noreset, dvdt_plus_reset, vnext_noreset)
+        # 
         isyn = isyn * alpha + i_jump
         state = (synapse, v, isyn, a)
         state = jax.tree.map(lambda x: grad_modify(x), state)
