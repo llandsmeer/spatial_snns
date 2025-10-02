@@ -98,6 +98,7 @@ class SHD(typing.NamedTuple):
             self.units[idx],
             color=color
             )
+        plt.title(self.labels[idx])
     def indicator32(self, idx, dt=0.05, tsextra=0, pad=False, justshape=False):
         import numpy as np
         cache_dir = os.path.expanduser('~/.cache/shd')
@@ -141,9 +142,10 @@ class SHD(typing.NamedTuple):
         return X, Y
 
 if __name__ == '__main__':
-    db = SHD.load('train', limit=1)
-    db.plot(0)
-    plt.show()
+    db = SHD.load('train', limit=100)
+    db.plot(1)
+    # plt.show()
+    plt.savefig("db.png")
 
 #         if out is None:
 #             out = jnp.zeros((n, 22), dtype='uint32')
