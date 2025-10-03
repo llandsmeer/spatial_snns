@@ -22,18 +22,11 @@ def build32(n, t, u):
     word_idx = u // 32
     bit_idx = u % 32
     def mask(sel):
-        m = jnp.uint32(bit_idx == sel) << sel
-        x = jnp.zeros((n, 22), dtype='uint32')
+        m = jnp.uint32(bit_idx == sel) << (7-sel)
+        x = jnp.zeros((n, 1), dtype='uint32')
         x = x.at[t, word_idx].add(m) # this actually works
         return x
-    word = ((((mask( 0) | mask( 1)) | (mask( 2) | mask( 3)))  |
-             ((mask( 4) | mask( 5)) | (mask( 6) | mask( 7))))  |
-            (((mask( 8) | mask( 9)) | (mask(10) | mask(11)))  |
-             ((mask(12) | mask(13)) | (mask(14) | mask(15)))))  | \
-           ((((mask(16) | mask(17)) | (mask(18) | mask(19)))  |
-             ((mask(20) | mask(21)) | (mask(22) | mask(23))))  |
-            (((mask(24) | mask(25)) | (mask(26) | mask(27)))  |
-             ((mask(28) | mask(29)) | (mask(30) | mask(31)))))
+    word = ((((mask( 0) | mask( 1)) | (mask( 2) | mask( 3)))))
     return word
 
 n = 32
@@ -46,7 +39,7 @@ u = jnp.arange(10) * 32
 
 @functools.partial(jax.jit, static_argnames=('n',))
 def build_bits(n, t, u):
-    words = (700 + 31) // 32  # 22
+    words = (4 + 31) // 32  # 1
     base = jnp.zeros((n, words), dtype=jnp.uint32)
     # assert (t > 0).all()
     # assert (u > 0).all()
@@ -54,11 +47,11 @@ def build_bits(n, t, u):
     u = u.astype('uint32')
     word_idx = u // 32
     bit_idx = u % 32
-    mask = jnp.uint32(1) << bit_idx
+    mask = jnp.uint32(1) << (7-bit_idx)
     x = base.at[t, word_idx].set(mask | base[t, word_idx])
     return x
 
-class SHD(typing.NamedTuple):
+class YY(typing.NamedTuple):
     units:  typing.List[jax.Array]
     times:  typing.List[jax.Array]
     labels: jax.Array
@@ -70,9 +63,9 @@ class SHD(typing.NamedTuple):
     @classmethod
     def load(cls, fn, limit=None, skip=False):
         if fn == 'train':
-            fn = 'shd_train.h5'
+            fn = 'yy_rc_train.h5'
         elif fn == 'test':
-            fn = 'shd_test.h5'
+            fn = 'yy_rc_test.h5'
         mkhandle = gzip.open if fn.endswith('.gz') else open
         with mkhandle(fn, 'rb') as f:
             ds = h5py.File(f)
@@ -87,7 +80,7 @@ class SHD(typing.NamedTuple):
                 units=[jnp.array(x) for x in tqdm.tqdm(ds['spikes/units'][take])], # type: ignore
                 times=times,
                 labels=jnp.array(ds['labels'][take]), # type: ignore
-                tmax=float(jnp.max(jnp.array([jnp.max(x) for x in times]))),
+                tmax=100, #float(jnp.max(jnp.array([jnp.max(x) for x in times]))),
                 fn=fn
                 )
     def plot(self, idx, color=None):
@@ -103,7 +96,7 @@ class SHD(typing.NamedTuple):
         print(self.units[idx], len(self.units[idx]))
     def indicator32(self, idx, dt=0.05, tsextra=0, pad=False, justshape=False):
         import numpy as np
-        cache_dir = os.path.expanduser('~/.cache/shd')
+        cache_dir = os.path.expanduser('~/.cache/yy')
         os.makedirs(cache_dir, exist_ok=True)
         filename = f"{self.fn}_idx={idx}_dt={dt}_tsextra={tsextra}_pad={pad}.npz"
         filename = os.path.join(cache_dir, filename)
@@ -116,16 +109,16 @@ class SHD(typing.NamedTuple):
             return X
         print('CACHE MIS', idx)
         #################
-        t = jnp.round(1e3 * self.times[idx] / dt).astype(int)
-        u = self.units[idx]
+        t = self.times[idx].astype(int)#jnp.round(1e3 * self.times[idx] / dt).astype(int)
+        u = self.units[idx].astype(int)
         if pad:
-            tmax = int(jnp.round(1e3 * self.tmax / dt))
+            tmax = int(self.tmax)
             n = tmax + 1 + tsextra
         else:
             n = t.max() + 1 + tsextra
         n = int(n)
         if justshape:
-            return (n, 22)
+            return (n, 1)
         #################
         padding = 0, jnp.ceil(len(u) / 1024).astype(int) * 1024 - len(u)
         u_pad = jnp.pad(u, padding, constant_values=-1)
@@ -144,10 +137,10 @@ class SHD(typing.NamedTuple):
         return X, Y
 
 if __name__ == '__main__':
-    db = SHD.load('train', limit=20)
+    db = YY.load('train', limit=None)
     db.plot(0)
-    # plt.show()
-    plt.savefig("db.png")
+    plt.show()
+    # plt.savefig("db.png")
 
 #         if out is None:
 #             out = jnp.zeros((n, 22), dtype='uint32')
