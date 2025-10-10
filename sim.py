@@ -7,6 +7,7 @@ import jax.numpy as jnp
 def sim(
         ninput: int,
         nhidden: int,
+        noutput: int,
         iweight: jax.Array,
         rweight: jax.Array,
         idelay: jax.Array,
@@ -18,10 +19,18 @@ def sim(
         checkpoint_every=100,
         max_delay_timesteps = 256
         ):
-    inp_spikes32, inp_delay, inp_weight, rec_delay, rec_weight = ispikes, idelay, iweight, rdelay, rweight
+    # inp_spikes32, inp_delay, inp_weight, rec_delay, rec_weight = ispikes, idelay, iweight, rdelay, rweight
+    inp_spikes32 = ispikes
     ninputs = ninput
     vth = 1.
-    nneurons = nhidden
+    nneurons = nhidden + noutput
+
+    inp_delay = jnp.zeros((nneurons, ninput)).at[0:nhidden, 0:ninput].set(idelay.reshape((nhidden, ninput)))
+    inp_weight = jnp.zeros((nneurons, ninput)).at[0:nhidden, 0:ninput].set(iweight)
+    rec_delay = jnp.zeros((nneurons, nneurons)).at[nhidden:nneurons, 0:nhidden].set(rdelay.reshape((noutput, nhidden)))
+    rec_weight = jnp.zeros((nneurons, nneurons)).at[nhidden:nneurons, 0:nhidden].set(rweight)
+    # jax.debug.print("{}", inp_weight)
+
     # assert (delay < max_delay_timesteps/dt).all()
     #
     inp_delay = inp_delay.flatten()
@@ -37,17 +46,23 @@ def sim(
     synapse = LTIRingSynapse.init(max_delay_timesteps, nneurons)
     v = jnp.zeros(nneurons)
     isyn = jnp.zeros(nneurons)
+    ttfs = jnp.zeros(nneurons) + 110
     #
     alpha = jnp.exp(-dt/tau_syn)
     beta = jnp.exp(-dt/tau_mem)
     #
+    S_hist = jnp.zeros(nneurons)
     def state_next(state, inp):
-        (synapse, v, isyn, a), (t, ispikes_t) = state, inp
+        (synapse, v, isyn, a, ttfs, S_hist), (t, ispikes_t) = state, inp
         ispikes_t = jnp.unpackbits(ispikes_t.view('uint8')).astype('bool')
         ispikes_t = ispikes_t[:ninputs] 
         dvdt = - v / tau_mem + isyn
-        S = heaviside(v - vth)
-        Ss = superspike(v - vth)
+        S = heaviside(v - vth) - S_hist
+        ts = annotate_spike_time_gradient(jnp.ones(nneurons, dtype='float64')*t+v*0, v, dvdt)
+        cond = (ttfs > ts) & (S == 1)
+        ttfs = jnp.where(cond, ts, ttfs)
+        Ss = superspike(v - vth) - S_hist
+        S_hist = jnp.where(S, 1., S_hist)
         synapse = synapse.enqueue_static(
                 t + inp_delay_timesteps,
                 inp_delay,
@@ -68,20 +83,20 @@ def sim(
         dvdt_min_noreset = -tau_mem * v + isyn
         dvdt_plus_reset = isyn + i_jump
         # PREVIOUS (+superspike): v = (1 - S) * (beta * v + isyn*dt + v_jump)
-        v = v_reset(S, v, dvdt_min_noreset, dvdt_plus_reset, vnext_noreset)
+        v = v_reset(S_hist, v, dvdt_min_noreset, dvdt_plus_reset, vnext_noreset)
         # 
         isyn = isyn * alpha + i_jump
-        state = (synapse, v, isyn, a)
+        state = (synapse, v, isyn, a, ttfs, S_hist)
         state = jax.tree.map(lambda x: grad_modify(x), state)
         return state, (Ss, v)
     #
     a = jnp.zeros_like(v)
-    state = synapse, v, isyn, a
+    state = synapse, v, isyn, a, ttfs, S_hist
     if checkpoint_every is None:
-        _, (s, v) = jax.lax.scan(state_next, state, xs=(jnp.arange(len(inp_spikes32)), inp_spikes32))
+        (_, _, _, _, ttfs, S_hist), (s, v) = jax.lax.scan(state_next, state, xs=(jnp.arange(len(inp_spikes32)), inp_spikes32))
     else:
-        _, (s, v) = checkpointed_scan(state_next, state, xs=(jnp.arange(len(inp_spikes32)), inp_spikes32), checkpoint_every=checkpoint_every)
-    return s, v
+        (_, _, _, _, ttfs, S_hist), (s, v) = checkpointed_scan(state_next, state, xs=(jnp.arange(len(inp_spikes32)), inp_spikes32), checkpoint_every=checkpoint_every)
+    return s, v, ttfs
 
 class LTIRingSynapse(typing.NamedTuple):
     ijump: jax.Array
@@ -173,6 +188,20 @@ def w_to_isyn_jump_jvp_static(tau_syn, primals, tangents):
     vpost_jump_t = - 1/tau_syn * tpost_t # eq 32
     vpost_jump_t =  vpost_jump_t * 0
     return (isyn_jump, 0*isyn_jump), (isyn_jump_t, vpost_jump_t)
+
+
+@jax.custom_jvp
+def annotate_spike_time_gradient(t, v, dvdt):
+    return t
+
+@annotate_spike_time_gradient.defjvp
+def annotate_spike_time_gradient_jvp(primals, tangents):
+    t, v, dvdt = primals
+    t_t, v_t, dvdt_t = tangents
+    #del t_t, dvdt_t, v
+    dvdt = jax.lax.select(dvdt == 0, jnp.ones(dvdt.shape), dvdt) # prevent nans
+    ts_t = -1./dvdt * v_t 
+    return t, ts_t
 
 def heaviside(x):
     return jnp.where(x < 0, 0.0, 1.0)

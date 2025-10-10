@@ -46,6 +46,7 @@ parser.add_argument('--debug', default=False, action='store_true', help='Start p
 parser.add_argument('--dt', type=float, default=0.05, help='Time step (bigger=faster, smaller=more accurate)')
 parser.add_argument('--tmp', dest='save_dir', default='saved', action='store_const', const='/tmp/saved', help='Store in /tmp/saved')
 parser.add_argument('--reload', default=False, action='store_true', help='Reload previous')
+parser.add_argument('--layer', default=False, action='store_true', help='Create layer-wise network')
 args = parser.parse_args()
 
 save_dir = args.save_dir
@@ -85,6 +86,7 @@ params = networks.HyperParameters(
         ifactor=400 * args.ifactor,
         rfactor=35 * args.rfactor,
         noutput=3,
+        layer=True
         )
 net = params.build()
 
@@ -101,12 +103,14 @@ tau_mem = jnp.array([0]*3 + [10.] * (args.nhidden-3))
 tau_mem = 10.
 @functools.partial(jax.jit, static_argnames=['aux'])
 def loss(net, in_spikes, label, aux=True):
-    ws, v, f = net.sim(in_spikes, tau_mem=tau_mem, dt=args.dt)
-    logits = ws
+    o, v, f = net.sim(in_spikes, tau_mem=tau_mem, dt=args.dt)
+    logits = - o[-3:] / 10 #- 0.5
+    # jax.debug.print("ttfs {x}", x=o)
+
     l = optax.softmax_cross_entropy_with_integer_labels(
             logits, label)
     l = l # + (logits < 1) * v[:,:20].mean(0)
-    l = l + ((f - 0.01) ** 2).sum()
+    # l = l + ((f - 0.05) ** 2).sum() * 0.01
     if aux:
         return l, (jax.nn.softmax(logits), v)
     else:
@@ -140,6 +144,7 @@ def performance(net, in_spikes, labels):
     @jax.jit
     def get_logits(x):
         ws, v, f = net.sim(x, tau_mem=tau_mem, dt=args.dt)
+        ws = - ws[-3:] / 10 #- 0.5
         return ws, f
     # logits, f = jax.lax.map(get_logits, in_spikes, batch_size=64)
     logits, f = jax.vmap(get_logits)(in_spikes)
@@ -277,11 +282,13 @@ try:
         inp = inp_train[idxs]
         lbl = lbl_train[idxs]
         ###
-        #s, v = net.sim(inp[0], tau_mem=tau_mem, dt=args.dt)
-        #logits = v[-1,:20]
-        #log(logits.argmax().item(), lbl[0].item()) # , logits)
-        # plt.plot(v)
-        # plt.show()
+        o, v, f = net.sim(inp[0], tau_mem=tau_mem, dt=args.dt)
+        logits = v[-3:]
+        # log(logits.argmax().item(), lbl[0].item()) # , logits)
+        for i, vi in enumerate(v.T):
+            plt.plot(vi+i)
+            plt.plot(o[i], i, 'o')
+        plt.show()
         ###
         b = time.time()
         opt_state, net, l, g = batched_update(opt_state, net, inp, lbl)
@@ -289,7 +296,9 @@ try:
         l = l.block_until_ready()
         c = time.time()
 
-        # log(f'TRAIN {idxs} {ii} L={l:.3f} ttrain={c-b:.2f}s teval={b-a:.2f}s')
+        if ii % 100 == 0 or True:
+            log(f'TRAIN {idxs} {ii} L={l:.3f} ttrain={c-b:.2f}s teval={b-a:.2f}s')
+            print(g)
 
         # l2 = batched_loss(net, inp, lbl)
         # d = time.time()
