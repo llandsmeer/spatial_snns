@@ -1,8 +1,10 @@
 import sys
+import json
 import tqdm
 import traceback
 import pdb
 import glob
+import uuid
 
 import os
 import argparse
@@ -31,35 +33,48 @@ print(sys.argv)
 
 parser = argparse.ArgumentParser()
 def none_or_int(value): return None if value == 'None' else int(value)
-parser.add_argument('--ndim', type=none_or_int, default=None, help='Dimension (None or int)')
+parser.add_argument('--net', type=str, default='inf', help='Dimension (inf or int or <int>e<float>)')
 parser.add_argument('--nhidden', type=int, default=100, help='Number of hidden units')
 parser.add_argument('--batch_size', type=int, default=4, help='Batch size')
-# parser.add_argument('--downsample', type=int, default=1, help='Downsample factor (int)')
 parser.add_argument('--load_limit', type=none_or_int, default=None, help='Load limit no samples')
 parser.add_argument('--load_limit_test', type=none_or_int, default=None, help='Load limit no test samples')
 parser.add_argument('--lr', type=float, default=1e-3, help='Learning rate')
-parser.add_argument('--ifactor', type=float, default=1, help='Extra ifactor multiplier')
-parser.add_argument('--rfactor', type=float, default=1, help='Extra ifactor multiplier')
+parser.add_argument('--ifactor', type=float, default=None, help='Extra ifactor multiplier')
+parser.add_argument('--rfactor', type=float, default=None, help='Extra ifactor multiplier')
 parser.add_argument('--force', default=False, action='store_true', help='Overwrite')
 parser.add_argument('--skip', default=False, action='store_true', help='Skip metadata loading')
 parser.add_argument('--debug', default=False, action='store_true', help='Start pdb on error')
 parser.add_argument('--dt', type=float, default=0.05, help='Time step (bigger=faster, smaller=more accurate)')
 parser.add_argument('--tmp', dest='save_dir', default='saved', action='store_const', const='/tmp/saved', help='Store in /tmp/saved')
 parser.add_argument('--reload', default=False, action='store_true', help='Reload previous')
+parser.add_argument('--seed', type=int, default=0, help='Seed for network generation')
+parser.add_argument('--max_batches', type=int, default=20_000, help='Batch iteration count')
 args = parser.parse_args()
 
+RUN_ID = str(uuid.uuid4())
+
 save_dir = args.save_dir
-fndir = f'd{args.ndim}_h{args.nhidden}_lr{args.lr}_ll{args.load_limit}_dt{args.dt}'
+fndir = f'd{args.net}_h{args.nhidden}_lr{args.lr}_ll{args.load_limit}_dt{args.dt}'
 done = -1
 if not args.reload:
     os.makedirs(f'{save_dir}/{fndir}', exist_ok=args.force)
+
 fn_log = f'{save_dir}/{fndir}/log.txt'
+fn_datalog = f'{save_dir}/{fndir}/log.jsons'
 
 def log(*a, **k):
     print(*a, **k)
     with open(fn_log, 'a') as f:
         print(*a, **k, file=f)
 
+def datalog(table, **k):
+    d = {}
+    d['table'] = table
+    d['id'] = RUN_ID
+    d.update(k)
+    line = json.dumps(d)
+    with open(fn_datalog, 'a') as f:
+        print(line, file=f)
 
 if args.debug:
     def excepthook(type, value, tb):
@@ -74,19 +89,39 @@ for k, v in vars(args).items():
     log(k.ljust(20), v)
 log()
 
+buildkey, key = jax.random.split(jax.random.PRNGKey(args.seed), 2)
+
+datalog('args', **{ k:v for k, v in vars(args).items() })
+
 #train = shd.SHD.load('train', limit=None)
 train = shd.SHD.load('train', limit=args.load_limit, skip=args.skip)
 test = shd.SHD.load('test', limit=args.load_limit_test, skip=args.skip)
 
+if args.nhidden > 200:
+    ifactor = 50
+    rfactor = 1
+elif args.nhidden > 50:
+    ifactor = 10
+    rfactor = 1
+else:
+    ifactor = 3
+    rfactor = 1
+if args.ifactor is not None:
+    ifactor = args.ifactor
+if args.rfactor is not None:
+    rfactor = args.rfactor
+
 params = networks.HyperParameters(
-        ndim=args.ndim,
+        netspec=args.net,
         ninput=700, #//args.downsample,
         nhidden=args.nhidden,
-        ifactor=400 * args.ifactor,
-        rfactor=35 * args.rfactor,
+        ifactor=400 * ifactor,
+        rfactor=35 * rfactor,
         noutput=20,
         )
-net = params.build()
+
+datalog('hyperparams', **params.configdict())
+net = params.build(buildkey)
 
 if args.reload:
     fns = sorted([x for x  in glob.glob(f'{save_dir}/{fndir}/*.npz') if not 'read' in x])[::-1]
@@ -97,7 +132,7 @@ if args.reload:
         net = net.load(fns[1])
         done = int(fns[0].split('/')[-1].split('.')[0])
 
-tau_mem = jnp.array([0]*20 + [10.] * (args.nhidden-20))
+tau_mem = jnp.array([0]*20 + [10.] * (args.nhidden-20)) # old version with output inside hidden, makes it lif
 tau_mem = 10.
 @functools.partial(jax.jit, static_argnames=['aux'])
 def loss(net, in_spikes, label, aux=True):
@@ -116,24 +151,23 @@ def batched_loss(net, in_spikes, labels):
     ls = jax.vmap(functools.partial(loss, aux=False), in_axes=(None, 0, 0))(net, jnp.array(in_spikes), jnp.array(labels))
     return ls.mean()
 
-
-@jax.jit
-def performance(net, in_spikes, labels):
-    def step(carry, x):
-        inp, lbl = x
-        ws, v, f = net.sim(inp, tau_mem=tau_mem, dt=args.dt)
-        del v
-        top3 = jnp.argsort(ws)[-3:]
-        top1_hit = (top3[-1] == lbl).astype(jnp.int32)
-        top3_hit = jnp.any(top3 == lbl).astype(jnp.int32)
-        return (carry[0] + top1_hit, carry[1] + top3_hit, carry[2] + f), None
-    (top1_count, top3_count, f), _ = jax.lax.scan(
-        step,
-        (0, 0, jnp.zeros(args.nhidden)),
-        (in_spikes, labels),
-        unroll=8
-    )
-    return 100*top1_count / len(labels), 100*top3_count / len(labels), f / len(labels)
+# @jax.jit
+# def performance(net, in_spikes, labels):
+#     def step(carry, x):
+#         inp, lbl = x
+#         ws, v, f = net.sim(inp, tau_mem=tau_mem, dt=args.dt)
+#         del v
+#         top3 = jnp.argsort(ws)[-3:]
+#         top1_hit = (top3[-1] == lbl).astype(jnp.int32)
+#         top3_hit = jnp.any(top3 == lbl).astype(jnp.int32)
+#         return (carry[0] + top1_hit, carry[1] + top3_hit, carry[2] + f), None
+#     (top1_count, top3_count, f), _ = jax.lax.scan(
+#         step,
+#         (0, 0, jnp.zeros(args.nhidden)),
+#         (in_spikes, labels),
+#         unroll=8
+#     )
+#     return 100*top1_count / len(labels), 100*top3_count / len(labels), f / len(labels)
 
 @jax.jit
 def performance(net, in_spikes, labels):
@@ -215,8 +249,6 @@ optimizer = optax.chain(
 
 opt_state = optimizer.init(net)
 
-key = jax.random.PRNGKey(0)
-
 ll = []
 
 topii = []
@@ -234,7 +266,7 @@ inp_train, lbl_train = train.indicators_labels32(idxs=jnp.arange(train.size), dt
 
 try:
     print('start_training')
-    for ii in range(10_000_000):
+    for ii in range(args.max_batches):
         if ii < done:
             print('skipping', ii)
             continue
@@ -253,6 +285,7 @@ try:
             top3p_train.append(t3p_train)
             log('TOP1', t1p, 'TOP3', t3p)
             log('TOP1train', t1p_train, 'TOP3train', t3p_train)
+            datalog('every100_subset100', i=ii, t1p=float(t1p), t3p=float(t3p), t1p_train=float(t1p_train), t3p_train=float(t3p_train))
         if ii % 1000 == 999:
             log('TEST')
             t1p, t3p, f = performance_split(net, inp_test, lbl_test)
@@ -266,6 +299,7 @@ try:
             top3p_train.append(t3p_train)
             log('TOP1', t1p, 'TOP3', t3p)
             log('TOP1train', t1p_train, 'TOP3train', t3p_train)
+            datalog('every1000', i=ii, t1p=float(t1p), t3p=float(t3p), t1p_train=float(t1p_train), t3p_train=float(t3p_train))
         key, nxt = jax.random.split(key)
         idxs = jax.random.randint(nxt, (args.batch_size,), 0, train.size)
         a = time.time()
@@ -290,13 +324,16 @@ try:
         c = time.time()
 
         log(f'TRAIN {idxs} {ii} L={l:.3f} ttrain={c-b:.2f}s teval={b-a:.2f}s')
+        datalog('step', i=ii, l=float(l))
 
         # l2 = batched_loss(net, inp, lbl)
         # d = time.time()
         # log('\t'.join(f'{k}:{v:.2f}' for k, v in g._asdict().items()))
         # log(f'{ii} {l:.3f}->{l2:.3f} {d-c:.2f}s {c-b:.2f}s {b-a:.2f}s')
-        if ii % 10 == 0:
-            net.save(f'{save_dir}/{fndir}/{ii:08d}')
+        if ii % 100 == 0:
+            fnsave = f'{save_dir}/{fndir}/{ii:08d}'
+            net.save(fnsave)
+            datalog('model', i=ii, fn=fnsave)
         # ll.append((l, l2))
         ll.append(l)
 except KeyboardInterrupt:
@@ -315,26 +352,3 @@ plt.savefig(f'{save_dir}/{fndir}/score.svg')
 plt.plot(ll, 'o', label='train')
 plt.savefig(f'{save_dir}/{fndir}/loss.png')
 plt.savefig(f'{save_dir}/{fndir}/loss.svg')
-
-
-# breakpoint()
-
-
-
-
-# f = lambda tree: jax.tree.map(lambda x: (float(jnp.min(x)), float(jnp.max(x))), tree)
-
-# NetworkWithReadout(net=DelayNetwork(
-#     iw=(-0.0675046919030234, 0.0758294276957268),
-#     rw=(-0.053958577439816746, 0.06031096309966367),
-#     idelay=(1.8681221046298968, 6.112585124498017),
-#     rdelay=(1.9129557305044265, 5.873335145410393)),
-#     w=(-0.05746382569791777, 0.04729931499965209))
-
-# log(jnp.isnan(g.iw).sum())
-# log(jnp.isnan(g.rw).sum())
-# log(jnp.isnan(g.iw).sum())
-# log(jnp.isnan(g.rw).sum())
-
-# log(jnp.isnan(g.iw).sum())
-# log(jnp.isnan(g.rw).sum())

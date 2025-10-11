@@ -7,13 +7,32 @@ import jax.numpy as jnp
 
 import numpy
 
+NetSpec = \
+        typing.Literal['inf'] | \
+        typing.Literal['0'] | \
+        typing.Literal['1'] | \
+        typing.Literal['2'] | \
+        typing.Literal['3'] | \
+        typing.Literal['4'] | \
+        typing.Literal['5'] | \
+        typing.Literal['1e0.1'] | \
+        typing.Literal['1e0.2'] | \
+        typing.Literal['1e0.3'] | \
+        typing.Literal['1e0.4'] | \
+        typing.Literal['1e0.5'] | \
+        typing.Literal['2e0.1'] | \
+        typing.Literal['2e0.2'] | \
+        typing.Literal['2e0.3'] | \
+        typing.Literal['2e0.4'] | \
+        typing.Literal['2e0.5']
+
 class NetworkWithReadout(typing.NamedTuple):
-    net: 'NoDelayNetwork | DelayNetwork | SpatialNetwork'
-    w: jax.Array
+    net: 'NoDelayNetwork | DelayNetwork | SpatialNetwork | EpsilonNetwork'
+    w: jax.Array 
     def sim(self, iapp, **kwargs):
         s, v = self.net.sim(iapp, **kwargs)
         o = jnp.einsum('oh,th->o', self.w, s)
-        # o = jax.tree.map(lambda x: sim.grad_modify(x), o)
+        # o = jax.tree.map(lambda x: sim.grad_modify(x), o) # not needed
         return o, v, s.mean(0)
     def save(self, fn):
         self.net.save(fn)
@@ -35,43 +54,62 @@ class HyperParameters(typing.NamedTuple):
     nhidden: int
     ninput: int = 700
     noutput: int | None = None
-    ndim: int | None = None
+    netspec: NetSpec = 'inf'
     ifactor: float = 1.
     rfactor: float = 1.
-    def build(self, key: jax.Array|None=None):
-        if key is None:
-            key = jax.random.PRNGKey(0)
+    def build(self, key: jax.Array):
         key, readkey = jax.random.split(key)
-        if self.ndim == 0:
+        if self.netspec == '0':
             net = NoDelayNetwork.make(self, key)
-        elif self.ndim == float('inf') or self.ndim is None:
+        elif self.netspec == 'inf':
             net = DelayNetwork.make(self, key)
+        elif 'e' in self.netspec:
+            net = EpsilonNetwork.make(self, key)
         else:
             net = SpatialNetwork.make(self, key)
         if self.noutput is None:
             return net
         return NetworkWithReadout(net, self.random_weight(self.noutput, self.nhidden, key=readkey))
+    @property
+    def ndim(self):
+        if self.netspec == 'inf':
+            assert False
+            return float(self.netspec)
+        elif 'e' in self.netspec:
+            return int(self.netspec.split('e')[0])
+        else:
+            return int(self.netspec)
+
     def random_pos(self, n, key):
-        assert self.ndim is not None and self.ndim > 0
         pos = 10 * jax.random.normal(key, (n,  self.ndim))
         return pos
     def random_delay(self, a, b, key):
         delays = 4 + .5*jax.random.normal(key, (a,b)).flatten()
         return delays
-    def random_weight(self, a, b, key, zero=False, factor=1):
+    def random_weight(self, a, b, key, zero=False, factor=1.):
         W = jax.random.uniform(key=key, shape=(a,b), minval=-0.2, maxval=0.8)
         if zero:
             assert a == b
             W = zero_diagonal(W)
         weight = factor/(a*b) * W
         return jnp.abs(weight)
+    def configdict(self):
+        return {
+                'nhidden': self.nhidden,
+                'ninput': self.nhidden,
+                'noutput': self.noutput,
+                'netspec': self.netspec,
+                'ndim': self.ndim,
+                'ifactor': self.ifactor,
+                'rfactor': self.rfactor,
+        }
 
 class NoDelayNetwork(typing.NamedTuple):
     iw: jax.Array
     rw: jax.Array
     @classmethod
     def make(cls, hyper: HyperParameters, key: jax.Array):
-        assert hyper.ndim == 0
+        assert hyper.netspec == '0' and hyper.ndim == 0
         keys = jax.random.split(key, 2)
         return NoDelayNetwork(
             iw = hyper.random_weight(hyper.nhidden, hyper.ninput, keys[0], zero=False, factor=hyper.ifactor),
@@ -117,7 +155,7 @@ class DelayNetwork(typing.NamedTuple):
                 )
     @classmethod
     def make(cls, hyper: HyperParameters, key: jax.Array):
-        assert hyper.ndim == float('inf') or hyper.ndim is None
+        assert hyper.netspec == 'inf'
         keys = jax.random.split(key, 4)
         return DelayNetwork(
             iw = hyper.random_weight(hyper.nhidden, hyper.ninput, keys[0], zero=False, factor=hyper.ifactor),
@@ -132,7 +170,7 @@ class DelayNetwork(typing.NamedTuple):
             ninput=ninput,
             nhidden=nhidden,
             iweight=self.iw,
-            rweight=self.rw,
+            rweight=zero_diagonal(self.rw), # avoid self-loops
             idelay=self.idelay,
             rdelay=self.rdelay,
             ispikes=ispikes,
@@ -149,7 +187,7 @@ class SpatialNetwork(typing.NamedTuple):
     rpos: jax.Array
     @classmethod
     def make(cls, hyper: HyperParameters, key: jax.Array):
-        assert hyper.ndim is not None and hyper.ndim >= 0
+        assert hyper.netspec.isdigit()
         keys = jax.random.split(key, 4)
         return SpatialNetwork(
             iw = hyper.random_weight(hyper.nhidden, hyper.ninput, keys[0], zero=False, factor=hyper.ifactor),
@@ -179,6 +217,58 @@ class SpatialNetwork(typing.NamedTuple):
                 rpos=rpos
                 )
 
+class EpsilonNetwork(typing.NamedTuple):
+    iw: jax.Array
+    rw: jax.Array
+    ipos: jax.Array
+    rpos: jax.Array
+    ierr: jax.Array # tanh arg for delay mult
+    rerr: jax.Array
+    eps:  float
+    @classmethod
+    def make(cls, hyper: HyperParameters, key: jax.Array):
+        assert 'e' in hyper.netspec
+        keys = jax.random.split(key, 4)
+        return EpsilonNetwork(
+            iw = hyper.random_weight(hyper.nhidden, hyper.ninput, keys[0], zero=False, factor=hyper.ifactor),
+            rw = hyper.random_weight(hyper.nhidden, hyper.nhidden, keys[1], factor=hyper.rfactor),
+            ipos = hyper.random_pos(hyper.ninput, keys[2]),
+            rpos = hyper.random_pos(hyper.nhidden, keys[3]),
+            ierr = jnp.zeros((hyper.nhidden, hyper.ninput)).flatten(),
+            rerr = jnp.zeros((hyper.nhidden, hyper.nhidden)).flatten(),
+            eps = float(hyper.netspec.split('e')[1])
+            )
+    def sim(self, iapp, **kwargs):
+        eps = jax.lax.stop_gradient(self.eps)
+        constraint_ih = spatial_to_delay(self.rpos, self.ipos)
+        constraint_hh = spatial_to_delay(self.rpos)
+        return DelayNetwork(
+                self.iw,
+                self.rw,
+                (1 + eps*jnp.tanh(self.ierr)) * constraint_ih,
+                (1 + eps*jnp.tanh(self.rerr)) * constraint_hh).sim(iapp, **kwargs)
+    def save(self, fn):
+        numpy.savez_compressed(fn, iw=self.iw, rw=self.rw, ipos=self.ipos, rpos=self.rpos, ierr=self.ierr, rerr=self.rerr, eps=self.eps)
+    def load(self, fn):
+        with open(fn, 'rb') as f:
+            f = numpy.load(f)
+            iw = jnp.array(f['iw'])
+            rw = jnp.array(f['rw'])
+            ipos = jnp.array(f['ipos'])
+            rpos = jnp.array(f['rpos'])
+            ierr = jnp.array(f['ierr'])
+            rerr = jnp.array(f['rerr'])
+            eps = jnp.array(f['eps']).item()
+        return EpsilonNetwork(
+                iw=iw,
+                rw=rw,
+                ipos=ipos,
+                rpos=rpos,
+                ierr=ierr,
+                rerr=rerr,
+                eps=eps
+                )
+
 def zero_diagonal(arr):
     n = arr.shape[0]
     return arr * (1 - jnp.eye(n))
@@ -201,8 +291,8 @@ def spatial_to_delay(r, from_=None):
 
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
-    params = HyperParameters(ndim=0, ninput=10, nhidden=10)
-    net = params.build()
+    params = HyperParameters(netspec='0', ninput=10, nhidden=10)
+    net = params.build(jax.random.PRNGKey(0))
     s = jax.random.uniform(jax.random.PRNGKey(0), shape=(2000, 10)) > 0.999
     o = net.sim(s)
     plt.imshow(jnp.hstack([s, o]).T, aspect='auto')
