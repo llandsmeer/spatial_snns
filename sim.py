@@ -25,12 +25,12 @@ def sim(
     # assert (delay < max_delay_timesteps/dt).all()
     #
     inp_delay = inp_delay.flatten()
-    inp_delay_timesteps = jnp.round(inp_delay).astype(int)
+    inp_delay_timesteps = jnp.round(inp_delay/dt).astype(int)
     inp_weight = inp_weight.flatten()
     inp_tgt = jnp.repeat(jnp.arange(nneurons), ninputs)
     #
     rec_delay = rec_delay.flatten()
-    rec_delay_timesteps = jnp.round(rec_delay).astype(int)
+    rec_delay_timesteps = jnp.round(rec_delay/dt).astype(int)
     rec_weight = rec_weight.flatten()
     rec_tgt = jnp.repeat(jnp.arange(nneurons), nneurons)
     #
