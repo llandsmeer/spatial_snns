@@ -1,5 +1,6 @@
 import sys
 import json
+import datetime
 import tqdm
 import traceback
 import pdb
@@ -53,8 +54,10 @@ args = parser.parse_args()
 
 RUN_ID = str(uuid.uuid4())
 
+now = datetime.datetime.utcnow()
+
 save_dir = args.save_dir
-fndir = f'd{args.net}_h{args.nhidden}_lr{args.lr}_ll{args.load_limit}_dt{args.dt}'
+fndir = f'{now.year}{now.month:02d}{now.day:02d}_d{args.net}_h{args.nhidden}_lr{args.lr}_ll{args.load_limit}_dt{args.dt}_{RUN_ID}'
 done = -1
 if not args.reload:
     os.makedirs(f'{save_dir}/{fndir}', exist_ok=args.force)
