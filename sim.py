@@ -3,6 +3,7 @@ import typing
 
 import jax
 import jax.numpy as jnp
+import sys
 
 def sim(
         ninput: int,
@@ -15,7 +16,7 @@ def sim(
         ispikes: jax.Array,
         dt = 0.025,
         tau_syn = 2.,
-        tau_mem = 10.,
+        tau_mem = 4.,
         checkpoint_every=100,
         max_delay_timesteps = 256
         ):
@@ -26,27 +27,29 @@ def sim(
     nneurons = nhidden + noutput
 
     inp_delay = jnp.zeros((nneurons, ninput)).at[0:nhidden, 0:ninput].set(idelay.reshape((nhidden, ninput)))
-    inp_weight = jnp.zeros((nneurons, ninput)).at[0:nhidden, 0:ninput].set(iweight)
+    inp_weight = jnp.abs(jnp.zeros((nneurons, ninput)).at[0:nhidden, 0:ninput].set(iweight))
     rec_delay = jnp.zeros((nneurons, nneurons)).at[nhidden:nneurons, 0:nhidden].set(rdelay.reshape((noutput, nhidden)))
-    rec_weight = jnp.zeros((nneurons, nneurons)).at[nhidden:nneurons, 0:nhidden].set(rweight)
+    rec_weight = jnp.abs(jnp.zeros((nneurons, nneurons)).at[nhidden:nneurons, 0:nhidden].set(rweight))
     # jax.debug.print("{}", inp_weight)
+    # jnp.set_printoptions(threshold=sys.maxsize)
+    # jax.debug.print("Rec Delay: {x}", x=rec_delay)
 
     # assert (delay < max_delay_timesteps/dt).all()
     #
     inp_delay = inp_delay.flatten()
-    inp_delay_timesteps = jnp.round(inp_delay).astype(int)
+    inp_delay_timesteps = jnp.round(inp_delay/dt).astype(int)
     inp_weight = inp_weight.flatten()
     inp_tgt = jnp.repeat(jnp.arange(nneurons), ninputs)
     #
     rec_delay = rec_delay.flatten()
-    rec_delay_timesteps = jnp.round(rec_delay).astype(int)
+    rec_delay_timesteps = jnp.round(rec_delay/dt).astype(int)
     rec_weight = rec_weight.flatten()
     rec_tgt = jnp.repeat(jnp.arange(nneurons), nneurons)
     #
     synapse = LTIRingSynapse.init(max_delay_timesteps, nneurons)
     v = jnp.zeros(nneurons)
     isyn = jnp.zeros(nneurons)
-    ttfs = jnp.zeros(nneurons) + 110
+    ttfs = jnp.zeros(nneurons) + 501
     #
     alpha = jnp.exp(-dt/tau_syn)
     beta = jnp.exp(-dt/tau_mem)
@@ -57,12 +60,11 @@ def sim(
         ispikes_t = jnp.unpackbits(ispikes_t.view('uint8')).astype('bool')
         ispikes_t = ispikes_t[:ninputs] 
         dvdt = - v / tau_mem + isyn
-        S = heaviside(v - vth) - S_hist
+        S = heaviside(v - vth)
         ts = annotate_spike_time_gradient(jnp.ones(nneurons, dtype='float64')*t+v*0, v, dvdt)
         cond = (ttfs > ts) & (S == 1)
         ttfs = jnp.where(cond, ts, ttfs)
-        Ss = superspike(v - vth) - S_hist
-        S_hist = jnp.where(S, 1., S_hist)
+        Ss = superspike(v - vth)
         synapse = synapse.enqueue_static(
                 t + inp_delay_timesteps,
                 inp_delay,
@@ -80,12 +82,14 @@ def sim(
                 tau_syn)
         synapse, (i_jump, v_jump) = synapse.pop(t)
         vnext_noreset = beta * v + isyn*dt + v_jump
+        # vnext_noreset = jnp.where(vnext_noreset <= 0, 0, vnext_noreset)
         dvdt_min_noreset = -tau_mem * v + isyn
         dvdt_plus_reset = isyn + i_jump
         # PREVIOUS (+superspike): v = (1 - S) * (beta * v + isyn*dt + v_jump)
-        v = v_reset(S_hist, v, dvdt_min_noreset, dvdt_plus_reset, vnext_noreset)
-        # 
+        v = v_reset(S, v, dvdt_min_noreset, dvdt_plus_reset, vnext_noreset)
+        v = jnp.where(S_hist, 0.0, v)
         isyn = isyn * alpha + i_jump
+        S_hist = jnp.where(S, 1., S_hist)
         state = (synapse, v, isyn, a, ttfs, S_hist)
         state = jax.tree.map(lambda x: grad_modify(x), state)
         return state, (Ss, v)
@@ -235,6 +239,7 @@ grad_forget.defvjp(grad_forget_fwd, grad_forget_bwd)
 # def grad_forget(x): return clip_gradient(-100, 100, x)
 grad_modify = lambda x: grad_forget(clip_gradient(-5, 5, x))
 grad_modify = lambda x: grad_forget(x)
+grad_modify = lambda x: x
 
 
 def checkpointed_scan(step, state0, xs, checkpoint_every):

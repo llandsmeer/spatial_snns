@@ -104,7 +104,7 @@ tau_mem = 10.
 @functools.partial(jax.jit, static_argnames=['aux'])
 def loss(net, in_spikes, label, aux=True):
     o, v, f = net.sim(in_spikes, tau_mem=tau_mem, dt=args.dt)
-    logits = - o[-3:] / 10 #- 0.5
+    logits = - o[-3:] / 50 #- 0.5
     # jax.debug.print("ttfs {x}", x=o)
 
     l = optax.softmax_cross_entropy_with_integer_labels(
@@ -144,7 +144,7 @@ def performance(net, in_spikes, labels):
     @jax.jit
     def get_logits(x):
         ws, v, f = net.sim(x, tau_mem=tau_mem, dt=args.dt)
-        ws = - ws[-3:] / 10 #- 0.5
+        ws = - ws[-3:] / 20 #- 0.5
         return ws, f
     # logits, f = jax.lax.map(get_logits, in_spikes, batch_size=64)
     logits, f = jax.vmap(get_logits)(in_spikes)
@@ -282,19 +282,29 @@ try:
         inp = inp_train[idxs]
         lbl = lbl_train[idxs]
         ###
-        o, v, f = net.sim(inp[0], tau_mem=tau_mem, dt=args.dt)
-        logits = v[-3:]
+
         # log(logits.argmax().item(), lbl[0].item()) # , logits)
-        for i, vi in enumerate(v.T):
-            plt.plot(vi+i)
-            plt.plot(o[i], i, 'o')
-        plt.show()
+        if ii % 1000 == 0 and ii > 10:
+            o, v, f = net.sim(inp[0], tau_mem=tau_mem, dt=args.dt)
+            logits = v[-3:]
+            for i, vi in enumerate(v.T):
+                plt.plot(vi+i)
+                plt.plot(o[i], i, 'o')
+
+            ispikes = jnp.nonzero(inp[0])
+            print(ispikes)
+            for inpi in ispikes:
+                plt.vlines(inpi, ymin= 0, ymax=len(v[0]), color='k')
+            plt.show()
         ###
         b = time.time()
         opt_state, net, l, g = batched_update(opt_state, net, inp, lbl)
         # log(g)
         l = l.block_until_ready()
         c = time.time()
+
+        # if ii == 5:
+        #     breakpoint()
 
         if ii % 100 == 0 or True:
             log(f'TRAIN {idxs} {ii} L={l:.3f} ttrain={c-b:.2f}s teval={b-a:.2f}s')
