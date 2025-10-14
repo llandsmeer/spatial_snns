@@ -73,8 +73,7 @@ class HyperParameters(typing.NamedTuple):
     @property
     def ndim(self):
         if self.netspec == 'inf':
-            assert False
-            return float(self.netspec)
+            return float('inf')
         elif 'e' in self.netspec:
             return int(self.netspec.split('e')[0])
         else:
@@ -96,7 +95,7 @@ class HyperParameters(typing.NamedTuple):
     def configdict(self):
         return {
                 'nhidden': self.nhidden,
-                'ninput': self.nhidden,
+                'ninput': self.ninput,
                 'noutput': self.noutput,
                 'netspec': self.netspec,
                 'ndim': self.ndim,
