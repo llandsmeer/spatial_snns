@@ -26,10 +26,13 @@ def sim(
     vth = 1.
     nneurons = nhidden + noutput
 
-    inp_delay = jnp.zeros((nneurons, ninput)).at[0:nhidden, 0:ninput].set(idelay.reshape((nhidden, ninput)))
-    inp_weight = jnp.abs(jnp.zeros((nneurons, ninput)).at[0:nhidden, 0:ninput].set(iweight))
-    rec_delay = jnp.zeros((nneurons, nneurons)).at[nhidden:nneurons, 0:nhidden].set(rdelay.reshape((noutput, nhidden)))
-    rec_weight = jnp.abs(jnp.zeros((nneurons, nneurons)).at[nhidden:nneurons, 0:nhidden].set(rweight))
+    reg_idelay = (max_delay_timesteps*dt)*jax.lax.logistic(idelay)
+    reg_rdelay = (max_delay_timesteps*dt)*jax.lax.logistic(rdelay)
+
+    inp_delay = jnp.zeros((nneurons, ninput)).at[0:nhidden, 0:ninput].set(reg_idelay.reshape((nhidden, ninput)))
+    inp_weight = jnp.zeros((nneurons, ninput)).at[0:nhidden, 0:ninput].set(iweight) #jnp.abs(jnp.zeros((nneurons, ninput)).at[0:nhidden, 0:ninput].set(iweight))
+    rec_delay = jnp.zeros((nneurons, nneurons)).at[nhidden:nneurons, 0:nhidden].set(reg_rdelay.reshape((noutput, nhidden)))
+    rec_weight = jnp.zeros((nneurons, nneurons)).at[nhidden:nneurons, 0:nhidden].set(rweight) #jnp.abs(jnp.zeros((nneurons, nneurons)).at[nhidden:nneurons, 0:nhidden].set(rweight))
     # jax.debug.print("{}", inp_weight)
     # jnp.set_printoptions(threshold=sys.maxsize)
     # jax.debug.print("Rec Delay: {x}", x=rec_delay)
@@ -49,7 +52,7 @@ def sim(
     synapse = LTIRingSynapse.init(max_delay_timesteps, nneurons)
     v = jnp.zeros(nneurons)
     isyn = jnp.zeros(nneurons)
-    ttfs = jnp.zeros(nneurons) + 501
+    ttfs = jnp.zeros(nneurons) + 801
     #
     alpha = jnp.exp(-dt/tau_syn)
     beta = jnp.exp(-dt/tau_mem)

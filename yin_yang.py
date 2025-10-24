@@ -2,11 +2,15 @@ import numpy as np
 import matplotlib.pyplot as plt
 import h5py
 
+# samples = np.load("yin_yang_data_set/publication_data/test_samples.npy")
+# labels = np.load("yin_yang_data_set/publication_data/test_labels.npy")
 samples = np.load("yin_yang_data_set/publication_data/train_samples.npy")
 labels = np.load("yin_yang_data_set/publication_data/train_labels.npy")
+# samples = np.load("yin_yang_data_set/train_samples_20k.npy")
+# labels = np.load("yin_yang_data_set/train_labels_20k.npy")
 
-timespan = 100
-total_timespan = 500
+timespan = 200
+total_timespan = 1000
 scale = 0.5
 
 times = []
@@ -14,10 +18,10 @@ units = []
 
 for n in range(len(labels)):
 
-    num_spikes_x = int((1-samples[n][0])*timespan) # np.random.poisson(lam = samples[n][0]*timespan*scale)
-    num_spikes_y = int((1-samples[n][1])*timespan) #np.random.poisson(lam = samples[n][1]*timespan*scale)
-    num_spikes_1_x = int((1-samples[n][2])*timespan) #np.random.poisson(lam = samples[n][2]*timespan*scale)
-    num_spikes_1_y = int((1-samples[n][3])*timespan) #np.random.poisson(lam = samples[n][3]*timespan*scale)
+    num_spikes_x = 10 + int((samples[n][0])*timespan) # np.random.poisson(lam = samples[n][0]*timespan*scale)
+    num_spikes_y = 10 + int((samples[n][1])*timespan) #np.random.poisson(lam = samples[n][1]*timespan*scale)
+    num_spikes_1_x = 10 + int((samples[n][2])*timespan) #np.random.poisson(lam = samples[n][2]*timespan*scale)
+    num_spikes_1_y = 10 + int((samples[n][3])*timespan) #np.random.poisson(lam = samples[n][3]*timespan*scale)
 
     # if n == 100:
     #     print(samples[n])
@@ -62,9 +66,10 @@ print(units[0])
 print(len(times[0]))
 
 plt.scatter(times[0], units[0])
-plt.show()
+# plt.savefig('data.png')
+# plt.show()
 
-# f = h5py.File("yy_rc_test.h5", 'w')
-# times_dset = f.create_dataset("spikes/times", data=times)
-# units_dset = f.create_dataset("spikes/units", data=units)
-# labels_dset = f.create_dataset("labels", data=labels)
+f = h5py.File("yy_rc_train.h5", 'w')
+times_dset = f.create_dataset("spikes/times", data=times)
+units_dset = f.create_dataset("spikes/units", data=units)
+labels_dset = f.create_dataset("labels", data=labels)

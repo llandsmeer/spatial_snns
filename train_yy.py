@@ -47,10 +47,15 @@ parser.add_argument('--dt', type=float, default=0.05, help='Time step (bigger=fa
 parser.add_argument('--tmp', dest='save_dir', default='saved', action='store_const', const='/tmp/saved', help='Store in /tmp/saved')
 parser.add_argument('--reload', default=False, action='store_true', help='Reload previous')
 parser.add_argument('--layer', default=False, action='store_true', help='Create layer-wise network')
+parser.add_argument('--margin', type=float, default=0.)
+parser.add_argument('--beta', type=float, default=5.)
+parser.add_argument('--wseed', type=int, default=42)
+parser.add_argument('--bseed', type=int, default=97)
+parser.add_argument('--ttrain', type=int, default=10000)
 args = parser.parse_args()
 
 save_dir = args.save_dir
-fndir = f'd{args.ndim}_h{args.nhidden}_lr{args.lr}_ll{args.load_limit}_dt{args.dt}'
+fndir = f'd{args.ndim}_h{args.nhidden}_lr{args.lr}_ll{args.load_limit}_dt{args.dt}_beta{args.beta}'
 done = -1
 if not args.reload:
     os.makedirs(f'{save_dir}/{fndir}', exist_ok=args.force)
@@ -88,7 +93,7 @@ params = networks.HyperParameters(
         noutput=3,
         layer=True
         )
-net = params.build()
+net = params.build(key=jax.random.PRNGKey(args.wseed))
 
 if args.reload:
     fns = sorted([x for x  in glob.glob(f'{save_dir}/{fndir}/*.npz') if not 'read' in x])[::-1]
@@ -100,16 +105,38 @@ if args.reload:
         done = int(fns[0].split('/')[-1].split('.')[0])
 
 tau_mem = jnp.array([0]*3 + [10.] * (args.nhidden-3))
-tau_mem = 10.
+tau_mem = 4. #10.
 @functools.partial(jax.jit, static_argnames=['aux'])
 def loss(net, in_spikes, label, aux=True):
-    o, v, f = net.sim(in_spikes, tau_mem=tau_mem, dt=args.dt)
-    logits = - o[-3:] / 50 #- 0.5
-    # jax.debug.print("ttfs {x}", x=o)
+    o, v, f = net.sim(in_spikes, tau_mem=tau_mem, dt=args.dt, max_delay_ms=2.56)
+    # logits = - o[-3:] * args.dt #/ 50 #- 0.5
+    # l = optax.softmax_cross_entropy_with_integer_labels(logits, label)
 
-    l = optax.softmax_cross_entropy_with_integer_labels(
-            logits, label)
-    l = l # + (logits < 1) * v[:,:20].mean(0)
+
+    # spike_times = o[-3:] * args.dt
+    # # margin = 10
+    # # margin_alpha = 0.1
+
+    # # sorted_logits = jnp.sort(spike_times)[::-1]
+    # # margin_l = jnp.maximum(0., margin - (sorted_logits[1] - sorted_logits[0]))
+
+    # correct_time = spike_times[label]
+    # idx = jnp.arange(spike_times.shape[0])
+    # targets = jnp.full_like(spike_times, correct_time)
+    # delta_tau = jnp.where(idx == label, 0.0, args.margin)
+    # l = jnp.square(spike_times - targets - delta_tau)
+    # l = 0.5 * jnp.sum(l)
+
+    spike_times = o[-3:]
+    correct_time = spike_times[label]
+    idx = jnp.arange(spike_times.shape[0])
+    mask = idx != label
+    diffs = jnp.where(mask, args.beta * (correct_time - spike_times + args.margin), -100)
+    l = jnp.sum(jax.nn.softplus(diffs))
+
+
+
+    l = l  #+ margin_alpha * margin_l #(logits < 1) * v[:,:20].mean(0)
     # l = l + ((f - 0.05) ** 2).sum() * 0.01
     if aux:
         return l, (jax.nn.softmax(logits), v)
@@ -125,7 +152,7 @@ def batched_loss(net, in_spikes, labels):
 def performance(net, in_spikes, labels):
     def step(carry, x):
         inp, lbl = x
-        ws, v, f = net.sim(inp, tau_mem=tau_mem, dt=args.dt)
+        ws, v, f = net.sim(inp, tau_mem=tau_mem, dt=args.dt, max_delay_ms=2.56)
         del v
         top3 = jnp.argsort(ws)[-3:]
         top1_hit = (top3[-1] == lbl).astype(jnp.int32)
@@ -143,30 +170,36 @@ def performance(net, in_spikes, labels):
 def performance(net, in_spikes, labels):
     @jax.jit
     def get_logits(x):
-        ws, v, f = net.sim(x, tau_mem=tau_mem, dt=args.dt)
-        ws = - ws[-3:] / 20 #- 0.5
+        ws, v, f = net.sim(x, tau_mem=tau_mem, dt=args.dt, max_delay_ms=2.56)
+        ws = - ws[-3:] #/ 20 #- 0.5
         return ws, f
     # logits, f = jax.lax.map(get_logits, in_spikes, batch_size=64)
     logits, f = jax.vmap(get_logits)(in_spikes)
     f = f.mean(0)
-    top3 = jnp.argsort(logits, axis=1)[:,-3:]
+    top3 = jnp.argsort(logits, axis=1)[:,-2:]
+    logits = jnp.sort(logits, axis=1)
     top1p = 100 * (top3[:,-1] == labels).mean()
     top3p = 100 * (top3 == labels[:,None]).any(1).mean()
-    return top1p, top3p, f
+    # top2_diff = jnp.abs(top3[:,-1] - top3[:,-2]).mean()
+    top2_diff = jnp.where(top3[:,-2] == labels, jnp.abs(logits[:,-1] - logits[:,-2]), jnp.nan)
+    top2_diff = jnp.nanmean(top2_diff)
+    return top1p, top3p, f, top2_diff
 def performance_split(net, in_spikes, labels):
     BATCH_SIZE=64
     n = len(in_spikes)
-    top1_list, top3_list, f_list = [], [], []
+    top1_list, top3_list, f_list, top2_diff_list = [], [], [], []
     for i in tqdm.tqdm(range(0, n, BATCH_SIZE)):
         batch_inputs = in_spikes[i:i+BATCH_SIZE]
         batch_labels = labels[i:i+BATCH_SIZE]
-        top1, top3, f = performance(net, batch_inputs, batch_labels)
+        top1, top3, f, top2_diff = performance(net, batch_inputs, batch_labels)
         top1_list.append(top1)
         top3_list.append(top3)
         f_list.extend(f)
+        top2_diff_list.append(top2_diff)
     avg_top1 = sum(top1_list) / len(top1_list)
     avg_top3 = sum(top3_list) / len(top3_list)
-    return avg_top1, avg_top3, jnp.array(f_list)
+    avg_top2_diff = sum(top2_diff_list) / len(top2_diff_list)
+    return avg_top1, avg_top3, jnp.array(f_list), avg_top2_diff
 
 loss_and_grad = jax.jit(jax.value_and_grad(loss, argnums=0, has_aux=True))
 batched_loss_and_grad = jax.jit(jax.value_and_grad(batched_loss, argnums=0, has_aux=False))
@@ -194,8 +227,14 @@ schedule = optax.warmup_cosine_decay_schedule(
     peak_value=args.lr,
     warmup_steps=warmup_steps,
     decay_steps=10000,
-    end_value=args.lr * 0.1
+    end_value=args.lr * 0.25
 )
+
+# schedule = optax.cosine_decay_schedule(
+#     init_value=args.lr,
+#     decay_steps=4000,
+#     alpha=0.1
+# )
 
 def scale_custom(scale: float, check=lambda key: False):
     def init_fn(_): return ()
@@ -208,19 +247,30 @@ def scale_custom(scale: float, check=lambda key: False):
         return updates, state
     return optax.GradientTransformation(init_fn, update_fn)
 
+# optimizer = optax.chain(
+#     optax.adaptive_grad_clip(clipping=clip_factor, eps=0.001),
+#     optax.add_decayed_weights(weight_decay),
+#     optax.scale_by_adam(),
+#     optax.scale_by_schedule(schedule),
+#     scale_custom(10., lambda x: x in ('ipos', 'rpos')),
+#     scale_custom(1., lambda x: x in ('idelay', 'rdelay')),
+#     optax.scale(-1.0)
+# )
+
 optimizer = optax.chain(
     optax.adaptive_grad_clip(clipping=clip_factor, eps=0.001),
     optax.add_decayed_weights(weight_decay),
     optax.scale_by_adam(),
     optax.scale_by_schedule(schedule),
-    scale_custom(10., lambda x: x in ('ipos', 'rpos')),
     optax.scale(-1.0)
 )
 
 
 opt_state = optimizer.init(net)
 
-key = jax.random.PRNGKey(0)
+key = jax.random.PRNGKey(args.bseed)
+
+perm = jnp.zeros((args.batch_size,))
 
 ll = []
 
@@ -229,6 +279,8 @@ top1p = []
 top3p = []
 top1p_train = []
 top3p_train = []
+top2d = []
+top2d_train = []
 
 inp_test, lbl_test = test.indicators_labels32(idxs=jnp.arange(test.size), dt=args.dt)
 #inp = jnp.array(inp)
@@ -236,10 +288,11 @@ inp_test, lbl_test = test.indicators_labels32(idxs=jnp.arange(test.size), dt=arg
 
 inp_train, lbl_train = train.indicators_labels32(idxs=jnp.arange(train.size), dt=args.dt)
 # inp = inp[:,:,::args.downsample].block_until_ready()
+print("Train set size:", inp_train.shape, "Test set size:", inp_test.shape)
 
 try:
     print('start_training')
-    for ii in range(10_000):
+    for ii in range(args.ttrain):
         if ii < done:
             print('skipping', ii)
             continue
@@ -247,32 +300,48 @@ try:
         # log('RW', net.rw.min(), net.rw.max(), net.rw.mean(), net.rw.std())
         if ii % 100 == 0:
             log('TEST')
-            t1p, t3p, f = performance_split(net, inp_test[:100], lbl_test[:100])
+            t1p, t3p, f, t2d = performance_split(net, inp_test[:100], lbl_test[:100])
             log('FREQ', f.min(), f.max(), f.mean())
-            t1p_train, t3p_train, ft = performance_split(net, inp_train[:100], lbl_train[:100])
+            t1p_train, t3p_train, ft, t2d_train = performance_split(net, inp_train[:100], lbl_train[:100])
             log('FREQtrain', ft.min(), ft.max(), ft.mean())
+            test_loss = batched_loss(net, inp_test[:100], lbl_test[:100])
             topii.append(ii)
             top1p.append(t1p)
             top3p.append(t3p)
             top1p_train.append(t1p_train)
             top3p_train.append(t3p_train)
-            log('TOP1', t1p, 'TOP3', t3p)
-            log('TOP1train', t1p_train, 'TOP3train', t3p_train)
+            top2d.append(t2d)
+            top2d_train.append(t2d_train)
+            log('TOP1', t1p, 'TOP2', t3p, 'TOP2Diff', t2d, 'LOSS', test_loss)
+            log('TOP1train', t1p_train, 'TOP2train', t3p_train, 'TOP2trainDiff', t2d_train)
         if ii % 1000 == 999:
             log('TEST')
-            t1p, t3p, f = performance_split(net, inp_test, lbl_test)
+            t1p, t3p, f, t2d = performance_split(net, inp_test, lbl_test)
             log('FREQ', f.min(), f.max(), f.mean())
-            t1p_train, t3p_train, ft = performance_split(net, inp_train[:1000], lbl_train[:1000])
+            t1p_train, t3p_train, ft, t2d_train = performance_split(net, inp_train[:1000], lbl_train[:1000])
             log('FREQtrain', ft.min(), ft.max(), ft.mean())
+            test_loss = batched_loss(net, inp_test, lbl_test)
             topii.append(ii)
             top1p.append(t1p)
             top3p.append(t3p)
             top1p_train.append(t1p_train)
             top3p_train.append(t3p_train)
-            log('TOP1', t1p, 'TOP3', t3p)
-            log('TOP1train', t1p_train, 'TOP3train', t3p_train)
-        key, nxt = jax.random.split(key)
-        idxs = jax.random.randint(nxt, (args.batch_size,), 0, train.size)
+            top2d.append(t2d)
+            top2d_train.append(t2d_train)
+            log('TOP1', t1p, 'TOP2', t3p, 'TOP2Diff', t2d, 'LOSS', test_loss)
+            log('TOP1train', t1p_train, 'TOP2train', t3p_train, 'TOP2trainDiff', t2d_train)
+        # key, nxt = jax.random.split(key)
+        # idxs = jax.random.randint(nxt, (args.batch_size,), 0, train.size)
+        
+        if ii%int(train.size/args.batch_size) == 0: # every epoch
+            key, nxt = jax.random.split(key)
+            perm = jax.random.permutation(nxt, train.size)
+            batch_i = 0
+        
+        idxs = perm[batch_i:batch_i + args.batch_size]
+        batch_i = batch_i + args.batch_size
+
+
         a = time.time()
 
         # inp, lbl = train.indicators_labels(idxs=idxs, dt=args.dt)
@@ -284,8 +353,9 @@ try:
         ###
 
         # log(logits.argmax().item(), lbl[0].item()) # , logits)
-        if ii % 1000 == 0 and ii > 10:
-            o, v, f = net.sim(inp[0], tau_mem=tau_mem, dt=args.dt)
+        if (ii % 200 == 0 and ii > 10) or ii == 2:
+            plt.clf()
+            o, v, f = net.sim(inp[0], tau_mem=tau_mem, dt=args.dt, max_delay_ms=2.56)
             logits = v[-3:]
             for i, vi in enumerate(v.T):
                 plt.plot(vi+i)
@@ -295,7 +365,8 @@ try:
             print(ispikes)
             for inpi in ispikes:
                 plt.vlines(inpi, ymin= 0, ymax=len(v[0]), color='k')
-            plt.show()
+            plt.title(str(lbl[0]) + " | 0:" + str(o[-3]) + "  1:" + str(o[-2]) + "  2:" + str(o[-1]))
+            plt.savefig('yy.png')
         ###
         b = time.time()
         opt_state, net, l, g = batched_update(opt_state, net, inp, lbl)
@@ -307,7 +378,7 @@ try:
         #     breakpoint()
 
         if ii % 100 == 0 or True:
-            log(f'TRAIN {idxs} {ii} L={l:.3f} ttrain={c-b:.2f}s teval={b-a:.2f}s')
+            log(f'TRAIN {ii} L={l:.3f} ttrain={c-b:.2f}s teval={b-a:.2f}s')
             print(g)
 
         # l2 = batched_loss(net, inp, lbl)
@@ -324,36 +395,16 @@ except KeyboardInterrupt:
 ll = jnp.array(ll)
 # plt.plot(ll[:,0], 'o')
 # plt.plot(ll[:,1], 'o')
+plt.clf()
 plt.plot(topii, top1p, 'o-', label='top1 (test)')
 plt.plot(topii, top3p, '-', label='top3 (test)')
 plt.plot(topii, top1p_train, 'o--', label='top1 (train)')
 plt.plot(topii, top3p_train, '--', label='top3 (train)')
+plt.plot(topii, top2d, label='top2 diff (test)')
+plt.plot(topii, top2d_train, label='top2 diff (train)')
 plt.legend()
 plt.savefig(f'{save_dir}/{fndir}/score.png')
 plt.savefig(f'{save_dir}/{fndir}/score.svg')
 plt.plot(ll, 'o', label='train')
 plt.savefig(f'{save_dir}/{fndir}/loss.png')
 plt.savefig(f'{save_dir}/{fndir}/loss.svg')
-
-
-# breakpoint()
-
-
-
-
-# f = lambda tree: jax.tree.map(lambda x: (float(jnp.min(x)), float(jnp.max(x))), tree)
-
-# NetworkWithReadout(net=DelayNetwork(
-#     iw=(-0.0675046919030234, 0.0758294276957268),
-#     rw=(-0.053958577439816746, 0.06031096309966367),
-#     idelay=(1.8681221046298968, 6.112585124498017),
-#     rdelay=(1.9129557305044265, 5.873335145410393)),
-#     w=(-0.05746382569791777, 0.04729931499965209))
-
-# log(jnp.isnan(g.iw).sum())
-# log(jnp.isnan(g.rw).sum())
-# log(jnp.isnan(g.iw).sum())
-# log(jnp.isnan(g.rw).sum())
-
-# log(jnp.isnan(g.iw).sum())
-# log(jnp.isnan(g.rw).sum())

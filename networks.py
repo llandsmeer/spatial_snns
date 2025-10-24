@@ -78,7 +78,7 @@ class HyperParameters(typing.NamedTuple):
         pos = 10 * jax.random.normal(key, (n,  self.ndim))
         return pos
     def random_delay(self, a, b, key):
-        delays = 4 + .5*jax.random.normal(key, (a,b)).flatten()
+        delays = 1 + .5*jax.random.normal(key, (a,b)).flatten()
         return delays
     def random_weight(self, a, b, key, zero=False, factor=1):
         W = jax.random.uniform(key=key, shape=(a,b), minval=-0.2, maxval=0.8)
@@ -87,6 +87,12 @@ class HyperParameters(typing.NamedTuple):
             W = zero_diagonal(W)
         weight = factor/(a*b) * W
         return jnp.abs(weight)
+    def random_idelay(self, a, b, key):
+        delays = 0.25*jax.random.normal(key, (a,b)).flatten()
+        return delays
+    def random_rdelay(self, a, b, key):
+        delays = 0.25*jax.random.normal(key, (a,b)).flatten()
+        return delays
 
 class NoDelayNetwork(typing.NamedTuple):
     iw: jax.Array
@@ -190,7 +196,7 @@ class DelayNetwork(typing.NamedTuple):
             dt=kwargs.get('dt', 0.05),
             tau_syn=kwargs.get('tau_syn', 2.),
             tau_mem=kwargs.get('tau_mem', 10.),
-            max_delay_timesteps=int(1+kwargs.get('max_delay_ms', 20.)/kwargs.get('dt', 0.05)),
+            max_delay_timesteps=int(1+kwargs.get('max_delay_ms', 20.)/kwargs.get('dt', 0.01)),
             )
     
 class DelayLayerNetwork(typing.NamedTuple):
@@ -220,8 +226,8 @@ class DelayLayerNetwork(typing.NamedTuple):
         return DelayLayerNetwork(
             iw = hyper.random_weight(hyper.nhidden, hyper.ninput, keys[0], zero=False, factor=hyper.ifactor),
             rw = hyper.random_weight(hyper.noutput, hyper.nhidden, keys[1], factor=hyper.rfactor),
-            idelay = hyper.random_delay(hyper.nhidden, hyper.ninput, keys[2]),
-            rdelay = hyper.random_delay(hyper.noutput, hyper.nhidden, keys[3])
+            idelay = hyper.random_idelay(hyper.nhidden, hyper.ninput, keys[2]),
+            rdelay = hyper.random_rdelay(hyper.noutput, hyper.nhidden, keys[3])
             )
     def sim(self, ispikes, **kwargs):
         ninput = self.iw.shape[1]
@@ -239,7 +245,7 @@ class DelayLayerNetwork(typing.NamedTuple):
             dt=kwargs.get('dt', 0.05),
             tau_syn=kwargs.get('tau_syn', 2.),
             tau_mem=kwargs.get('tau_mem', 10.),
-            max_delay_timesteps=int(1+kwargs.get('max_delay_ms', 20.)/kwargs.get('dt', 0.05)),
+            max_delay_timesteps=int(1+kwargs.get('max_delay_ms', 20.)/kwargs.get('dt', 0.01)),
             )
 
 class SpatialNetwork(typing.NamedTuple):

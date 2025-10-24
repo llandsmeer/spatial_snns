@@ -64,6 +64,8 @@ class YY(typing.NamedTuple):
     def load(cls, fn, limit=None, skip=False):
         if fn == 'train':
             fn = 'yy_rc_train.h5'
+        elif fn == 'train_20k':
+            fn = 'yy_rc_train_20k.h5'
         elif fn == 'test':
             fn = 'yy_rc_test.h5'
         mkhandle = gzip.open if fn.endswith('.gz') else open
@@ -80,7 +82,7 @@ class YY(typing.NamedTuple):
                 units=[jnp.array(x) for x in tqdm.tqdm(ds['spikes/units'][take])], # type: ignore
                 times=times,
                 labels=jnp.array(ds['labels'][take]), # type: ignore
-                tmax=500, #float(jnp.max(jnp.array([jnp.max(x) for x in times]))),
+                tmax=800, #float(jnp.max(jnp.array([jnp.max(x) for x in times]))),
                 fn=fn
                 )
     def plot(self, idx, color=None):
