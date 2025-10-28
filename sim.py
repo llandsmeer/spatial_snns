@@ -72,7 +72,7 @@ def sim(
         # 
         isyn = isyn * alpha + i_jump
         state = (synapse, v, isyn, a)
-        state = jax.tree.map(lambda x: grad_modify(x), state)
+        state = jax.tree.map(lambda x: jnp.where(t % 10 == 0, grad_modify(x), x), state)
         return state, (Ss, v)
     #
     a = jnp.zeros_like(v)
@@ -200,6 +200,8 @@ clip_gradient.defvjp(clip_gradient_fwd, clip_gradient_bwd)
 def grad_forget(x): return x
 def grad_forget_fwd(x): return x, ()
 def grad_forget_bwd(res, g): 
+    # norm = jnp.linalg.norm(g)
+    # return g / (0.9 + 0.1 * jnp.maximum(1, norm)),
     return (g / (1 + jnp.linalg.norm(g)),)
 grad_forget.defvjp(grad_forget_fwd, grad_forget_bwd)
 

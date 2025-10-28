@@ -49,7 +49,13 @@ parser.add_argument('--dt', type=float, default=0.05, help='Time step (bigger=fa
 parser.add_argument('--tmp', dest='save_dir', default='saved', action='store_const', const='/tmp/saved', help='Store in /tmp/saved')
 parser.add_argument('--reload', default=False, action='store_true', help='Reload previous')
 parser.add_argument('--seed', type=int, default=0, help='Seed for network generation')
-parser.add_argument('--max_batches', type=int, default=20_000, help='Batch iteration count')
+parser.add_argument('--nepochs', type=int, default=100, help='Epochs to trian for')
+parser.add_argument('--delaygradscale', type=float, default=1., help='Scale delay gradients (or 0 for none)')
+parser.add_argument('--delaymu', type=float, default=8., help='Mu')
+parser.add_argument('--delaysigma', type=float, default=1., help='Sigma')
+parser.add_argument('--possigma', type=float, default=20., help='Sigma')
+parser.add_argument('--tgtfreq', type=float, default=5, help='Target frequency Hz')
+parser.add_argument('--population_freq', default=False, action='store_true', help='Target freq after mean')
 args = parser.parse_args()
 
 RUN_ID = str(uuid.uuid4())
@@ -93,12 +99,9 @@ for k, v in vars(args).items():
 log()
 
 buildkey, key = jax.random.split(jax.random.PRNGKey(args.seed), 2)
-
 datalog('args', **{ k:v for k, v in vars(args).items() })
 
 #train = shd.SHD.load('train', limit=None)
-train = shd.SHD.load('train', limit=args.load_limit, skip=args.skip)
-test = shd.SHD.load('test', limit=args.load_limit_test, skip=args.skip)
 
 if args.nhidden > 200:
     ifactor = 50
@@ -121,56 +124,33 @@ params = networks.HyperParameters(
         ifactor=400 * ifactor,
         rfactor=35 * rfactor,
         noutput=20,
+        pos_sigma=args.possigma,
+        delay_sigma=args.delaysigma,
+        delay_mu=args.delaymu,
         )
 
 datalog('hyperparams', **params.configdict())
-net = params.build(buildkey)
 
-if args.reload:
-    fns = sorted([x for x  in glob.glob(f'{save_dir}/{fndir}/*.npz') if not 'read' in x])[::-1]
-    try:
-        net = net.load(fns[0])
-        done = int(fns[0].split('/')[-1].split('.')[0])
-    except:
-        net = net.load(fns[1])
-        done = int(fns[0].split('/')[-1].split('.')[0])
 
-tau_mem = jnp.array([0]*20 + [10.] * (args.nhidden-20)) # old version with output inside hidden, makes it lif
 tau_mem = 10.
 @functools.partial(jax.jit, static_argnames=['aux'])
 def loss(net, in_spikes, label, aux=True):
     ws, v, f = net.sim(in_spikes, tau_mem=tau_mem, dt=args.dt)
     logits = ws
-    l = optax.softmax_cross_entropy_with_integer_labels(
-            logits, label)
-    l = l # + (logits < 1) * v[:,:20].mean(0)
-    l = l + ((f - 0.01) ** 2).sum()
+    f = f * args.dt
+    l = optax.softmax_cross_entropy_with_integer_labels(logits, label)
+    if args.population_freq:
+        l = l + ((f.mean() - args.tgtfreq / 1e3) ** 2) * f.shape[0]
+    else:
+        l = l + ((f - args.tgtfreq / 1e3) ** 2).sum()
     if aux:
-        return l, (jax.nn.softmax(logits), v)
+        return l, logits.argmax() == label
     else:
         return l
 
 def batched_loss(net, in_spikes, labels):
-    ls = jax.vmap(functools.partial(loss, aux=False), in_axes=(None, 0, 0))(net, jnp.array(in_spikes), jnp.array(labels))
-    return ls.mean()
-
-# @jax.jit
-# def performance(net, in_spikes, labels):
-#     def step(carry, x):
-#         inp, lbl = x
-#         ws, v, f = net.sim(inp, tau_mem=tau_mem, dt=args.dt)
-#         del v
-#         top3 = jnp.argsort(ws)[-3:]
-#         top1_hit = (top3[-1] == lbl).astype(jnp.int32)
-#         top3_hit = jnp.any(top3 == lbl).astype(jnp.int32)
-#         return (carry[0] + top1_hit, carry[1] + top3_hit, carry[2] + f), None
-#     (top1_count, top3_count, f), _ = jax.lax.scan(
-#         step,
-#         (0, 0, jnp.zeros(args.nhidden)),
-#         (in_spikes, labels),
-#         unroll=8
-#     )
-#     return 100*top1_count / len(labels), 100*top3_count / len(labels), f / len(labels)
+    ls, ncorrect = jax.vmap(functools.partial(loss, aux=True), in_axes=(None, 0, 0))(net, jnp.array(in_spikes), jnp.array(labels))
+    return ls.mean(), ncorrect.sum()
 
 @jax.jit
 def performance(net, in_spikes, labels):
@@ -201,15 +181,15 @@ def performance_split(net, in_spikes, labels):
     return avg_top1, avg_top3, jnp.array(f_list)
 
 loss_and_grad = jax.jit(jax.value_and_grad(loss, argnums=0, has_aux=True))
-batched_loss_and_grad = jax.jit(jax.value_and_grad(batched_loss, argnums=0, has_aux=False))
+batched_loss_and_grad = jax.jit(jax.value_and_grad(batched_loss, argnums=0, has_aux=True))
 
 @jax.jit
 def batched_update(opt_state, net, in_spikes, label):
     log('compiling')
-    l, g = batched_loss_and_grad(net, in_spikes, label)
+    (l, ncorrect), g = batched_loss_and_grad(net, in_spikes, label)
     updates, opt_state = optimizer.update(g, opt_state, net)
     net = optax.apply_updates(net, updates)
-    return opt_state, net, l, jax.tree.map(lambda x: x.ptp(), g)
+    return opt_state, net, l, ncorrect, jax.tree.map(lambda x: x.ptp(), g)
 
 # idx = 0
 # inp = train.indicator(idx=idx, pad=True)
@@ -219,7 +199,6 @@ def batched_update(opt_state, net, in_spikes, label):
 clip_factor = 2.0
 weight_decay = 1e-5
 warmup_steps = 500
-tbptt_len = 50  # truncate sequences for backprop
 
 schedule = optax.warmup_cosine_decay_schedule(
     init_value=0.0,
@@ -245,113 +224,51 @@ optimizer = optax.chain(
     optax.add_decayed_weights(weight_decay),
     optax.scale_by_adam(),
     optax.scale_by_schedule(schedule),
-    scale_custom(10., lambda x: x in ('ipos', 'rpos')),
+    scale_custom(args.delaygradscale, lambda x: x in ('ipos', 'rpos')),
+    scale_custom(args.delaygradscale, lambda x: x in ('idelay', 'rdelay')),
     optax.scale(-1.0)
 )
 
+net = params.build(buildkey)
+if args.reload:
+    fns = sorted([x for x  in glob.glob(f'{save_dir}/{fndir}/*.npz') if not 'read' in x])[::-1]
+    try:
+        net = net.load(fns[0])
+        done = int(fns[0].split('/')[-1].split('.')[0])
+    except:
+        net = net.load(fns[1])
+        done = int(fns[0].split('/')[-1].split('.')[0])
 
 opt_state = optimizer.init(net)
 
-ll = []
-
-topii = []
-top1p = []
-top3p = []
-top1p_train = []
-top3p_train = []
-
-inp_test, lbl_test = test.indicators_labels32(idxs=jnp.arange(test.size), dt=args.dt)
-#inp = jnp.array(inp)
-#inp = inp[:,:,::args.downsample].block_until_ready()
-
+train = shd.SHD.load('train', limit=args.load_limit, skip=args.skip)
+test  = shd.SHD.load('test', limit=args.load_limit_test, skip=args.skip)
+inp_test, lbl_test   = test.indicators_labels32(idxs=jnp.arange(test.size), dt=args.dt)
 inp_train, lbl_train = train.indicators_labels32(idxs=jnp.arange(train.size), dt=args.dt)
-# inp = inp[:,:,::args.downsample].block_until_ready()
 
-try:
-    print('start_training')
-    for ii in range(args.max_batches):
-        if ii < done:
-            print('skipping', ii)
-            continue
-        # log('IW', net.iw.min(), net.iw.max(), net.iw.mean(), net.iw.std())
-        # log('RW', net.rw.min(), net.rw.max(), net.rw.mean(), net.rw.std())
-        if ii % 100 == 0:
-            log('TEST')
-            t1p, t3p, f = performance_split(net, inp_test[:100], lbl_test[:100])
-            log('FREQ', f.min(), f.max(), f.mean())
-            t1p_train, t3p_train, ft = performance_split(net, inp_train[:100], lbl_train[:100])
-            log('FREQtrain', ft.min(), ft.max(), ft.mean())
-            topii.append(ii)
-            top1p.append(t1p)
-            top3p.append(t3p)
-            top1p_train.append(t1p_train)
-            top3p_train.append(t3p_train)
-            log('TOP1', t1p, 'TOP3', t3p)
-            log('TOP1train', t1p_train, 'TOP3train', t3p_train)
-            datalog('every100_subset100', i=ii, t1p=float(t1p), t3p=float(t3p), t1p_train=float(t1p_train), t3p_train=float(t3p_train))
-        if ii % 1000 == 999:
-            log('TEST')
-            t1p, t3p, f = performance_split(net, inp_test, lbl_test)
-            log('FREQ', f.min(), f.max(), f.mean())
-            t1p_train, t3p_train, ft = performance_split(net, inp_train[:1000], lbl_train[:1000])
-            log('FREQtrain', ft.min(), ft.max(), ft.mean())
-            topii.append(ii)
-            top1p.append(t1p)
-            top3p.append(t3p)
-            top1p_train.append(t1p_train)
-            top3p_train.append(t3p_train)
-            log('TOP1', t1p, 'TOP3', t3p)
-            log('TOP1train', t1p_train, 'TOP3train', t3p_train)
-            datalog('every1000', i=ii, t1p=float(t1p), t3p=float(t3p), t1p_train=float(t1p_train), t3p_train=float(t3p_train))
-        key, nxt = jax.random.split(key)
-        idxs = jax.random.randint(nxt, (args.batch_size,), 0, train.size)
-        a = time.time()
-
-        # inp, lbl = train.indicators_labels(idxs=idxs, dt=args.dt)
-        # lbl = jnp.array(lbl)
-        # inp = jnp.array(inp)
-        # inp = inp[:,:,::args.downsample].block_until_ready()
-        inp = inp_train[idxs]
-        lbl = lbl_train[idxs]
-        ###
-        #s, v = net.sim(inp[0], tau_mem=tau_mem, dt=args.dt)
-        #logits = v[-1,:20]
-        #log(logits.argmax().item(), lbl[0].item()) # , logits)
-        # plt.plot(v)
-        # plt.show()
-        ###
-        b = time.time()
-        opt_state, net, l, g = batched_update(opt_state, net, inp, lbl)
-        log(g)
-        l = l.block_until_ready()
-        c = time.time()
-
-        log(f'TRAIN {idxs} {ii} L={l:.3f} ttrain={c-b:.2f}s teval={b-a:.2f}s')
-        datalog('step', i=ii, l=float(l))
-
-        # l2 = batched_loss(net, inp, lbl)
-        # d = time.time()
-        # log('\t'.join(f'{k}:{v:.2f}' for k, v in g._asdict().items()))
-        # log(f'{ii} {l:.3f}->{l2:.3f} {d-c:.2f}s {c-b:.2f}s {b-a:.2f}s')
-        if ii % 100 == 0:
-            fnsave = f'{save_dir}/{fndir}/{ii:08d}'
-            net.save(fnsave)
-            datalog('model', i=ii, fn=fnsave)
-        # ll.append((l, l2))
-        ll.append(l)
-except KeyboardInterrupt:
-    pass
-
-ll = jnp.array(ll)
-# plt.plot(ll[:,0], 'o')
-# plt.plot(ll[:,1], 'o')
-plt.plot(topii, top1p, 'o-', label='top1 (test)')
-plt.plot(topii, top3p, '-', label='top3 (test)')
-plt.plot(topii, top1p_train, 'o--', label='top1 (train)')
-plt.plot(topii, top3p_train, '--', label='top3 (train)')
-plt.legend()
-plt.savefig(f'{save_dir}/{fndir}/score.png')
-plt.savefig(f'{save_dir}/{fndir}/score.svg')
-plt.plot(ll, 'o', label='train')
-plt.savefig(f'{save_dir}/{fndir}/loss.png')
-plt.savefig(f'{save_dir}/{fndir}/loss.svg')
+batch_size = args.batch_size
+for epoch_idx in range(args.nepochs):
+    print('Epoch', epoch_idx)
+    key, nxt = jax.random.split(key)
+    epoch_perm = jax.random.permutation(nxt, inp_train.shape[0])
+    ncorrect_total = 0
+    for batch_idx in (bar := tqdm.tqdm(range(0, batch_size*int(inp_train.shape[0]/batch_size), batch_size))):
+        batch_idxs = epoch_perm[batch_idx:batch_idx+batch_size]
+        inp = inp_train[batch_idxs]
+        lbl = lbl_train[batch_idxs]
+        opt_state, net, l, ncorrect_batch, g = batched_update(opt_state, net, inp, lbl)
+        ncorrect_total += ncorrect_batch
+        accuracy = ncorrect_total / (batch_idx + batch_size)
+        bar.set_postfix_str(f'{accuracy*100:.1f}% {l:.2f}')
+        datalog('batch', epoch=epoch_idx, i=batch_idx, l=float(l), ncorrect=float(ncorrect_batch))
+    t1p, t3p, f = performance_split(net, inp_test, lbl_test)
+    print(f'#TEST# TOP1 {t1p:.1f}%  TOP3 {t3p:.1f}%  FREQ {f.mean():.2e}')
+    t1p_train, t3p_train, ft = performance_split(net, inp_train[:500], lbl_train[:500])
+    print(f'#TRAIN# TOP1 {t1p_train:.1f}%  TOP3 {t3p_train:.1f}%  FREQ {ft.mean():.2e}')
+    datalog('epoch',
+            i=epoch_idx,
+            t1p=float(t1p),
+            t3p=float(t3p),
+            t1p_train=float(t1p_train),
+            t3p_train=float(t3p_train)
+            )

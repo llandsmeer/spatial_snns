@@ -57,6 +57,9 @@ class HyperParameters(typing.NamedTuple):
     netspec: NetSpec = 'inf'
     ifactor: float = 1.
     rfactor: float = 1.
+    delay_mu: float = 8.
+    delay_sigma: float = 1.
+    pos_sigma: float = 10.
     def build(self, key: jax.Array):
         key, readkey = jax.random.split(key)
         if self.netspec == '0':
@@ -80,10 +83,10 @@ class HyperParameters(typing.NamedTuple):
             return int(self.netspec)
 
     def random_pos(self, n, key):
-        pos = 10 * jax.random.normal(key, (n,  self.ndim))
+        pos = self.pos_sigma * jax.random.normal(key, (n,  self.ndim))
         return pos
     def random_delay(self, a, b, key):
-        delays = 4 + .5*jax.random.normal(key, (a,b)).flatten()
+        delays = self.delay_mu + self.delay_sigma*jax.random.normal(key, (a,b)).flatten()
         return delays
     def random_weight(self, a, b, key, zero=False, factor=1.):
         W = jax.random.uniform(key=key, shape=(a,b), minval=-0.2, maxval=0.8)
