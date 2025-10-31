@@ -48,7 +48,7 @@ parser.add_argument('--tmp', dest='save_dir', default='saved', action='store_con
 parser.add_argument('--reload', default=False, action='store_true', help='Reload previous')
 parser.add_argument('--layer', default=False, action='store_true', help='Create layer-wise network')
 parser.add_argument('--margin', type=float, default=0.)
-parser.add_argument('--beta', type=float, default=5.)
+parser.add_argument('--beta', type=float, default=10.)
 parser.add_argument('--wseed', type=int, default=42)
 parser.add_argument('--bseed', type=int, default=97)
 parser.add_argument('--ttrain', type=int, default=10000)
@@ -91,7 +91,7 @@ params = networks.HyperParameters(
         ifactor=400 * args.ifactor,
         rfactor=35 * args.rfactor,
         noutput=3,
-        layer=True
+        layer=args.layer
         )
 net = params.build(key=jax.random.PRNGKey(args.wseed))
 
@@ -108,9 +108,11 @@ tau_mem = jnp.array([0]*3 + [10.] * (args.nhidden-3))
 tau_mem = 4. #10.
 @functools.partial(jax.jit, static_argnames=['aux'])
 def loss(net, in_spikes, label, aux=True):
-    o, v, f = net.sim(in_spikes, tau_mem=tau_mem, dt=args.dt, max_delay_ms=2.56)
-    # logits = - o[-3:] * args.dt #/ 50 #- 0.5
-    # l = optax.softmax_cross_entropy_with_integer_labels(logits, label)
+    o, v, f = net.sim(in_spikes, tau_mem=tau_mem, dt=args.dt, max_delay_ms=3.5)
+    # logits = - o[-3:] #/ 50 #- 0.5
+
+    logits = o
+    l = optax.softmax_cross_entropy_with_integer_labels(logits, label)
 
 
     # spike_times = o[-3:] * args.dt
@@ -127,17 +129,17 @@ def loss(net, in_spikes, label, aux=True):
     # l = jnp.square(spike_times - targets - delta_tau)
     # l = 0.5 * jnp.sum(l)
 
-    spike_times = o[-3:]
-    correct_time = spike_times[label]
-    idx = jnp.arange(spike_times.shape[0])
-    mask = idx != label
-    diffs = jnp.where(mask, args.beta * (correct_time - spike_times + args.margin), -100)
-    l = jnp.sum(jax.nn.softplus(diffs))
+    # spike_times = o[-3:]
+    # correct_time = spike_times[label]
+    # idx = jnp.arange(spike_times.shape[0])
+    # mask = idx != label
+    # diffs = jnp.where(mask, args.beta * (correct_time - spike_times + args.margin), -100)
+    # l = jnp.sum(jax.nn.softplus(diffs))
 
-
+    f = f * args.dt
 
     l = l  #+ margin_alpha * margin_l #(logits < 1) * v[:,:20].mean(0)
-    # l = l + ((f - 0.05) ** 2).sum() * 0.01
+    l = l + ((f - 0.005) ** 2).sum() #* 0.01
     if aux:
         return l, (jax.nn.softmax(logits), v)
     else:
@@ -152,7 +154,7 @@ def batched_loss(net, in_spikes, labels):
 def performance(net, in_spikes, labels):
     def step(carry, x):
         inp, lbl = x
-        ws, v, f = net.sim(inp, tau_mem=tau_mem, dt=args.dt, max_delay_ms=2.56)
+        ws, v, f = net.sim(inp, tau_mem=tau_mem, dt=args.dt, max_delay_ms=3.5)
         del v
         top3 = jnp.argsort(ws)[-3:]
         top1_hit = (top3[-1] == lbl).astype(jnp.int32)
@@ -170,8 +172,8 @@ def performance(net, in_spikes, labels):
 def performance(net, in_spikes, labels):
     @jax.jit
     def get_logits(x):
-        ws, v, f = net.sim(x, tau_mem=tau_mem, dt=args.dt, max_delay_ms=2.56)
-        ws = - ws[-3:] #/ 20 #- 0.5
+        ws, v, f = net.sim(x, tau_mem=tau_mem, dt=args.dt, max_delay_ms=3.5)
+        # ws = - ws[-3:] #/ 20 #- 0.5
         return ws, f
     # logits, f = jax.lax.map(get_logits, in_spikes, batch_size=64)
     logits, f = jax.vmap(get_logits)(in_spikes)
@@ -180,9 +182,9 @@ def performance(net, in_spikes, labels):
     logits = jnp.sort(logits, axis=1)
     top1p = 100 * (top3[:,-1] == labels).mean()
     top3p = 100 * (top3 == labels[:,None]).any(1).mean()
-    # top2_diff = jnp.abs(top3[:,-1] - top3[:,-2]).mean()
-    top2_diff = jnp.where(top3[:,-2] == labels, jnp.abs(logits[:,-1] - logits[:,-2]), jnp.nan)
-    top2_diff = jnp.nanmean(top2_diff)
+    top2_diff = jnp.abs(top3[:,-1] - top3[:,-2]).mean()
+    # top2_diff = jnp.where(top3[:,-2] == labels, jnp.abs(logits[:,-1] - logits[:,-2]), jnp.nan)
+    # top2_diff = jnp.nanmean(top2_diff)
     return top1p, top3p, f, top2_diff
 def performance_split(net, in_spikes, labels):
     BATCH_SIZE=64
@@ -227,7 +229,7 @@ schedule = optax.warmup_cosine_decay_schedule(
     peak_value=args.lr,
     warmup_steps=warmup_steps,
     decay_steps=10000,
-    end_value=args.lr * 0.25
+    end_value=args.lr * 0.1
 )
 
 # schedule = optax.cosine_decay_schedule(
@@ -312,8 +314,10 @@ try:
             top3p_train.append(t3p_train)
             top2d.append(t2d)
             top2d_train.append(t2d_train)
-            log('TOP1', t1p, 'TOP2', t3p, 'TOP2Diff', t2d, 'LOSS', test_loss)
-            log('TOP1train', t1p_train, 'TOP2train', t3p_train, 'TOP2trainDiff', t2d_train)
+            # log('TOP1', t1p, 'TOP2', t3p, 'TOP2Diff', t2d, 'LOSS', test_loss)
+            # log('TOP1train', t1p_train, 'TOP2train', t3p_train, 'TOP2trainDiff', t2d_train)
+            log('TOP1', t1p, 'TOP2', t3p, 'LOSS', test_loss)
+            log('TOP1train', t1p_train, 'TOP2train', t3p_train)
         if ii % 1000 == 999:
             log('TEST')
             t1p, t3p, f, t2d = performance_split(net, inp_test, lbl_test)
@@ -328,8 +332,10 @@ try:
             top3p_train.append(t3p_train)
             top2d.append(t2d)
             top2d_train.append(t2d_train)
-            log('TOP1', t1p, 'TOP2', t3p, 'TOP2Diff', t2d, 'LOSS', test_loss)
-            log('TOP1train', t1p_train, 'TOP2train', t3p_train, 'TOP2trainDiff', t2d_train)
+            # log('TOP1', t1p, 'TOP2', t3p, 'TOP2Diff', t2d, 'LOSS', test_loss)
+            # log('TOP1train', t1p_train, 'TOP2train', t3p_train, 'TOP2trainDiff', t2d_train)
+            log('TOP1', t1p, 'TOP2', t3p, 'LOSS', test_loss)
+            log('TOP1train', t1p_train, 'TOP2train', t3p_train)
         # key, nxt = jax.random.split(key)
         # idxs = jax.random.randint(nxt, (args.batch_size,), 0, train.size)
         
@@ -355,17 +361,17 @@ try:
         # log(logits.argmax().item(), lbl[0].item()) # , logits)
         if (ii % 200 == 0 and ii > 10) or ii == 2:
             plt.clf()
-            o, v, f = net.sim(inp[0], tau_mem=tau_mem, dt=args.dt, max_delay_ms=2.56)
-            logits = v[-3:]
+            o, v, f = net.sim(inp[0], tau_mem=tau_mem, dt=args.dt, max_delay_ms=3.5)
+            logits = o#v[-3:]
             for i, vi in enumerate(v.T):
                 plt.plot(vi+i)
-                plt.plot(o[i], i, 'o')
+                # plt.plot(o[i], i, 'o')
 
             ispikes = jnp.nonzero(inp[0])
             print(ispikes)
             for inpi in ispikes:
                 plt.vlines(inpi, ymin= 0, ymax=len(v[0]), color='k')
-            plt.title(str(lbl[0]) + " | 0:" + str(o[-3]) + "  1:" + str(o[-2]) + "  2:" + str(o[-1]))
+            plt.title(str(lbl[0]) + " | 0-> " + f"{o[-3]:.4f}" + "  1-> " + f"{o[-2]:.4f}" + "  2-> " + f"{o[-1]:.4f}")
             plt.savefig('yy.png')
         ###
         b = time.time()

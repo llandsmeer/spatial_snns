@@ -29,13 +29,18 @@ def sim(
     reg_idelay = (max_delay_timesteps*dt)*jax.lax.logistic(idelay)
     reg_rdelay = (max_delay_timesteps*dt)*jax.lax.logistic(rdelay)
 
-    inp_delay = jnp.zeros((nneurons, ninput)).at[0:nhidden, 0:ninput].set(reg_idelay.reshape((nhidden, ninput)))
-    inp_weight = jnp.zeros((nneurons, ninput)).at[0:nhidden, 0:ninput].set(iweight) #jnp.abs(jnp.zeros((nneurons, ninput)).at[0:nhidden, 0:ninput].set(iweight))
-    rec_delay = jnp.zeros((nneurons, nneurons)).at[nhidden:nneurons, 0:nhidden].set(reg_rdelay.reshape((noutput, nhidden)))
-    rec_weight = jnp.zeros((nneurons, nneurons)).at[nhidden:nneurons, 0:nhidden].set(rweight) #jnp.abs(jnp.zeros((nneurons, nneurons)).at[nhidden:nneurons, 0:nhidden].set(rweight))
-    # jax.debug.print("{}", inp_weight)
-    # jnp.set_printoptions(threshold=sys.maxsize)
-    # jax.debug.print("Rec Delay: {x}", x=rec_delay)
+    # inp_delay = jnp.zeros((nneurons, ninput)).at[0:nhidden, 0:ninput].set(reg_idelay.reshape((nhidden, ninput)))
+    # inp_weight = jnp.zeros((nneurons, ninput)).at[0:nhidden, 0:ninput].set(iweight) #jnp.abs(jnp.zeros((nneurons, ninput)).at[0:nhidden, 0:ninput].set(iweight))
+    # rec_delay = jnp.zeros((nneurons, nneurons)).at[nhidden:nneurons, 0:nhidden].set(reg_rdelay.reshape((noutput, nhidden)))
+    # rec_weight = jnp.zeros((nneurons, nneurons)).at[nhidden:nneurons, 0:nhidden].set(rweight) #jnp.abs(jnp.zeros((nneurons, nneurons)).at[nhidden:nneurons, 0:nhidden].set(rweight))
+    # # jax.debug.print("{}", inp_weight)
+    # # jnp.set_printoptions(threshold=sys.maxsize)
+    # # jax.debug.print("Rec Delay: {x}", x=rec_delay)
+
+    inp_delay = reg_idelay
+    inp_weight = iweight
+    rec_delay = reg_rdelay
+    rec_weight = rweight
 
     # assert (delay < max_delay_timesteps/dt).all()
     #
@@ -52,7 +57,7 @@ def sim(
     synapse = LTIRingSynapse.init(max_delay_timesteps, nneurons)
     v = jnp.zeros(nneurons)
     isyn = jnp.zeros(nneurons)
-    ttfs = jnp.zeros(nneurons) + 801
+    ttfs = jnp.zeros(nneurons) + 1201
     #
     alpha = jnp.exp(-dt/tau_syn)
     beta = jnp.exp(-dt/tau_mem)
@@ -90,11 +95,12 @@ def sim(
         dvdt_plus_reset = isyn + i_jump
         # PREVIOUS (+superspike): v = (1 - S) * (beta * v + isyn*dt + v_jump)
         v = v_reset(S, v, dvdt_min_noreset, dvdt_plus_reset, vnext_noreset)
-        v = jnp.where(S_hist, 0.0, v)
+        v = jnp.where(v < 0.0, 0.0, v)
         isyn = isyn * alpha + i_jump
         S_hist = jnp.where(S, 1., S_hist)
         state = (synapse, v, isyn, a, ttfs, S_hist)
         state = jax.tree.map(lambda x: grad_modify(x), state)
+        # state = jax.tree.map(lambda x: jnp.where(t % 5 == 0, grad_modify(x), x), state)
         return state, (Ss, v)
     #
     a = jnp.zeros_like(v)
@@ -236,13 +242,15 @@ clip_gradient.defvjp(clip_gradient_fwd, clip_gradient_bwd)
 def grad_forget(x): return x
 def grad_forget_fwd(x): return x, ()
 def grad_forget_bwd(res, g): 
-    return (g / (1 + jnp.linalg.norm(g)),)
+    norm = jnp.linalg.norm(g)
+    return (g / (0.5 + 0.5 * jnp.maximum(1., norm)),)
+    # return (g / (jnp.maximum(1, norm)),)
 grad_forget.defvjp(grad_forget_fwd, grad_forget_bwd)
 
 # def grad_forget(x): return clip_gradient(-100, 100, x)
 grad_modify = lambda x: grad_forget(clip_gradient(-5, 5, x))
 grad_modify = lambda x: grad_forget(x)
-grad_modify = lambda x: x
+# grad_modify = lambda x: x
 
 
 def checkpointed_scan(step, state0, xs, checkpoint_every):
