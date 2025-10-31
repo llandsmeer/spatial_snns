@@ -52,7 +52,7 @@ def sim(
     synapse = LTIRingSynapse.init(max_delay_timesteps, nneurons)
     v = jnp.zeros(nneurons)
     isyn = jnp.zeros(nneurons)
-    ttfs = jnp.zeros(nneurons) + 801
+    ttfs = jnp.zeros(nneurons) + 1201
     #
     alpha = jnp.exp(-dt/tau_syn)
     beta = jnp.exp(-dt/tau_mem)

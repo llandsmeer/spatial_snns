@@ -86,12 +86,12 @@ class HyperParameters(typing.NamedTuple):
             assert a == b
             W = zero_diagonal(W)
         weight = factor/(a*b) * W
-        return jnp.abs(weight)
+        return weight #jnp.abs(weight)
     def random_idelay(self, a, b, key):
-        delays = 0.25*jax.random.normal(key, (a,b)).flatten()
+        delays = 0.5 + 0.5*jax.random.normal(key, (a,b)).flatten()
         return delays
     def random_rdelay(self, a, b, key):
-        delays = 0.25*jax.random.normal(key, (a,b)).flatten()
+        delays = 0.5*jax.random.normal(key, (a,b)).flatten()
         return delays
 
 class NoDelayNetwork(typing.NamedTuple):
@@ -135,11 +135,14 @@ class NoDelayLayerNetwork(typing.NamedTuple):
             rw = hyper.random_weight(hyper.noutput, hyper.nhidden, keys[1], factor=hyper.rfactor)
             )
     def sim(self, iapp, **kwargs):
+        key = jax.random.PRNGKey(11)
+        idelay = 0.5 + 0.5*jax.random.normal(key, self.iw.shape).flatten() #jnp.full_like(self.iw, -100).flatten()
+        rdelay = 0.5*jax.random.normal(key, self.rw.shape).flatten() #jnp.full_like(self.rw, -100).flatten()
         return DelayLayerNetwork(
                 self.iw,
                 self.rw,
-                jnp.zeros_like(self.iw).flatten(),
-                jnp.zeros_like(self.rw).flatten()).sim(iapp, **kwargs)
+                idelay,
+                rdelay).sim(iapp, **kwargs)
     def save(self, fn):
         numpy.savez_compressed(fn, iw=self.iw, rw=self.rw)
     def load(self, fn):

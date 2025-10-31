@@ -1,0 +1,441 @@
+gpu
+NVIDIA H100
+Sun Oct 26 14:03:04 2025
+['train_yy.py', '--ndim', 'None', '--nhidden', '30', '--lr', '0.0005', '--dt', '0.01', '--batch_size', '150', '--ttrain', '200', '--wseed', '10', '--bseed', '25', '--layer', '--force']
+
+ == CONFIG == 
+ndim                 None
+nhidden              30
+batch_size           150
+load_limit           None
+load_limit_test      None
+lr                   0.0005
+ifactor              1
+rfactor              1
+force                True
+skip                 False
+debug                False
+dt                   0.01
+save_dir             saved
+reload               False
+layer                True
+margin               0.0
+beta                 10.0
+wseed                10
+bseed                25
+ttrain               200
+
+Train set size: (5000, 1201, 1) Test set size: (1000, 1201, 1)
+start_training
+TEST
+FREQ 0.0008326394671107411 0.0008326394671107411 0.0008326394671107411
+FREQtrain 0.0008326394671107411 0.0008326394671107411 0.0008326394671107411
+TOP1 38.802086 TOP2 73.69792 TOP2Diff 10.6 LOSS 202.6207985014208
+TOP1train 37.673615 TOP2train 73.09028 TOP2trainDiff 11.541666666666666
+compiling
+TRAIN 0 L=224.805 ttrain=4.17s teval=0.38s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.33329123, dtype=float64), rw=Array(7.52905495, dtype=float64), idelay=Array(0.21383968, dtype=float64), rdelay=Array(0.8642727, dtype=float64)))
+TRAIN 1 L=226.032 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.28056496, dtype=float64), rw=Array(7.3810296, dtype=float64), idelay=Array(0.19114138, dtype=float64), rdelay=Array(0.83823474, dtype=float64)))
+(Array([ 12, 190, 229, 407], dtype=int64), Array([0, 0, 0, 0], dtype=int64))
+TRAIN 2 L=256.218 ttrain=0.28s teval=4.23s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.25079056, dtype=float64), rw=Array(8.0208805, dtype=float64), idelay=Array(0.1794967, dtype=float64), rdelay=Array(0.89094049, dtype=float64)))
+TRAIN 3 L=229.609 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.32192581, dtype=float64), rw=Array(7.34968314, dtype=float64), idelay=Array(0.2102056, dtype=float64), rdelay=Array(0.84677372, dtype=float64)))
+TRAIN 4 L=217.156 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.33734296, dtype=float64), rw=Array(6.95928561, dtype=float64), idelay=Array(0.20826184, dtype=float64), rdelay=Array(0.80636037, dtype=float64)))
+TRAIN 5 L=229.209 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.28774608, dtype=float64), rw=Array(7.72685048, dtype=float64), idelay=Array(0.1903808, dtype=float64), rdelay=Array(0.8852135, dtype=float64)))
+TRAIN 6 L=265.485 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.27401044, dtype=float64), rw=Array(8.40842434, dtype=float64), idelay=Array(0.18518978, dtype=float64), rdelay=Array(0.97942185, dtype=float64)))
+TRAIN 7 L=260.552 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.38241171, dtype=float64), rw=Array(8.68751243, dtype=float64), idelay=Array(0.25130162, dtype=float64), rdelay=Array(0.9706565, dtype=float64)))
+TRAIN 8 L=213.756 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.22538148, dtype=float64), rw=Array(6.76304988, dtype=float64), idelay=Array(0.15678881, dtype=float64), rdelay=Array(0.75315603, dtype=float64)))
+TRAIN 9 L=230.871 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.29531673, dtype=float64), rw=Array(7.05136319, dtype=float64), idelay=Array(0.19978308, dtype=float64), rdelay=Array(0.78550892, dtype=float64)))
+TRAIN 10 L=222.018 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.27911201, dtype=float64), rw=Array(6.77189522, dtype=float64), idelay=Array(0.18254777, dtype=float64), rdelay=Array(0.77913475, dtype=float64)))
+TRAIN 11 L=227.575 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.29972404, dtype=float64), rw=Array(7.49829395, dtype=float64), idelay=Array(0.1981496, dtype=float64), rdelay=Array(0.86276482, dtype=float64)))
+TRAIN 12 L=227.809 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.27553242, dtype=float64), rw=Array(7.22766145, dtype=float64), idelay=Array(0.1862363, dtype=float64), rdelay=Array(0.82016187, dtype=float64)))
+TRAIN 13 L=228.681 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.29063572, dtype=float64), rw=Array(7.65135745, dtype=float64), idelay=Array(0.19873362, dtype=float64), rdelay=Array(0.88026543, dtype=float64)))
+TRAIN 14 L=242.143 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.32310257, dtype=float64), rw=Array(7.95755846, dtype=float64), idelay=Array(0.21357704, dtype=float64), rdelay=Array(0.91519591, dtype=float64)))
+TRAIN 15 L=226.538 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.28329825, dtype=float64), rw=Array(7.19327695, dtype=float64), idelay=Array(0.18626863, dtype=float64), rdelay=Array(0.83812092, dtype=float64)))
+TRAIN 16 L=228.842 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.28595161, dtype=float64), rw=Array(7.29731481, dtype=float64), idelay=Array(0.1954073, dtype=float64), rdelay=Array(0.83872105, dtype=float64)))
+TRAIN 17 L=265.156 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.3258053, dtype=float64), rw=Array(9.03780883, dtype=float64), idelay=Array(0.22444378, dtype=float64), rdelay=Array(1.01986982, dtype=float64)))
+TRAIN 18 L=233.756 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.2656078, dtype=float64), rw=Array(7.40358909, dtype=float64), idelay=Array(0.18269988, dtype=float64), rdelay=Array(0.8197425, dtype=float64)))
+TRAIN 19 L=210.890 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.24775914, dtype=float64), rw=Array(6.56380417, dtype=float64), idelay=Array(0.16466456, dtype=float64), rdelay=Array(0.76285083, dtype=float64)))
+TRAIN 20 L=216.814 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.23840406, dtype=float64), rw=Array(7.28403185, dtype=float64), idelay=Array(0.16857354, dtype=float64), rdelay=Array(0.82093454, dtype=float64)))
+TRAIN 21 L=266.347 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.30695748, dtype=float64), rw=Array(8.31396807, dtype=float64), idelay=Array(0.20663211, dtype=float64), rdelay=Array(0.92703625, dtype=float64)))
+TRAIN 22 L=180.166 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.28563338, dtype=float64), rw=Array(5.940347, dtype=float64), idelay=Array(0.17713073, dtype=float64), rdelay=Array(0.68723161, dtype=float64)))
+TRAIN 23 L=268.614 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.32720888, dtype=float64), rw=Array(8.70019448, dtype=float64), idelay=Array(0.23028967, dtype=float64), rdelay=Array(0.96864551, dtype=float64)))
+TRAIN 24 L=199.418 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.26722216, dtype=float64), rw=Array(6.50336462, dtype=float64), idelay=Array(0.17902822, dtype=float64), rdelay=Array(0.7421042, dtype=float64)))
+TRAIN 25 L=219.138 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.30427709, dtype=float64), rw=Array(6.9800534, dtype=float64), idelay=Array(0.19659848, dtype=float64), rdelay=Array(0.80941548, dtype=float64)))
+TRAIN 26 L=183.881 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.35242721, dtype=float64), rw=Array(6.16682069, dtype=float64), idelay=Array(0.21748811, dtype=float64), rdelay=Array(0.68109217, dtype=float64)))
+TRAIN 27 L=218.481 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.29059557, dtype=float64), rw=Array(6.77799662, dtype=float64), idelay=Array(0.187989, dtype=float64), rdelay=Array(0.78454449, dtype=float64)))
+TRAIN 28 L=218.281 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.26396593, dtype=float64), rw=Array(6.51952822, dtype=float64), idelay=Array(0.17272984, dtype=float64), rdelay=Array(0.75063147, dtype=float64)))
+TRAIN 29 L=193.356 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.24499762, dtype=float64), rw=Array(6.43301371, dtype=float64), idelay=Array(0.1659554, dtype=float64), rdelay=Array(0.72702334, dtype=float64)))
+TRAIN 30 L=193.570 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.27641197, dtype=float64), rw=Array(6.27215865, dtype=float64), idelay=Array(0.18151496, dtype=float64), rdelay=Array(0.72509687, dtype=float64)))
+TRAIN 31 L=207.432 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.30236119, dtype=float64), rw=Array(6.98461902, dtype=float64), idelay=Array(0.18725286, dtype=float64), rdelay=Array(0.80447416, dtype=float64)))
+TRAIN 32 L=256.552 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.25967869, dtype=float64), rw=Array(8.22413826, dtype=float64), idelay=Array(0.19671174, dtype=float64), rdelay=Array(0.91393695, dtype=float64)))
+TRAIN 33 L=247.823 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.24962292, dtype=float64), rw=Array(7.8155312, dtype=float64), idelay=Array(0.17761674, dtype=float64), rdelay=Array(0.90019198, dtype=float64)))
+TRAIN 34 L=234.076 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.30367749, dtype=float64), rw=Array(7.64247448, dtype=float64), idelay=Array(0.20136605, dtype=float64), rdelay=Array(0.87386246, dtype=float64)))
+TRAIN 35 L=229.138 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.28687897, dtype=float64), rw=Array(7.2408161, dtype=float64), idelay=Array(0.19634388, dtype=float64), rdelay=Array(0.81409994, dtype=float64)))
+TRAIN 36 L=204.814 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.24632846, dtype=float64), rw=Array(6.69717528, dtype=float64), idelay=Array(0.16934606, dtype=float64), rdelay=Array(0.75182039, dtype=float64)))
+TRAIN 37 L=231.076 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.29049347, dtype=float64), rw=Array(7.36702885, dtype=float64), idelay=Array(0.18971812, dtype=float64), rdelay=Array(0.84458887, dtype=float64)))
+TRAIN 38 L=226.708 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.28469163, dtype=float64), rw=Array(8.00179034, dtype=float64), idelay=Array(0.18987206, dtype=float64), rdelay=Array(0.91672388, dtype=float64)))
+TRAIN 39 L=221.756 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.29819016, dtype=float64), rw=Array(7.52033711, dtype=float64), idelay=Array(0.19698361, dtype=float64), rdelay=Array(0.86908806, dtype=float64)))
+TRAIN 40 L=205.418 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.24141647, dtype=float64), rw=Array(6.72142456, dtype=float64), idelay=Array(0.16639189, dtype=float64), rdelay=Array(0.76928394, dtype=float64)))
+TRAIN 41 L=206.085 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.25204108, dtype=float64), rw=Array(6.06379813, dtype=float64), idelay=Array(0.16615815, dtype=float64), rdelay=Array(0.67763274, dtype=float64)))
+TRAIN 42 L=212.614 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.39711863, dtype=float64), rw=Array(7.2052682, dtype=float64), idelay=Array(0.24346519, dtype=float64), rdelay=Array(0.80166038, dtype=float64)))
+TRAIN 43 L=243.538 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.34514532, dtype=float64), rw=Array(7.6124178, dtype=float64), idelay=Array(0.21787785, dtype=float64), rdelay=Array(0.87479025, dtype=float64)))
+TRAIN 44 L=233.338 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.30718444, dtype=float64), rw=Array(8.00025859, dtype=float64), idelay=Array(0.20212234, dtype=float64), rdelay=Array(0.9124522, dtype=float64)))
+TRAIN 45 L=194.609 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.26327288, dtype=float64), rw=Array(6.79773067, dtype=float64), idelay=Array(0.17557837, dtype=float64), rdelay=Array(0.78492592, dtype=float64)))
+TRAIN 46 L=217.161 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.28345106, dtype=float64), rw=Array(7.09797336, dtype=float64), idelay=Array(0.18854342, dtype=float64), rdelay=Array(0.75869909, dtype=float64)))
+TRAIN 47 L=134.418 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.25565694, dtype=float64), rw=Array(4.87699677, dtype=float64), idelay=Array(0.15356045, dtype=float64), rdelay=Array(0.55930322, dtype=float64)))
+TRAIN 48 L=243.890 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.28166858, dtype=float64), rw=Array(8.18158426, dtype=float64), idelay=Array(0.19427169, dtype=float64), rdelay=Array(0.93390958, dtype=float64)))
+TRAIN 49 L=205.476 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.27922408, dtype=float64), rw=Array(6.87349537, dtype=float64), idelay=Array(0.18567613, dtype=float64), rdelay=Array(0.76156841, dtype=float64)))
+TRAIN 50 L=179.899 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.19877228, dtype=float64), rw=Array(5.75778124, dtype=float64), idelay=Array(0.13436684, dtype=float64), rdelay=Array(0.64976379, dtype=float64)))
+TRAIN 51 L=256.952 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.29998868, dtype=float64), rw=Array(8.3753364, dtype=float64), idelay=Array(0.2109542, dtype=float64), rdelay=Array(0.95262381, dtype=float64)))
+TRAIN 52 L=208.267 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.27229011, dtype=float64), rw=Array(7.22351317, dtype=float64), idelay=Array(0.18193785, dtype=float64), rdelay=Array(0.83242849, dtype=float64)))
+TRAIN 53 L=229.214 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.31404313, dtype=float64), rw=Array(7.81364634, dtype=float64), idelay=Array(0.20842366, dtype=float64), rdelay=Array(0.89509455, dtype=float64)))
+TRAIN 54 L=245.685 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.37342735, dtype=float64), rw=Array(8.31412336, dtype=float64), idelay=Array(0.2393649, dtype=float64), rdelay=Array(0.93927954, dtype=float64)))
+TRAIN 55 L=240.894 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.28840337, dtype=float64), rw=Array(7.92932014, dtype=float64), idelay=Array(0.19942588, dtype=float64), rdelay=Array(0.89548025, dtype=float64)))
+TRAIN 56 L=236.609 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.34589038, dtype=float64), rw=Array(8.56129183, dtype=float64), idelay=Array(0.23343041, dtype=float64), rdelay=Array(0.95194798, dtype=float64)))
+TRAIN 57 L=208.756 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.28185472, dtype=float64), rw=Array(7.29279304, dtype=float64), idelay=Array(0.19117689, dtype=float64), rdelay=Array(0.83171267, dtype=float64)))
+TRAIN 58 L=233.481 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.25079427, dtype=float64), rw=Array(8.12843001, dtype=float64), idelay=Array(0.1775986, dtype=float64), rdelay=Array(0.9439156, dtype=float64)))
+TRAIN 59 L=193.081 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.31989696, dtype=float64), rw=Array(6.79526568, dtype=float64), idelay=Array(0.20682278, dtype=float64), rdelay=Array(0.77068474, dtype=float64)))
+TRAIN 60 L=262.014 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.32102934, dtype=float64), rw=Array(8.41655924, dtype=float64), idelay=Array(0.21767094, dtype=float64), rdelay=Array(0.94494916, dtype=float64)))
+TRAIN 61 L=219.561 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.32192699, dtype=float64), rw=Array(7.40774723, dtype=float64), idelay=Array(0.21188631, dtype=float64), rdelay=Array(0.84739454, dtype=float64)))
+TRAIN 62 L=190.842 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.26631608, dtype=float64), rw=Array(6.75369551, dtype=float64), idelay=Array(0.18018952, dtype=float64), rdelay=Array(0.76509685, dtype=float64)))
+TRAIN 63 L=199.143 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.30491737, dtype=float64), rw=Array(6.83960816, dtype=float64), idelay=Array(0.19764284, dtype=float64), rdelay=Array(0.76297494, dtype=float64)))
+TRAIN 64 L=210.566 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.2535535, dtype=float64), rw=Array(6.50896363, dtype=float64), idelay=Array(0.16829185, dtype=float64), rdelay=Array(0.75462614, dtype=float64)))
+TRAIN 65 L=208.214 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.29816854, dtype=float64), rw=Array(6.94747015, dtype=float64), idelay=Array(0.19730234, dtype=float64), rdelay=Array(0.78195232, dtype=float64)))
+TRAIN 66 L=230.543 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.29101123, dtype=float64), rw=Array(7.70750352, dtype=float64), idelay=Array(0.20124009, dtype=float64), rdelay=Array(0.87973968, dtype=float64)))
+TRAIN 67 L=224.414 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.26817693, dtype=float64), rw=Array(7.71041779, dtype=float64), idelay=Array(0.18528427, dtype=float64), rdelay=Array(0.88066365, dtype=float64)))
+TRAIN 68 L=218.685 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.24136233, dtype=float64), rw=Array(7.49777213, dtype=float64), idelay=Array(0.17270194, dtype=float64), rdelay=Array(0.85468348, dtype=float64)))
+TRAIN 69 L=181.956 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.26342793, dtype=float64), rw=Array(6.39654209, dtype=float64), idelay=Array(0.1718411, dtype=float64), rdelay=Array(0.7306959, dtype=float64)))
+TRAIN 70 L=215.566 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.26969834, dtype=float64), rw=Array(7.14141859, dtype=float64), idelay=Array(0.18615675, dtype=float64), rdelay=Array(0.8038084, dtype=float64)))
+TRAIN 71 L=191.828 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.32002937, dtype=float64), rw=Array(6.80468378, dtype=float64), idelay=Array(0.20484098, dtype=float64), rdelay=Array(0.74507638, dtype=float64)))
+TRAIN 72 L=203.023 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.27639163, dtype=float64), rw=Array(7.45537323, dtype=float64), idelay=Array(0.18370146, dtype=float64), rdelay=Array(0.85637076, dtype=float64)))
+TRAIN 73 L=220.623 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.25175052, dtype=float64), rw=Array(7.49126082, dtype=float64), idelay=Array(0.17627435, dtype=float64), rdelay=Array(0.85747278, dtype=float64)))
+TRAIN 74 L=230.237 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.36976244, dtype=float64), rw=Array(8.25962944, dtype=float64), idelay=Array(0.24467626, dtype=float64), rdelay=Array(0.88868941, dtype=float64)))
+TRAIN 75 L=209.414 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.25490661, dtype=float64), rw=Array(7.50942586, dtype=float64), idelay=Array(0.17465055, dtype=float64), rdelay=Array(0.86513, dtype=float64)))
+TRAIN 76 L=195.471 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.29091238, dtype=float64), rw=Array(6.65585208, dtype=float64), idelay=Array(0.18317955, dtype=float64), rdelay=Array(0.75920466, dtype=float64)))
+TRAIN 77 L=188.881 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.34011867, dtype=float64), rw=Array(6.96210134, dtype=float64), idelay=Array(0.21598672, dtype=float64), rdelay=Array(0.80069754, dtype=float64)))
+TRAIN 78 L=198.747 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.26167086, dtype=float64), rw=Array(6.6164454, dtype=float64), idelay=Array(0.1719797, dtype=float64), rdelay=Array(0.76247687, dtype=float64)))
+TRAIN 79 L=244.614 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.33943118, dtype=float64), rw=Array(7.79258532, dtype=float64), idelay=Array(0.22505158, dtype=float64), rdelay=Array(0.89756865, dtype=float64)))
+TRAIN 80 L=256.290 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.26366879, dtype=float64), rw=Array(9.25381441, dtype=float64), idelay=Array(0.19013608, dtype=float64), rdelay=Array(1.07628881, dtype=float64)))
+TRAIN 81 L=162.743 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.30697694, dtype=float64), rw=Array(6.51771422, dtype=float64), idelay=Array(0.18878244, dtype=float64), rdelay=Array(0.76354296, dtype=float64)))
+TRAIN 82 L=188.561 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.2756354, dtype=float64), rw=Array(6.66728819, dtype=float64), idelay=Array(0.17952281, dtype=float64), rdelay=Array(0.76967582, dtype=float64)))
+TRAIN 83 L=187.876 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.29872799, dtype=float64), rw=Array(6.80707468, dtype=float64), idelay=Array(0.18952798, dtype=float64), rdelay=Array(0.77624233, dtype=float64)))
+TRAIN 84 L=192.494 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.32307117, dtype=float64), rw=Array(7.05443162, dtype=float64), idelay=Array(0.20279782, dtype=float64), rdelay=Array(0.82327796, dtype=float64)))
+TRAIN 85 L=213.694 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.32329943, dtype=float64), rw=Array(8.05685545, dtype=float64), idelay=Array(0.21646221, dtype=float64), rdelay=Array(0.90636082, dtype=float64)))
+TRAIN 86 L=217.108 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.25879518, dtype=float64), rw=Array(7.65781531, dtype=float64), idelay=Array(0.1780107, dtype=float64), rdelay=Array(0.85209765, dtype=float64)))
+TRAIN 87 L=193.752 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.26765206, dtype=float64), rw=Array(7.24484655, dtype=float64), idelay=Array(0.18203949, dtype=float64), rdelay=Array(0.80477517, dtype=float64)))
+TRAIN 88 L=162.214 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.2360861, dtype=float64), rw=Array(5.42753634, dtype=float64), idelay=Array(0.15455973, dtype=float64), rdelay=Array(0.5773253, dtype=float64)))
+TRAIN 89 L=200.294 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.26563424, dtype=float64), rw=Array(7.20659142, dtype=float64), idelay=Array(0.1756802, dtype=float64), rdelay=Array(0.84269435, dtype=float64)))
+TRAIN 90 L=211.676 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.34475984, dtype=float64), rw=Array(8.08893735, dtype=float64), idelay=Array(0.22639525, dtype=float64), rdelay=Array(0.91045485, dtype=float64)))
+TRAIN 91 L=180.152 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.30967931, dtype=float64), rw=Array(6.41899398, dtype=float64), idelay=Array(0.19891191, dtype=float64), rdelay=Array(0.70452657, dtype=float64)))
+TRAIN 92 L=188.943 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.28266086, dtype=float64), rw=Array(6.82197936, dtype=float64), idelay=Array(0.18749829, dtype=float64), rdelay=Array(0.79425923, dtype=float64)))
+TRAIN 93 L=234.209 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.29953404, dtype=float64), rw=Array(8.65378912, dtype=float64), idelay=Array(0.20669682, dtype=float64), rdelay=Array(0.9661267, dtype=float64)))
+TRAIN 94 L=192.467 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.28090016, dtype=float64), rw=Array(7.00719732, dtype=float64), idelay=Array(0.19238173, dtype=float64), rdelay=Array(0.78406446, dtype=float64)))
+TRAIN 95 L=205.894 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.33753184, dtype=float64), rw=Array(7.63894842, dtype=float64), idelay=Array(0.21610059, dtype=float64), rdelay=Array(0.85767916, dtype=float64)))
+TRAIN 96 L=219.743 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.3183368, dtype=float64), rw=Array(8.0023597, dtype=float64), idelay=Array(0.21540383, dtype=float64), rdelay=Array(0.89418496, dtype=float64)))
+TRAIN 97 L=191.099 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.30533333, dtype=float64), rw=Array(6.73854172, dtype=float64), idelay=Array(0.20147768, dtype=float64), rdelay=Array(0.76928853, dtype=float64)))
+TRAIN 98 L=190.290 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.34805378, dtype=float64), rw=Array(7.30021037, dtype=float64), idelay=Array(0.22141293, dtype=float64), rdelay=Array(0.83109271, dtype=float64)))
+TRAIN 99 L=169.285 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.24093033, dtype=float64), rw=Array(6.21435169, dtype=float64), idelay=Array(0.15713588, dtype=float64), rdelay=Array(0.72681239, dtype=float64)))
+TEST
+FREQ 0.0008326394671107411 0.0008326394671107411 0.0008326394671107411
+FREQtrain 0.0008326394671107411 0.0008326394671107411 0.0008326394671107411
+TOP1 38.020836 TOP2 72.30903 TOP2Diff 9.357142857142858 LOSS 171.72079804747304
+TOP1train 37.673615 TOP2train 73.87153 TOP2trainDiff 10.526666666666667
+TRAIN 100 L=162.956 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.28765249, dtype=float64), rw=Array(6.49103672, dtype=float64), idelay=Array(0.18261469, dtype=float64), rdelay=Array(0.75124735, dtype=float64)))
+TRAIN 101 L=183.952 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.24054757, dtype=float64), rw=Array(6.78155204, dtype=float64), idelay=Array(0.16030721, dtype=float64), rdelay=Array(0.75527603, dtype=float64)))
+TRAIN 102 L=204.418 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.29605112, dtype=float64), rw=Array(8.00953751, dtype=float64), idelay=Array(0.19962606, dtype=float64), rdelay=Array(0.90985496, dtype=float64)))
+TRAIN 103 L=179.618 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.25142171, dtype=float64), rw=Array(6.52026883, dtype=float64), idelay=Array(0.17032322, dtype=float64), rdelay=Array(0.73326566, dtype=float64)))
+TRAIN 104 L=147.209 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.22772033, dtype=float64), rw=Array(5.46329285, dtype=float64), idelay=Array(0.14565237, dtype=float64), rdelay=Array(0.62417727, dtype=float64)))
+TRAIN 105 L=180.885 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.23393605, dtype=float64), rw=Array(7.07332624, dtype=float64), idelay=Array(0.16134827, dtype=float64), rdelay=Array(0.80624397, dtype=float64)))
+TRAIN 106 L=181.614 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.35249442, dtype=float64), rw=Array(7.40236686, dtype=float64), idelay=Array(0.22219846, dtype=float64), rdelay=Array(0.84440168, dtype=float64)))
+TRAIN 107 L=214.085 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.30461764, dtype=float64), rw=Array(8.1376624, dtype=float64), idelay=Array(0.20370336, dtype=float64), rdelay=Array(0.94452511, dtype=float64)))
+TRAIN 108 L=210.605 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.26922456, dtype=float64), rw=Array(7.59903697, dtype=float64), idelay=Array(0.18490251, dtype=float64), rdelay=Array(0.87592237, dtype=float64)))
+TRAIN 109 L=146.494 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.26355573, dtype=float64), rw=Array(5.47952999, dtype=float64), idelay=Array(0.16888195, dtype=float64), rdelay=Array(0.63797966, dtype=float64)))
+TRAIN 110 L=186.343 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.32405354, dtype=float64), rw=Array(6.81606941, dtype=float64), idelay=Array(0.21118226, dtype=float64), rdelay=Array(0.75958749, dtype=float64)))
+TRAIN 111 L=193.356 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.3212107, dtype=float64), rw=Array(7.69999707, dtype=float64), idelay=Array(0.2143428, dtype=float64), rdelay=Array(0.8152813, dtype=float64)))
+TRAIN 112 L=210.814 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.27860075, dtype=float64), rw=Array(8.15412252, dtype=float64), idelay=Array(0.18900362, dtype=float64), rdelay=Array(0.9297315, dtype=float64)))
+TRAIN 113 L=186.037 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.36414249, dtype=float64), rw=Array(7.5875537, dtype=float64), idelay=Array(0.22500214, dtype=float64), rdelay=Array(0.86767406, dtype=float64)))
+TRAIN 114 L=211.752 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.32328403, dtype=float64), rw=Array(8.39810812, dtype=float64), idelay=Array(0.22037702, dtype=float64), rdelay=Array(0.97328485, dtype=float64)))
+TRAIN 115 L=205.818 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.28167584, dtype=float64), rw=Array(8.66810279, dtype=float64), idelay=Array(0.21151701, dtype=float64), rdelay=Array(0.97991825, dtype=float64)))
+TRAIN 116 L=209.609 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.29614467, dtype=float64), rw=Array(8.26441603, dtype=float64), idelay=Array(0.20635349, dtype=float64), rdelay=Array(0.92463522, dtype=float64)))
+TRAIN 117 L=175.837 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.26428677, dtype=float64), rw=Array(7.22667939, dtype=float64), idelay=Array(0.17857434, dtype=float64), rdelay=Array(0.82177387, dtype=float64)))
+TRAIN 118 L=211.147 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.30941626, dtype=float64), rw=Array(8.22871242, dtype=float64), idelay=Array(0.20445058, dtype=float64), rdelay=Array(0.95127259, dtype=float64)))
+TRAIN 119 L=166.918 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.28795516, dtype=float64), rw=Array(6.65412889, dtype=float64), idelay=Array(0.18824256, dtype=float64), rdelay=Array(0.71404188, dtype=float64)))
+TRAIN 120 L=169.432 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.34090837, dtype=float64), rw=Array(6.88562491, dtype=float64), idelay=Array(0.21734343, dtype=float64), rdelay=Array(0.77770716, dtype=float64)))
+TRAIN 121 L=173.681 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.32173482, dtype=float64), rw=Array(6.92117357, dtype=float64), idelay=Array(0.20908814, dtype=float64), rdelay=Array(0.75350699, dtype=float64)))
+TRAIN 122 L=171.885 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.33154866, dtype=float64), rw=Array(6.41195113, dtype=float64), idelay=Array(0.21281942, dtype=float64), rdelay=Array(0.68890715, dtype=float64)))
+TRAIN 123 L=169.418 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.2744542, dtype=float64), rw=Array(6.71246163, dtype=float64), idelay=Array(0.18122695, dtype=float64), rdelay=Array(0.78424573, dtype=float64)))
+TRAIN 124 L=134.756 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.31016671, dtype=float64), rw=Array(5.66819895, dtype=float64), idelay=Array(0.19209617, dtype=float64), rdelay=Array(0.60582714, dtype=float64)))
+TRAIN 125 L=178.575 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.24284615, dtype=float64), rw=Array(7.35237899, dtype=float64), idelay=Array(0.16985824, dtype=float64), rdelay=Array(0.834009, dtype=float64)))
+TRAIN 126 L=194.414 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.31557844, dtype=float64), rw=Array(6.998739, dtype=float64), idelay=Array(0.21002163, dtype=float64), rdelay=Array(0.75386029, dtype=float64)))
+TRAIN 127 L=155.818 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.34145022, dtype=float64), rw=Array(6.37592876, dtype=float64), idelay=Array(0.21478344, dtype=float64), rdelay=Array(0.68529867, dtype=float64)))
+TRAIN 128 L=203.881 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.32699268, dtype=float64), rw=Array(8.8707409, dtype=float64), idelay=Array(0.2260584, dtype=float64), rdelay=Array(1.01369634, dtype=float64)))
+TRAIN 129 L=174.014 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.32025231, dtype=float64), rw=Array(7.0993662, dtype=float64), idelay=Array(0.20999897, dtype=float64), rdelay=Array(0.76590797, dtype=float64)))
+TRAIN 130 L=159.409 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.34451207, dtype=float64), rw=Array(6.40497128, dtype=float64), idelay=Array(0.21028569, dtype=float64), rdelay=Array(0.69942062, dtype=float64)))
+TRAIN 131 L=165.543 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.27595671, dtype=float64), rw=Array(6.47845502, dtype=float64), idelay=Array(0.18425183, dtype=float64), rdelay=Array(0.70272137, dtype=float64)))
+TRAIN 132 L=166.752 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.2956397, dtype=float64), rw=Array(6.97337723, dtype=float64), idelay=Array(0.19605499, dtype=float64), rdelay=Array(0.76925825, dtype=float64)))
+TRAIN 133 L=136.485 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.37763987, dtype=float64), rw=Array(5.73112409, dtype=float64), idelay=Array(0.2194394, dtype=float64), rdelay=Array(0.62139708, dtype=float64)))
+TRAIN 134 L=148.747 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.31598374, dtype=float64), rw=Array(6.76777416, dtype=float64), idelay=Array(0.20147859, dtype=float64), rdelay=Array(0.74850407, dtype=float64)))
+TRAIN 135 L=175.209 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.24791706, dtype=float64), rw=Array(6.9976854, dtype=float64), idelay=Array(0.17212019, dtype=float64), rdelay=Array(0.81437352, dtype=float64)))
+TRAIN 136 L=133.414 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.26792641, dtype=float64), rw=Array(6.08324234, dtype=float64), idelay=Array(0.17529238, dtype=float64), rdelay=Array(0.64454927, dtype=float64)))
+TRAIN 137 L=167.152 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.32618696, dtype=float64), rw=Array(7.01533224, dtype=float64), idelay=Array(0.20871771, dtype=float64), rdelay=Array(0.77623083, dtype=float64)))
+TRAIN 138 L=145.904 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.23755082, dtype=float64), rw=Array(6.65919702, dtype=float64), idelay=Array(0.16292058, dtype=float64), rdelay=Array(0.71847183, dtype=float64)))
+TRAIN 139 L=160.276 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.28961654, dtype=float64), rw=Array(7.23743458, dtype=float64), idelay=Array(0.18672356, dtype=float64), rdelay=Array(0.85318962, dtype=float64)))
+TRAIN 140 L=121.632 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.29097783, dtype=float64), rw=Array(5.13728809, dtype=float64), idelay=Array(0.17338342, dtype=float64), rdelay=Array(0.56894055, dtype=float64)))
+TRAIN 141 L=142.218 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.26526377, dtype=float64), rw=Array(6.77321465, dtype=float64), idelay=Array(0.16878702, dtype=float64), rdelay=Array(0.77438942, dtype=float64)))
+TRAIN 142 L=167.014 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.30846496, dtype=float64), rw=Array(6.94203621, dtype=float64), idelay=Array(0.20264129, dtype=float64), rdelay=Array(0.77110027, dtype=float64)))
+TRAIN 143 L=212.671 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.2837029, dtype=float64), rw=Array(8.60933178, dtype=float64), idelay=Array(0.19865087, dtype=float64), rdelay=Array(0.96626492, dtype=float64)))
+TRAIN 144 L=159.237 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.30044475, dtype=float64), rw=Array(6.64929932, dtype=float64), idelay=Array(0.18252345, dtype=float64), rdelay=Array(0.72038396, dtype=float64)))
+TRAIN 145 L=168.214 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.28221375, dtype=float64), rw=Array(7.7009623, dtype=float64), idelay=Array(0.19466176, dtype=float64), rdelay=Array(0.88138279, dtype=float64)))
+TRAIN 146 L=159.890 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.29982833, dtype=float64), rw=Array(7.37807022, dtype=float64), idelay=Array(0.20373758, dtype=float64), rdelay=Array(0.8075531, dtype=float64)))
+TRAIN 147 L=163.152 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.26460058, dtype=float64), rw=Array(7.43720167, dtype=float64), idelay=Array(0.18279804, dtype=float64), rdelay=Array(0.82271407, dtype=float64)))
+TRAIN 148 L=155.205 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.30653923, dtype=float64), rw=Array(6.80142914, dtype=float64), idelay=Array(0.20208632, dtype=float64), rdelay=Array(0.72380457, dtype=float64)))
+TRAIN 149 L=132.104 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.28225917, dtype=float64), rw=Array(6.20276149, dtype=float64), idelay=Array(0.18426233, dtype=float64), rdelay=Array(0.65859839, dtype=float64)))
+TRAIN 150 L=122.009 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.25882566, dtype=float64), rw=Array(5.70009326, dtype=float64), idelay=Array(0.16063594, dtype=float64), rdelay=Array(0.60185707, dtype=float64)))
+TRAIN 151 L=164.556 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.34220466, dtype=float64), rw=Array(7.37887165, dtype=float64), idelay=Array(0.21736059, dtype=float64), rdelay=Array(0.82540766, dtype=float64)))
+TRAIN 152 L=159.428 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.26189838, dtype=float64), rw=Array(7.6114735, dtype=float64), idelay=Array(0.18397867, dtype=float64), rdelay=Array(0.80661502, dtype=float64)))
+TRAIN 153 L=136.618 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.27719135, dtype=float64), rw=Array(6.68728677, dtype=float64), idelay=Array(0.18251012, dtype=float64), rdelay=Array(0.73818915, dtype=float64)))
+TRAIN 154 L=153.428 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.26018282, dtype=float64), rw=Array(6.66021406, dtype=float64), idelay=Array(0.17214546, dtype=float64), rdelay=Array(0.73341388, dtype=float64)))
+TRAIN 155 L=150.218 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.29173757, dtype=float64), rw=Array(6.887003, dtype=float64), idelay=Array(0.19918247, dtype=float64), rdelay=Array(0.7466567, dtype=float64)))
+TRAIN 156 L=139.947 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.26558121, dtype=float64), rw=Array(6.76371239, dtype=float64), idelay=Array(0.17496992, dtype=float64), rdelay=Array(0.77170865, dtype=float64)))
+TRAIN 157 L=154.161 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.34304719, dtype=float64), rw=Array(7.65020587, dtype=float64), idelay=Array(0.2110515, dtype=float64), rdelay=Array(0.87962874, dtype=float64)))
+TRAIN 158 L=147.023 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.32231486, dtype=float64), rw=Array(7.26116864, dtype=float64), idelay=Array(0.20711613, dtype=float64), rdelay=Array(0.82947714, dtype=float64)))
+TRAIN 159 L=136.138 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.31265882, dtype=float64), rw=Array(6.43052517, dtype=float64), idelay=Array(0.19128992, dtype=float64), rdelay=Array(0.72120108, dtype=float64)))
+TRAIN 160 L=139.770 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.29511629, dtype=float64), rw=Array(7.10309148, dtype=float64), idelay=Array(0.1927182, dtype=float64), rdelay=Array(0.80341254, dtype=float64)))
+TRAIN 161 L=122.704 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.3508051, dtype=float64), rw=Array(6.75075312, dtype=float64), idelay=Array(0.22039813, dtype=float64), rdelay=Array(0.74886643, dtype=float64)))
+TRAIN 162 L=145.685 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.2989597, dtype=float64), rw=Array(7.2438826, dtype=float64), idelay=Array(0.19956163, dtype=float64), rdelay=Array(0.76702904, dtype=float64)))
+TRAIN 163 L=142.699 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.41236111, dtype=float64), rw=Array(7.4282941, dtype=float64), idelay=Array(0.25584502, dtype=float64), rdelay=Array(0.8010347, dtype=float64)))
+TRAIN 164 L=174.276 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.36495349, dtype=float64), rw=Array(8.59143374, dtype=float64), idelay=Array(0.22532484, dtype=float64), rdelay=Array(0.99544086, dtype=float64)))
+TRAIN 165 L=133.428 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.24418372, dtype=float64), rw=Array(7.13653899, dtype=float64), idelay=Array(0.16830942, dtype=float64), rdelay=Array(0.81263542, dtype=float64)))
+TRAIN 166 L=133.814 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.28918166, dtype=float64), rw=Array(6.38754093, dtype=float64), idelay=Array(0.18593088, dtype=float64), rdelay=Array(0.69039886, dtype=float64)))
+TRAIN 167 L=127.205 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.38373523, dtype=float64), rw=Array(6.63059844, dtype=float64), idelay=Array(0.21922585, dtype=float64), rdelay=Array(0.75563178, dtype=float64)))
+TRAIN 168 L=140.290 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.27608973, dtype=float64), rw=Array(6.99392819, dtype=float64), idelay=Array(0.18868833, dtype=float64), rdelay=Array(0.77482654, dtype=float64)))
+TRAIN 169 L=129.556 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.30976911, dtype=float64), rw=Array(6.68205227, dtype=float64), idelay=Array(0.19397201, dtype=float64), rdelay=Array(0.73469869, dtype=float64)))
+TRAIN 170 L=119.566 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.26531369, dtype=float64), rw=Array(6.45976802, dtype=float64), idelay=Array(0.17064254, dtype=float64), rdelay=Array(0.69282044, dtype=float64)))
+TRAIN 171 L=125.623 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.28565966, dtype=float64), rw=Array(6.15182471, dtype=float64), idelay=Array(0.18238104, dtype=float64), rdelay=Array(0.65647174, dtype=float64)))
+TRAIN 172 L=94.704 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.28968261, dtype=float64), rw=Array(4.58976148, dtype=float64), idelay=Array(0.16756498, dtype=float64), rdelay=Array(0.50271959, dtype=float64)))
+TRAIN 173 L=120.766 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.26715705, dtype=float64), rw=Array(6.20106469, dtype=float64), idelay=Array(0.17406166, dtype=float64), rdelay=Array(0.66930869, dtype=float64)))
+TRAIN 174 L=110.294 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.29221306, dtype=float64), rw=Array(6.37468938, dtype=float64), idelay=Array(0.18552166, dtype=float64), rdelay=Array(0.72305651, dtype=float64)))
+TRAIN 175 L=137.961 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.28846575, dtype=float64), rw=Array(8.12387055, dtype=float64), idelay=Array(0.19580913, dtype=float64), rdelay=Array(0.8860182, dtype=float64)))
+TRAIN 176 L=155.023 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.35205738, dtype=float64), rw=Array(8.44585874, dtype=float64), idelay=Array(0.22436621, dtype=float64), rdelay=Array(0.92193241, dtype=float64)))
+TRAIN 177 L=145.556 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.21533593, dtype=float64), rw=Array(7.32257223, dtype=float64), idelay=Array(0.15142214, dtype=float64), rdelay=Array(0.80809328, dtype=float64)))
+TRAIN 178 L=126.966 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.31830005, dtype=float64), rw=Array(6.7593155, dtype=float64), idelay=Array(0.20603295, dtype=float64), rdelay=Array(0.71134804, dtype=float64)))
+TRAIN 179 L=143.152 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.28927616, dtype=float64), rw=Array(8.12124008, dtype=float64), idelay=Array(0.20491224, dtype=float64), rdelay=Array(0.9165718, dtype=float64)))
+TRAIN 180 L=134.418 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.28387324, dtype=float64), rw=Array(7.33780617, dtype=float64), idelay=Array(0.18983916, dtype=float64), rdelay=Array(0.85824762, dtype=float64)))
+TRAIN 181 L=110.281 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.3754702, dtype=float64), rw=Array(6.95307959, dtype=float64), idelay=Array(0.22794145, dtype=float64), rdelay=Array(0.76534238, dtype=float64)))
+TRAIN 182 L=114.676 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.29511316, dtype=float64), rw=Array(6.32774368, dtype=float64), idelay=Array(0.18882599, dtype=float64), rdelay=Array(0.70171998, dtype=float64)))
+TRAIN 183 L=110.494 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.26241791, dtype=float64), rw=Array(6.52374929, dtype=float64), idelay=Array(0.17585276, dtype=float64), rdelay=Array(0.75212222, dtype=float64)))
+TRAIN 184 L=92.090 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.30196529, dtype=float64), rw=Array(5.57849111, dtype=float64), idelay=Array(0.18084235, dtype=float64), rdelay=Array(0.62432653, dtype=float64)))
+TRAIN 185 L=133.842 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.41921989, dtype=float64), rw=Array(7.31300451, dtype=float64), idelay=Array(0.25169683, dtype=float64), rdelay=Array(0.76299107, dtype=float64)))
+TRAIN 186 L=129.504 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.37205826, dtype=float64), rw=Array(8.16826398, dtype=float64), idelay=Array(0.23232175, dtype=float64), rdelay=Array(0.94363529, dtype=float64)))
+TRAIN 187 L=107.761 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.31220937, dtype=float64), rw=Array(6.18078455, dtype=float64), idelay=Array(0.19194831, dtype=float64), rdelay=Array(0.6813957, dtype=float64)))
+TRAIN 188 L=111.552 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.32943144, dtype=float64), rw=Array(6.50628117, dtype=float64), idelay=Array(0.20904883, dtype=float64), rdelay=Array(0.71450183, dtype=float64)))
+TRAIN 189 L=100.694 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.26091367, dtype=float64), rw=Array(6.0125464, dtype=float64), idelay=Array(0.16756436, dtype=float64), rdelay=Array(0.67903817, dtype=float64)))
+TRAIN 190 L=110.366 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.2883091, dtype=float64), rw=Array(7.02344891, dtype=float64), idelay=Array(0.18688006, dtype=float64), rdelay=Array(0.81304837, dtype=float64)))
+TRAIN 191 L=100.304 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.26154632, dtype=float64), rw=Array(5.84820901, dtype=float64), idelay=Array(0.16865011, dtype=float64), rdelay=Array(0.62971567, dtype=float64)))
+TRAIN 192 L=111.338 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.3393412, dtype=float64), rw=Array(6.63492789, dtype=float64), idelay=Array(0.21158229, dtype=float64), rdelay=Array(0.71393216, dtype=float64)))
+TRAIN 193 L=89.566 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.26570371, dtype=float64), rw=Array(5.9786984, dtype=float64), idelay=Array(0.1726556, dtype=float64), rdelay=Array(0.62164783, dtype=float64)))
+TRAIN 194 L=92.632 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.31225587, dtype=float64), rw=Array(5.95659047, dtype=float64), idelay=Array(0.19191552, dtype=float64), rdelay=Array(0.65161871, dtype=float64)))
+TRAIN 195 L=96.232 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.34320534, dtype=float64), rw=Array(6.69100954, dtype=float64), idelay=Array(0.21104251, dtype=float64), rdelay=Array(0.70217096, dtype=float64)))
+TRAIN 196 L=98.099 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.3202062, dtype=float64), rw=Array(7.05779502, dtype=float64), idelay=Array(0.20345433, dtype=float64), rdelay=Array(0.78047039, dtype=float64)))
+TRAIN 197 L=112.361 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.40389687, dtype=float64), rw=Array(7.582303, dtype=float64), idelay=Array(0.24938078, dtype=float64), rdelay=Array(0.79507187, dtype=float64)))
+TRAIN 198 L=107.966 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.32915357, dtype=float64), rw=Array(6.81099627, dtype=float64), idelay=Array(0.21181328, dtype=float64), rdelay=Array(0.75391239, dtype=float64)))
+TRAIN 199 L=97.752 ttrain=0.28s teval=0.00s
+NetworkWithTTFS(net=DelayLayerNetwork(iw=Array(0.24791652, dtype=float64), rw=Array(7.12058731, dtype=float64), idelay=Array(0.17124081, dtype=float64), rdelay=Array(0.75665803, dtype=float64)))

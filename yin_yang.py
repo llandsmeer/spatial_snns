@@ -1,15 +1,15 @@
 import numpy as np
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import h5py
 
-# samples = np.load("yin_yang_data_set/publication_data/test_samples.npy")
-# labels = np.load("yin_yang_data_set/publication_data/test_labels.npy")
-samples = np.load("yin_yang_data_set/publication_data/train_samples.npy")
-labels = np.load("yin_yang_data_set/publication_data/train_labels.npy")
+samples = np.load("yin_yang_data_set/publication_data/test_samples.npy")
+labels = np.load("yin_yang_data_set/publication_data/test_labels.npy")
+# samples = np.load("yin_yang_data_set/publication_data/train_samples.npy")
+# labels = np.load("yin_yang_data_set/publication_data/train_labels.npy")
 # samples = np.load("yin_yang_data_set/train_samples_20k.npy")
 # labels = np.load("yin_yang_data_set/train_labels_20k.npy")
 
-timespan = 200
+timespan = 400
 total_timespan = 1000
 scale = 0.5
 
@@ -65,11 +65,11 @@ print(times[0])
 print(units[0])
 print(len(times[0]))
 
-plt.scatter(times[0], units[0])
+# plt.scatter(times[0], units[0])
 # plt.savefig('data.png')
 # plt.show()
 
-f = h5py.File("yy_rc_train.h5", 'w')
+f = h5py.File("yy_rc_test.h5", 'w')
 times_dset = f.create_dataset("spikes/times", data=times)
 units_dset = f.create_dataset("spikes/units", data=units)
 labels_dset = f.create_dataset("labels", data=labels)

@@ -48,7 +48,7 @@ parser.add_argument('--tmp', dest='save_dir', default='saved', action='store_con
 parser.add_argument('--reload', default=False, action='store_true', help='Reload previous')
 parser.add_argument('--layer', default=False, action='store_true', help='Create layer-wise network')
 parser.add_argument('--margin', type=float, default=0.)
-parser.add_argument('--beta', type=float, default=5.)
+parser.add_argument('--beta', type=float, default=10.)
 parser.add_argument('--wseed', type=int, default=42)
 parser.add_argument('--bseed', type=int, default=97)
 parser.add_argument('--ttrain', type=int, default=10000)
@@ -108,7 +108,7 @@ tau_mem = jnp.array([0]*3 + [10.] * (args.nhidden-3))
 tau_mem = 4. #10.
 @functools.partial(jax.jit, static_argnames=['aux'])
 def loss(net, in_spikes, label, aux=True):
-    o, v, f = net.sim(in_spikes, tau_mem=tau_mem, dt=args.dt, max_delay_ms=2.56)
+    o, v, f = net.sim(in_spikes, tau_mem=tau_mem, dt=args.dt, max_delay_ms=3.5)
     # logits = - o[-3:] * args.dt #/ 50 #- 0.5
     # l = optax.softmax_cross_entropy_with_integer_labels(logits, label)
 
@@ -152,7 +152,7 @@ def batched_loss(net, in_spikes, labels):
 def performance(net, in_spikes, labels):
     def step(carry, x):
         inp, lbl = x
-        ws, v, f = net.sim(inp, tau_mem=tau_mem, dt=args.dt, max_delay_ms=2.56)
+        ws, v, f = net.sim(inp, tau_mem=tau_mem, dt=args.dt, max_delay_ms=3.5)
         del v
         top3 = jnp.argsort(ws)[-3:]
         top1_hit = (top3[-1] == lbl).astype(jnp.int32)
@@ -170,7 +170,7 @@ def performance(net, in_spikes, labels):
 def performance(net, in_spikes, labels):
     @jax.jit
     def get_logits(x):
-        ws, v, f = net.sim(x, tau_mem=tau_mem, dt=args.dt, max_delay_ms=2.56)
+        ws, v, f = net.sim(x, tau_mem=tau_mem, dt=args.dt, max_delay_ms=3.5)
         ws = - ws[-3:] #/ 20 #- 0.5
         return ws, f
     # logits, f = jax.lax.map(get_logits, in_spikes, batch_size=64)
@@ -227,7 +227,7 @@ schedule = optax.warmup_cosine_decay_schedule(
     peak_value=args.lr,
     warmup_steps=warmup_steps,
     decay_steps=10000,
-    end_value=args.lr * 0.25
+    end_value=args.lr * 0.1
 )
 
 # schedule = optax.cosine_decay_schedule(
@@ -355,7 +355,7 @@ try:
         # log(logits.argmax().item(), lbl[0].item()) # , logits)
         if (ii % 200 == 0 and ii > 10) or ii == 2:
             plt.clf()
-            o, v, f = net.sim(inp[0], tau_mem=tau_mem, dt=args.dt, max_delay_ms=2.56)
+            o, v, f = net.sim(inp[0], tau_mem=tau_mem, dt=args.dt, max_delay_ms=3.5)
             logits = v[-3:]
             for i, vi in enumerate(v.T):
                 plt.plot(vi+i)
