@@ -264,6 +264,7 @@ optimizer = optax.chain(
     optax.add_decayed_weights(weight_decay),
     optax.scale_by_adam(),
     optax.scale_by_schedule(schedule),
+    scale_custom(10., lambda x: x in ('ipos', 'rpos')),
     optax.scale(-1.0)
 )
 

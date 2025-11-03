@@ -68,6 +68,10 @@ class YY(typing.NamedTuple):
             fn = 'yy_rc_train_20k.h5'
         elif fn == 'test':
             fn = 'yy_rc_test.h5'
+        elif fn == 'train_rc':
+            fn = 'yy_rc_train_rc.h5'
+        elif fn == 'test_rc':
+            fn = 'yy_rc_test_rc.h5'
         mkhandle = gzip.open if fn.endswith('.gz') else open
         with mkhandle(fn, 'rb') as f:
             ds = h5py.File(f)

@@ -9,8 +9,9 @@ labels = np.load("yin_yang_data_set/publication_data/test_labels.npy")
 # samples = np.load("yin_yang_data_set/train_samples_20k.npy")
 # labels = np.load("yin_yang_data_set/train_labels_20k.npy")
 
-timespan = 400
-total_timespan = 1000
+timespan = 50
+total_timespan = 1200
+no_spikes_per_coord = 20
 scale = 0.5
 
 times = []
@@ -18,40 +19,56 @@ units = []
 
 for n in range(len(labels)):
 
-    num_spikes_x = 10 + int((samples[n][0])*timespan) # np.random.poisson(lam = samples[n][0]*timespan*scale)
-    num_spikes_y = 10 + int((samples[n][1])*timespan) #np.random.poisson(lam = samples[n][1]*timespan*scale)
-    num_spikes_1_x = 10 + int((samples[n][2])*timespan) #np.random.poisson(lam = samples[n][2]*timespan*scale)
-    num_spikes_1_y = 10 + int((samples[n][3])*timespan) #np.random.poisson(lam = samples[n][3]*timespan*scale)
+    # num_spikes_x = 10 + int((samples[n][0])*timespan) 
+    # num_spikes_y = 10 + int((samples[n][1])*timespan)
+    # num_spikes_1_x = 10 + int((samples[n][2])*timespan) 
+    # num_spikes_1_y = 10 + int((samples[n][3])*timespan) 
+    # num_spikes_x = np.random.poisson(lam = samples[n][0]*timespan*scale)
+    # num_spikes_y = np.random.poisson(lam = samples[n][1]*timespan*scale)
+    # num_spikes_1_x = np.random.poisson(lam = samples[n][2]*timespan*scale)
+    # num_spikes_1_y = np.random.poisson(lam = samples[n][3]*timespan*scale)
+    num_spikes_x = int(no_spikes_per_coord * samples[n][0])
+    num_spikes_y = int(no_spikes_per_coord * samples[n][1])
+    num_spikes_1_x = no_spikes_per_coord - num_spikes_x # to ensure same number of spikes per coordinate and sample
+    num_spikes_1_y = no_spikes_per_coord - num_spikes_y # to ensure same number of spikes per coordinate and sample
 
     # if n == 100:
     #     print(samples[n])
     #     print(labels[n])
     #     print(n)
 
-    dist_x = np.zeros(total_timespan, dtype = int) #np.concatenate((np.ones(num_spikes_x, dtype=int), np.zeros(timespan - num_spikes_x, dtype=int)))
-    dist_y = np.zeros(total_timespan, dtype = int) #np.concatenate((np.ones(num_spikes_y, dtype=int), np.zeros(timespan - num_spikes_y, dtype=int)))
-    dist_1_x = np.zeros(total_timespan, dtype = int) #np.concatenate((np.ones(num_spikes_1_x, dtype=int), np.zeros(timespan - num_spikes_1_x, dtype=int)))
-    dist_1_y = np.zeros(total_timespan, dtype = int) #np.concatenate((np.ones(num_spikes_1_y, dtype=int), np.zeros(timespan - num_spikes_1_y, dtype=int)))
-    dist_x[num_spikes_x] = 1
-    dist_y[num_spikes_y] = 1
-    dist_1_x[num_spikes_1_x] = 1
-    dist_1_y[num_spikes_1_y] = 1
+    # dist_x = np.zeros(total_timespan, dtype = int) 
+    # dist_y = np.zeros(total_timespan, dtype = int) 
+    # dist_1_x = np.zeros(total_timespan, dtype = int) 
+    # dist_1_y = np.zeros(total_timespan, dtype = int)
+    dist_x = np.concatenate((np.ones(num_spikes_x, dtype=int), np.zeros(timespan - num_spikes_x, dtype=int)))
+    dist_y = np.concatenate((np.ones(num_spikes_y, dtype=int), np.zeros(timespan - num_spikes_y, dtype=int)))
+    dist_1_x = np.concatenate((np.ones(num_spikes_1_x, dtype=int), np.zeros(timespan - num_spikes_1_x, dtype=int)))
+    dist_1_y = np.concatenate((np.ones(num_spikes_1_y, dtype=int), np.zeros(timespan - num_spikes_1_y, dtype=int)))
+    # dist_x[num_spikes_x] = 1
+    # dist_y[num_spikes_y] = 1
+    # dist_1_x[num_spikes_1_x] = 1
+    # dist_1_y[num_spikes_1_y] = 1
+    np.random.shuffle(dist_x)
+    np.random.shuffle(dist_y)
+    np.random.shuffle(dist_1_x)
+    np.random.shuffle(dist_1_y)
 
 
     times_t = []
     units_t = []
-    for t in range(total_timespan):
+    for t in range(timespan):
         if dist_x[t] == 1:
-            times_t.append(t)
+            times_t.append(10 + t)
             units_t.append(0)
         if dist_y[t] == 1:
-            times_t.append(t)
+            times_t.append(10 + t)
             units_t.append(1)
         if dist_1_x[t] == 1:
-            times_t.append(t)
+            times_t.append(10 + t)
             units_t.append(2)
         if dist_1_y[t] == 1:
-            times_t.append(t)
+            times_t.append(10 + t)
             units_t.append(3)
     
     times.append(times_t)
@@ -66,10 +83,11 @@ print(units[0])
 print(len(times[0]))
 
 plt.scatter(times[0], units[0])
-# plt.savefig('data.png')
+plt.savefig('data.png')
+# print(samples[0][0], samples[0][1])
 # plt.show()
 
-f = h5py.File("yy_rc_test.h5", 'w')
+f = h5py.File("yy_rc_test_rc.h5", 'w')
 times_dset = f.create_dataset("spikes/times", data=times)
 units_dset = f.create_dataset("spikes/units", data=units)
 labels_dset = f.create_dataset("labels", data=labels)
