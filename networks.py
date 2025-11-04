@@ -61,6 +61,8 @@ class HyperParameters(typing.NamedTuple):
                 net = NoDelayLayerNetwork.make(self, key)
             elif self.ndim == float('inf') or self.ndim is None:
                 net = DelayLayerNetwork.make(self, key)
+            else:
+                net = SpatialLayerNetwork.make(self, key)
         else:
             if self.ndim == 0:
                 net = NoDelayNetwork.make(self, key)
@@ -76,6 +78,18 @@ class HyperParameters(typing.NamedTuple):
     def random_pos(self, n, key):
         assert self.ndim is not None and self.ndim > 0
         pos = 10 * jax.random.normal(key, (n,  self.ndim))
+        return pos
+    def random_ipos(self, n, key):
+        assert self.ndim is not None and self.ndim > 0
+        pos = 1 + jax.random.normal(key, (n,  self.ndim))
+        return pos
+    def random_rpos(self, n, key):
+        assert self.ndim is not None and self.ndim > 0
+        pos = 3 + jax.random.normal(key, (n,  self.ndim))
+        return pos
+    def random_opos(self, n, key):
+        assert self.ndim is not None and self.ndim > 0
+        pos = 5 + jax.random.normal(key, (n,  self.ndim))
         return pos
     def random_delay(self, a, b, key):
         delays = 1 + .5*jax.random.normal(key, (a,b)).flatten()
@@ -269,6 +283,44 @@ class SpatialNetwork(typing.NamedTuple):
             )
     def sim(self, iapp, **kwargs):
         return DelayNetwork(
+                self.iw,
+                self.rw,
+                spatial_to_delay(self.rpos, self.ipos),
+                spatial_to_delay(self.rpos)).sim(iapp, **kwargs)
+    def save(self, fn):
+        numpy.savez_compressed(fn, iw=self.iw, rw=self.rw, ipos=self.ipos, rpos=self.rpos)
+    def load(self, fn):
+        with open(fn, 'rb') as f:
+            f = numpy.load(f)
+            iw = jnp.array(f['iw'])
+            rw = jnp.array(f['rw'])
+            ipos = jnp.array(f['ipos'])
+            rpos = jnp.array(f['rpos'])
+        return SpatialNetwork(
+                iw=iw,
+                rw=rw,
+                ipos=ipos,
+                rpos=rpos
+                )
+    
+class SpatialLayerNetwork(typing.NamedTuple):
+    iw: jax.Array
+    rw: jax.Array
+    ipos: jax.Array
+    rpos: jax.Array
+    @classmethod
+    def make(cls, hyper: HyperParameters, key: jax.Array):
+        assert hyper.ndim is not None and hyper.ndim >= 0
+        keys = jax.random.split(key, 5)
+        rpos = jnp.concatenate([hyper.random_rpos(hyper.nhidden, keys[3]), hyper.random_opos(hyper.noutput, keys[4])], axis=0)
+        return SpatialLayerNetwork(
+            iw = hyper.random_weight(hyper.nhidden, hyper.ninput, keys[0], zero=False, factor=hyper.ifactor),
+            rw = hyper.random_weight(hyper.noutput, hyper.nhidden, keys[1], factor=hyper.rfactor),
+            ipos = hyper.random_ipos(hyper.ninput, keys[2]),
+            rpos = rpos #hyper.random_rpos(hyper.nhidden + hyper.noutput, keys[3])
+            )
+    def sim(self, iapp, **kwargs):
+        return DelayLayerNetwork(
                 self.iw,
                 self.rw,
                 spatial_to_delay(self.rpos, self.ipos),

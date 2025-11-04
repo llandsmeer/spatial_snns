@@ -109,9 +109,9 @@ tau_mem = 4. #10.
 @functools.partial(jax.jit, static_argnames=['aux'])
 def loss(net, in_spikes, label, aux=True):
     o, v, f = net.sim(in_spikes, tau_mem=tau_mem, dt=args.dt, max_delay_ms=3.5)
-    # logits = - o[-3:] #/ 50 #- 0.5
+    logits = - o[-3:] #/ 50 #- 0.5
 
-    logits = o
+    # logits = o
     l = optax.softmax_cross_entropy_with_integer_labels(logits, label)
 
 
@@ -136,10 +136,10 @@ def loss(net, in_spikes, label, aux=True):
     # diffs = jnp.where(mask, args.beta * (correct_time - spike_times + args.margin), -100)
     # l = jnp.sum(jax.nn.softplus(diffs))
 
-    f = f * args.dt
+    # f = f * args.dt
 
     l = l  #+ margin_alpha * margin_l #(logits < 1) * v[:,:20].mean(0)
-    l = l + ((f - 0.005) ** 2).sum() #* 0.01
+    # l = l + ((f - 0.005) ** 2).sum() #* 0.01
     if aux:
         return l, (jax.nn.softmax(logits), v)
     else:
@@ -173,7 +173,7 @@ def performance(net, in_spikes, labels):
     @jax.jit
     def get_logits(x):
         ws, v, f = net.sim(x, tau_mem=tau_mem, dt=args.dt, max_delay_ms=3.5)
-        # ws = - ws[-3:] #/ 20 #- 0.5
+        ws = - ws[-3:] #/ 20 #- 0.5
         return ws, f
     # logits, f = jax.lax.map(get_logits, in_spikes, batch_size=64)
     logits, f = jax.vmap(get_logits)(in_spikes)
@@ -182,9 +182,9 @@ def performance(net, in_spikes, labels):
     logits = jnp.sort(logits, axis=1)
     top1p = 100 * (top3[:,-1] == labels).mean()
     top3p = 100 * (top3 == labels[:,None]).any(1).mean()
-    top2_diff = jnp.abs(top3[:,-1] - top3[:,-2]).mean()
-    # top2_diff = jnp.where(top3[:,-2] == labels, jnp.abs(logits[:,-1] - logits[:,-2]), jnp.nan)
-    # top2_diff = jnp.nanmean(top2_diff)
+    # top2_diff = jnp.abs(top3[:,-1] - top3[:,-2]).mean()
+    top2_diff = jnp.where(top3[:,-2] == labels, jnp.abs(logits[:,-1] - logits[:,-2]), jnp.nan)
+    top2_diff = jnp.nanmean(top2_diff)
     return top1p, top3p, f, top2_diff
 def performance_split(net, in_spikes, labels):
     BATCH_SIZE=64
@@ -264,7 +264,7 @@ optimizer = optax.chain(
     optax.add_decayed_weights(weight_decay),
     optax.scale_by_adam(),
     optax.scale_by_schedule(schedule),
-    scale_custom(10., lambda x: x in ('ipos', 'rpos')),
+    # scale_custom(10., lambda x: x in ('ipos', 'rpos')),
     optax.scale(-1.0)
 )
 
@@ -315,10 +315,10 @@ try:
             top3p_train.append(t3p_train)
             top2d.append(t2d)
             top2d_train.append(t2d_train)
-            # log('TOP1', t1p, 'TOP2', t3p, 'TOP2Diff', t2d, 'LOSS', test_loss)
-            # log('TOP1train', t1p_train, 'TOP2train', t3p_train, 'TOP2trainDiff', t2d_train)
-            log('TOP1', t1p, 'TOP2', t3p, 'LOSS', test_loss)
-            log('TOP1train', t1p_train, 'TOP2train', t3p_train)
+            log('TOP1', t1p, 'TOP2', t3p, 'TOP2Diff', t2d, 'LOSS', test_loss)
+            log('TOP1train', t1p_train, 'TOP2train', t3p_train, 'TOP2trainDiff', t2d_train)
+            # log('TOP1', t1p, 'TOP2', t3p, 'LOSS', test_loss)
+            # log('TOP1train', t1p_train, 'TOP2train', t3p_train)
         if ii % 1000 == 999:
             log('TEST')
             t1p, t3p, f, t2d = performance_split(net, inp_test, lbl_test)
@@ -333,10 +333,10 @@ try:
             top3p_train.append(t3p_train)
             top2d.append(t2d)
             top2d_train.append(t2d_train)
-            # log('TOP1', t1p, 'TOP2', t3p, 'TOP2Diff', t2d, 'LOSS', test_loss)
-            # log('TOP1train', t1p_train, 'TOP2train', t3p_train, 'TOP2trainDiff', t2d_train)
-            log('TOP1', t1p, 'TOP2', t3p, 'LOSS', test_loss)
-            log('TOP1train', t1p_train, 'TOP2train', t3p_train)
+            log('TOP1', t1p, 'TOP2', t3p, 'TOP2Diff', t2d, 'LOSS', test_loss)
+            log('TOP1train', t1p_train, 'TOP2train', t3p_train, 'TOP2trainDiff', t2d_train)
+            # log('TOP1', t1p, 'TOP2', t3p, 'LOSS', test_loss)
+            # log('TOP1train', t1p_train, 'TOP2train', t3p_train)
         # key, nxt = jax.random.split(key)
         # idxs = jax.random.randint(nxt, (args.batch_size,), 0, train.size)
         
@@ -366,7 +366,7 @@ try:
             logits = o#v[-3:]
             for i, vi in enumerate(v.T):
                 plt.plot(vi+i)
-                # plt.plot(o[i], i, 'o')
+                plt.plot(o[i], i, 'o')
 
             ispikes = jnp.nonzero(inp[0])
             print(ispikes)

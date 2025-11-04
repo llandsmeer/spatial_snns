@@ -26,21 +26,23 @@ def sim(
     vth = 1.
     nneurons = nhidden + noutput
 
-    reg_idelay = (max_delay_timesteps*dt)*jax.lax.logistic(idelay)
-    reg_rdelay = (max_delay_timesteps*dt)*jax.lax.logistic(rdelay)
+    max_delay = max_delay_timesteps*dt
+
+    reg_idelay = max_delay*jax.lax.logistic((4/max_delay)*(idelay - max_delay/2)) #(max_delay_timesteps*dt)*jax.lax.logistic(idelay)
+    reg_rdelay = max_delay*jax.lax.logistic((4/max_delay)*(rdelay - max_delay/2)) #(max_delay_timesteps*dt)*jax.lax.logistic(rdelay)
 
     # inp_delay = jnp.zeros((nneurons, ninput)).at[0:nhidden, 0:ninput].set(reg_idelay.reshape((nhidden, ninput)))
-    # inp_weight = jnp.zeros((nneurons, ninput)).at[0:nhidden, 0:ninput].set(iweight) #jnp.abs(jnp.zeros((nneurons, ninput)).at[0:nhidden, 0:ninput].set(iweight))
+    inp_weight = jnp.zeros((nneurons, ninput)).at[0:nhidden, 0:ninput].set(iweight) #jnp.abs(jnp.zeros((nneurons, ninput)).at[0:nhidden, 0:ninput].set(iweight))
     # rec_delay = jnp.zeros((nneurons, nneurons)).at[nhidden:nneurons, 0:nhidden].set(reg_rdelay.reshape((noutput, nhidden)))
-    # rec_weight = jnp.zeros((nneurons, nneurons)).at[nhidden:nneurons, 0:nhidden].set(rweight) #jnp.abs(jnp.zeros((nneurons, nneurons)).at[nhidden:nneurons, 0:nhidden].set(rweight))
+    rec_weight = jnp.zeros((nneurons, nneurons)).at[nhidden:nneurons, 0:nhidden].set(rweight) #jnp.abs(jnp.zeros((nneurons, nneurons)).at[nhidden:nneurons, 0:nhidden].set(rweight))
     # # jax.debug.print("{}", inp_weight)
     # # jnp.set_printoptions(threshold=sys.maxsize)
     # # jax.debug.print("Rec Delay: {x}", x=rec_delay)
 
-    inp_delay = reg_idelay
-    inp_weight = iweight
-    rec_delay = reg_rdelay
-    rec_weight = rweight
+    inp_delay = idelay #reg_idelay
+    inp_weight = inp_weight #iweight
+    rec_delay = rdelay #reg_rdelay
+    rec_weight = rec_weight #rweight
 
     # assert (delay < max_delay_timesteps/dt).all()
     #
@@ -95,12 +97,12 @@ def sim(
         dvdt_plus_reset = isyn + i_jump
         # PREVIOUS (+superspike): v = (1 - S) * (beta * v + isyn*dt + v_jump)
         v = v_reset(S, v, dvdt_min_noreset, dvdt_plus_reset, vnext_noreset)
-        v = jnp.where(v < 0.0, 0.0, v)
+        v = jnp.where(S_hist, 0.0, v)
+        # v = jnp.where(v < 0.0, 0.0, v)
         isyn = isyn * alpha + i_jump
         S_hist = jnp.where(S, 1., S_hist)
         state = (synapse, v, isyn, a, ttfs, S_hist)
         state = jax.tree.map(lambda x: grad_modify(x), state)
-        # state = jax.tree.map(lambda x: jnp.where(t % 5 == 0, grad_modify(x), x), state)
         return state, (Ss, v)
     #
     a = jnp.zeros_like(v)
