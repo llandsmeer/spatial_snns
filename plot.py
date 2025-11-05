@@ -21,7 +21,7 @@ epoch = dfs['epoch']
 epoch['plotdim'] = epoch.apply(lambda x:
                                6 if x.netspec == 'inf' else x['ndim'], 1)
 
-final = epoch[epoch.i == 29]
+final = epoch[(epoch.i == 29) & (epoch.dt == 0.5)]
 
 
 tgtfreq = {f'{f}': sub.t1p.values for f, sub in final.groupby('tgtfreq')}
@@ -51,3 +51,19 @@ plt.legend(title='Nhidden', ncol=2)
 plt.xlabel('Network Dimension')
 plt.ylabel('Accuracy')
 plt.show()
+df['eps'] = df['netspec'].str.split('e').str[1].astype(float)
+for n, sub in finaleps.groupby('nhidden'):
+    if n not in [10, 50]:
+        continue
+    plt.plot(sub.eps * 100, sub.t1p, label=n)
+plt.xlabel('Epsilon (%)')
+plt.ylabel('Test accuracy (%)')
+plt.ylim(50, 100)
+plt.legend()
+
+
+
+
+
+
+
