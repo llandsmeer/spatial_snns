@@ -249,8 +249,8 @@ class EpsilonNetwork(typing.NamedTuple):
         return DelayNetwork(
                 self.iw,
                 self.rw,
-                (1 + eps*jnp.tanh(self.ierr)) * constraint_ih,
-                (1 + eps*jnp.tanh(self.rerr)) * constraint_hh).sim(iapp, **kwargs)
+                (1 + eps*(0.5 + 0.5*jnp.tanh(self.ierr))) * constraint_ih,
+                (1 + eps*(0.5 + 0.5*jnp.tanh(self.rerr))) * constraint_hh).sim(iapp, **kwargs)
     def save(self, fn):
         numpy.savez_compressed(fn, iw=self.iw, rw=self.rw, ipos=self.ipos, rpos=self.rpos, ierr=self.ierr, rerr=self.rerr, eps=self.eps)
     def load(self, fn):
