@@ -256,7 +256,12 @@ for epoch_idx in range(args.nepochs):
         batch_idxs = epoch_perm[batch_idx:batch_idx+batch_size]
         inp = inp_train[batch_idxs]
         lbl = lbl_train[batch_idxs]
+        net_old = net
         opt_state, net, l, ncorrect_batch, g = batched_update(opt_state, net, inp, lbl)
+        d = jax.tree.map(lambda a, b: jnp.mean(jnp.abs(a - b)), net_old, net)
+        x = jax.tree.flatten_with_path(d)
+        for path, a in jax.tree.flatten_with_path(d)[0]:
+            print('.'.join(x.name for x in path).ljust(20), float(a))
         ncorrect_total += ncorrect_batch
         accuracy = ncorrect_total / (batch_idx + batch_size)
         bar.set_postfix_str(f'{accuracy*100:.1f}% {l:.2f}')
