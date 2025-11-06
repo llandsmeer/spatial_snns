@@ -238,6 +238,8 @@ class EpsilonNetwork(typing.NamedTuple):
             rpos = hyper.random_pos(hyper.nhidden, keys[3]),
             ierr = jnp.zeros((hyper.nhidden, hyper.ninput)).flatten(),
             rerr = jnp.zeros((hyper.nhidden, hyper.nhidden)).flatten(),
+            # ierr = hyper.random_weight(hyper.nhidden, hyper.ninput, keys[0], zero=False, factor=1).flatten(),
+            # rerr = hyper.random_weight(hyper.nhidden, hyper.nhidden, keys[1], factor=1).flatten(),
             eps = float(hyper.netspec.split('e')[1])
             )
     def sim(self, iapp, **kwargs):

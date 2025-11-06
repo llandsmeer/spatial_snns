@@ -50,7 +50,7 @@ parser.add_argument('--tmp', dest='save_dir', default='saved', action='store_con
 parser.add_argument('--reload', default=False, action='store_true', help='Reload previous')
 parser.add_argument('--seed', type=int, default=0, help='Seed for network generation')
 parser.add_argument('--nepochs', type=int, default=100, help='Epochs to trian for')
-parser.add_argument('--delaygradscale', type=float, default=1., help='Scale delay gradients (or 0 for none)')
+parser.add_argument('--delaygradscale', type=float, default=10., help='Scale delay gradients (or 0 for none)')
 parser.add_argument('--delaymu', type=float, default=8., help='Mu')
 parser.add_argument('--delaysigma', type=float, default=1., help='Sigma')
 parser.add_argument('--possigma', type=float, default=20., help='Sigma')
@@ -219,13 +219,19 @@ def scale_custom(scale: float, check=lambda key: False):
         return updates, state
     return optax.GradientTransformation(init_fn, update_fn)
 
+def make_mask(check=lambda key: False):
+    def f(path, up): return check(path[-1].name)
+    return lambda updates: jax.tree_util.tree_map_with_path(f, updates)
+
 optimizer = optax.chain(
     optax.adaptive_grad_clip(clipping=clip_factor, eps=0.001),
-    optax.add_decayed_weights(weight_decay),
+    optax.add_decayed_weights(weight_decay, mask=make_mask(lambda x: x not in ('ipos', 'rpos', 'idelay', 'rdelay', 'ierr', 'rerr'))),
+    optax.add_decayed_weights(weight_decay/args.delaygradscale, mask=make_mask(lambda x: x in ('ipos', 'rpos', 'idelay', 'rdelay', 'ierr', 'rerr'))),
     optax.scale_by_adam(),
     optax.scale_by_schedule(schedule),
     scale_custom(args.delaygradscale, lambda x: x in ('ipos', 'rpos')),
     scale_custom(args.delaygradscale, lambda x: x in ('idelay', 'rdelay')),
+    scale_custom(args.delaygradscale, lambda x: x in ('ierr', 'rerr')),
     optax.scale(-1.0)
 )
 
