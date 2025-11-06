@@ -14,9 +14,10 @@ template = '''#!/bin/bash
 #SBATCH --error=logs/JOBNAME_%x_%j.err
 #SBATCH --cpus-per-task=16
 #SBATCH --time=14:00:00
-#SBATCH --output=logs/job_%j.out
 #SBATCH --array=0-JOBCOUNT
 #SBATCH --mem=4G
+
+cd /home/amovahedin/spatial_delays
 
 module load 2024
 module load CUDA/12.6.0
@@ -92,17 +93,17 @@ def make_bash(lines):
     cmd_lines = '\n'.join(line for line in lines)
     return cmd_lines
 
-print(make_sbatch(exp_sizes_nets := generate_calls({
-    # 'nhidden': [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 150, 200, 250, 300],
-    'nhidden': [10, 30, 50, 70, 100, 150, 200, 250, 300],
-    'net': ['0', '1', '2', '3', '4', '5', 'inf'],
-    'seed': [0, 1, 2],
-    'dt': [0.5],
-    'batch_size': [32],
-    'nepochs': [30],
-    'tgtfreq': [10]
-    # 'delaygradscale': [1],
-})))
+# print(make_sbatch(exp_sizes_nets := generate_calls({
+#     # 'nhidden': [10, 20, 30, 40, 50, 60, 70, 80, 90,],
+#     'nhidden': [100, 150, 200, 250, 300],
+#     'net': ['0', '1', '2', '3', '4', '5', 'inf'],
+#     'seed': [0, 1, 2, 3, 4, 6],
+#     'dt': [0.5],
+#     'batch_size': [32],
+#     'nepochs': [30],
+#     'tgtfreq': [10]
+#     # 'delaygradscale': [1],
+# })))
 
 # pos_check_mu_sigma = generate_calls({
 #     'nhidden': [30, 100],
@@ -149,3 +150,42 @@ print(make_sbatch(exp_sizes_nets := generate_calls({
 #pos_check_mu_sigma + delay_check_mu_sigma
 #)
 #print(o)
+
+# exp_eps = []
+# exp_eps = generate_calls({
+#     'nhidden': [30, 100, 300],
+#     'net': [
+#             '2e0.0', '2e0.1', '2e0.2', '2e0.3', '2e0.4',
+#             '2e0.5', '2e0.6', '2e0.7', '2e0.8', '2e0.9',
+#             '2e1.0', '2e1.1', '2e1.2', '2e1.3', '2e1.4',
+#             '2e1.5', '2e1.6', '2e1.7', '2e1.8', '2e1.9',
+#             '2e2.0',
+#             ],
+#     'seed': [0, 1, 2, 3, 4, 5,
+#              6, 7, 8, 9, 10],
+#     'dt': [0.5],
+# })
+
+print(make_sbatch(exp_sizes_nets := generate_calls({
+    'nhidden': [10, 30, 50],
+    # 'nhidden': [100, 150, 200, 250, 300],
+    'net': [
+            '3e0.00',
+            '3e0.05',
+            '3e0.10',
+            '3e0.15',
+            '3e0.20',
+            '3e0.25',
+            '3e0.30',
+            '3e0.35',
+            '3e0.40',
+            '3e0.45',
+            '3e0.50',
+            ],
+    'seed': [0, 1, 2, 3, 4, 6],
+    'dt': [0.5],
+    'batch_size': [32],
+    'nepochs': [30],
+    'tgtfreq': [10]
+    # 'delaygradscale': [1],
+})))

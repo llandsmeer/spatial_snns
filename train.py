@@ -272,3 +272,7 @@ for epoch_idx in range(args.nepochs):
             t1p_train=float(t1p_train),
             t3p_train=float(t3p_train)
             )
+    try:
+        net.save(f'{save_dir}/{fndir}/epoch_{epoch_idx:08d}')
+    except Exception as ex:
+        datalog('error', ex=str(type(ex)), r=repr(ex))
