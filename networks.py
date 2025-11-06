@@ -81,15 +81,15 @@ class HyperParameters(typing.NamedTuple):
         return pos
     def random_ipos(self, n, key):
         assert self.ndim is not None and self.ndim > 0
-        pos = 1 + jax.random.normal(key, (n,  self.ndim))
+        pos = 0.75 * jax.random.normal(key, (n,  self.ndim))
         return pos
     def random_rpos(self, n, key):
         assert self.ndim is not None and self.ndim > 0
-        pos = 3 + jax.random.normal(key, (n,  self.ndim))
+        pos = 0.75 * jax.random.normal(key, (n,  self.ndim))
         return pos
     def random_opos(self, n, key):
         assert self.ndim is not None and self.ndim > 0
-        pos = 5 + jax.random.normal(key, (n,  self.ndim))
+        pos = 0.75 * jax.random.normal(key, (n,  self.ndim))
         return pos
     def random_delay(self, a, b, key):
         delays = 1 + .5*jax.random.normal(key, (a,b)).flatten()

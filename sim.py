@@ -28,8 +28,8 @@ def sim(
 
     max_delay = max_delay_timesteps*dt
 
-    reg_idelay = max_delay*jax.lax.logistic((4/max_delay)*(idelay - max_delay/2)) #(max_delay_timesteps*dt)*jax.lax.logistic(idelay)
-    reg_rdelay = max_delay*jax.lax.logistic((4/max_delay)*(rdelay - max_delay/2)) #(max_delay_timesteps*dt)*jax.lax.logistic(rdelay)
+    reg_idelay = passthrough_clip(idelay, 0, max_delay) #max_delay*jax.lax.logistic((4/max_delay)*(idelay - max_delay/2)) #(max_delay_timesteps*dt)*jax.lax.logistic(idelay)
+    reg_rdelay = passthrough_clip(rdelay, 0, max_delay) #max_delay*jax.lax.logistic((4/max_delay)*(rdelay - max_delay/2)) #(max_delay_timesteps*dt)*jax.lax.logistic(rdelay)
 
     # inp_delay = jnp.zeros((nneurons, ninput)).at[0:nhidden, 0:ninput].set(reg_idelay.reshape((nhidden, ninput)))
     inp_weight = jnp.zeros((nneurons, ninput)).at[0:nhidden, 0:ninput].set(iweight) #jnp.abs(jnp.zeros((nneurons, ninput)).at[0:nhidden, 0:ninput].set(iweight))
@@ -269,3 +269,17 @@ def checkpointed_scan(step, state0, xs, checkpoint_every):
     trace_init = jax.tree.map(lambda arr: arr.reshape((init,) + arr.shape[2:]), trace_init)
     trace = jax.tree.map(lambda init, rest: jnp.concatenate([init, rest], axis=0), trace_init, trace_rest)
     return state, trace
+
+@jax.custom_jvp
+def passthrough_clip(x: float | jax.Array, a, b):
+    return jnp.clip(x, a, b)
+
+@passthrough_clip.defjvp
+def passthrough_clip_jvp(primals, tangents):
+    x, a, b = primals
+    x_dot, a_dot, b_dot = tangents
+    del a_dot
+    del b_dot
+    primal_out = jnp.clip(x, a, b)
+    tangent_out = x_dot # + a_dot + b_dot
+    return primal_out, tangent_out

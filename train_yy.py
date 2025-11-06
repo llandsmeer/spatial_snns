@@ -284,6 +284,7 @@ top1p_train = []
 top3p_train = []
 top2d = []
 top2d_train = []
+losses = []
 
 inp_test, lbl_test = test.indicators_labels32(idxs=jnp.arange(test.size), dt=args.dt)
 #inp = jnp.array(inp)
@@ -375,6 +376,16 @@ try:
             plt.title(str(lbl[0]) + " | 0-> " + f"{o[-3]:.4f}" + "  1-> " + f"{o[-2]:.4f}" + "  2-> " + f"{o[-1]:.4f}")
             plt.savefig('yy.png')
         ###
+
+        # batch_loss = batched_loss(net, inp, lbl)
+        # if ii > 100:
+        #     avg_loss = jnp.array(losses[-50:]).mean()
+        #     losses.append(batch_loss)
+        #     if batch_loss > (2 * avg_loss):
+        #         log(f'TRAIN {ii} batch skipped {idxs} avg loss {avg_loss} batch loss {batch_loss}')
+        #         continue
+
+
         b = time.time()
         opt_state, net, l, g = batched_update(opt_state, net, inp, lbl)
         # log(g)
