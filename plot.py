@@ -2,6 +2,8 @@
 import matplotlib.pyplot as plt
 import json, pandas as pd, glob, tqdm
 
+plt.rcParams['svg.fonttype'] = 'none'
+
 tables = {}
 for f in tqdm.tqdm(glob.glob('saved/*/log.jsons')):
     args, hparams = {}, {}
@@ -28,6 +30,7 @@ tgtfreq = {f'{f}': sub.t1p.values for f, sub in final.groupby('tgtfreq')}
 plt.boxplot(tgtfreq.values(), labels=tgtfreq.keys())
 plt.xlabel('Ftarget (Hz)')
 plt.ylabel('TOP1 (%)')
+plt.savefig('1.svg')
 plt.show()
 
 
@@ -40,6 +43,7 @@ for net, sub in final.groupby('netspec'):
 plt.legend(title='Network Dimensions', ncol=2)
 plt.xlabel('RSNN Neurons (#)')
 plt.ylabel('Accuracy')
+plt.savefig('2.svg')
 plt.show()
 
 
@@ -47,9 +51,11 @@ for nh, sub in final.groupby('nhidden'):
     sub = sub.sort_values('plotdim') # type: ignore
     sub = sub[['plotdim', 't1p']].groupby('plotdim').median()
     plt.plot(sub.index, sub.t1p, label=nh)
+plt.xticks([0,1,2,3,4,5,6], '0 1 2 3 4 5 inf'.split())
 plt.legend(title='Nhidden', ncol=2)
 plt.xlabel('Network Dimension')
 plt.ylabel('Accuracy')
+plt.savefig('3.svg')
 plt.show()
 df['eps'] = df['netspec'].str.split('e').str[1].astype(float)
 for n, sub in finaleps.groupby('nhidden'):
