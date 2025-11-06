@@ -225,8 +225,10 @@ def make_mask(check=lambda key: False):
 
 optimizer = optax.chain(
     optax.adaptive_grad_clip(clipping=clip_factor, eps=0.001),
-    optax.add_decayed_weights(weight_decay, mask=make_mask(lambda x: x not in ('ipos', 'rpos', 'idelay', 'rdelay', 'ierr', 'rerr'))),
-    optax.add_decayed_weights(weight_decay/args.delaygradscale, mask=make_mask(lambda x: x in ('ipos', 'rpos', 'idelay', 'rdelay', 'ierr', 'rerr'))),
+    optax.add_decayed_weights(weight_decay, mask=make_mask(
+        lambda x: x not in ('ipos', 'rpos', 'idelay', 'rdelay', 'ierr', 'rerr', 'eps'))),
+    optax.add_decayed_weights(weight_decay/args.delaygradscale, mask=make_mask(
+        lambda x: x in ('ipos', 'rpos', 'idelay', 'rdelay', 'ierr', 'rerr'))),
     optax.scale_by_adam(),
     optax.scale_by_schedule(schedule),
     scale_custom(args.delaygradscale, lambda x: x in ('ipos', 'rpos')),
