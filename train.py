@@ -56,6 +56,7 @@ parser.add_argument('--delaysigma', type=float, default=1., help='Sigma')
 parser.add_argument('--possigma', type=float, default=20., help='Sigma')
 parser.add_argument('--tgtfreq', type=float, default=5, help='Target frequency Hz')
 parser.add_argument('--population_freq', default=False, action='store_true', help='Target freq after mean')
+parser.add_argument('--tag', type=str, default='default', help='Experiment ids')
 args = parser.parse_args()
 
 RUN_ID = str(uuid.uuid4())
