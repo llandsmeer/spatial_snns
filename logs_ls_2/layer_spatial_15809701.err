@@ -1,0 +1,543 @@
+W1107 11:01:51.829979 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+E1107 11:01:51.904763 3144355 ptx_compiler_helpers.cc:132] *** WARNING *** Invoking ptxas with version 12.6.20, which corresponds to a CUDA version <=12.6.2. CUDA versions 12.x.y up to and including 12.6.2 miscompile certain edge cases around clamping.
+Please upgrade to CUDA 12.6.3 or newer.
+W1107 11:01:52.184795 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:01:52.233742 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+  0%|          | 0/5000 [00:00<?, ?it/s]W1107 11:01:52.314738 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+ 11%|█▏        | 568/5000 [00:00<00:00, 5675.09it/s] 26%|██▌       | 1277/5000 [00:00<00:00, 6504.54it/s] 40%|███▉      | 1981/5000 [00:00<00:00, 6746.59it/s] 54%|█████▎    | 2687/5000 [00:00<00:00, 6867.83it/s] 68%|██████▊   | 3387/5000 [00:00<00:00, 6914.84it/s] 82%|████████▏ | 4086/5000 [00:00<00:00, 6940.05it/s] 96%|█████████▌| 4788/5000 [00:00<00:00, 6964.24it/s]100%|██████████| 5000/5000 [00:00<00:00, 6840.42it/s]
+  0%|          | 0/5000 [00:00<?, ?it/s] 14%|█▍        | 700/5000 [00:00<00:00, 6996.12it/s] 28%|██▊       | 1400/5000 [00:00<00:00, 6940.16it/s] 42%|████▏     | 2100/5000 [00:00<00:00, 6965.63it/s] 56%|█████▌    | 2804/5000 [00:00<00:00, 6994.64it/s] 70%|███████   | 3520/5000 [00:00<00:00, 7053.75it/s] 85%|████████▍ | 4226/5000 [00:00<00:00, 7048.91it/s] 99%|█████████▊| 4935/5000 [00:00<00:00, 7059.60it/s]100%|██████████| 5000/5000 [00:00<00:00, 7026.27it/s]
+W1107 11:01:53.759998 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+  0%|          | 0/1000 [00:00<?, ?it/s] 74%|███████▍  | 739/1000 [00:00<00:00, 7382.98it/s]100%|██████████| 1000/1000 [00:00<00:00, 7301.81it/s]
+  0%|          | 0/1000 [00:00<?, ?it/s] 70%|███████   | 704/1000 [00:00<00:00, 7039.44it/s]100%|██████████| 1000/1000 [00:00<00:00, 7025.36it/s]
+W1107 11:01:54.070962 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:01:54.096989 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:01:54.126294 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:01:54.451403 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:01:54.546992 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:01:55.961621 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:01:56.056138 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:01:56.924821 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:01:57.149380 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:01:57.278254 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:01:57.472438 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:01:57.592305 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:01:57.640905 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:01:57.775831 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:01:57.852114 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:01:57.985204 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:01:58.061468 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:01:58.255773 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:01:58.375385 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:01:58.421669 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:01:58.446011 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:01:58.470122 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:01:58.515546 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:01:58.560161 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:01:58.604040 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:01:58.648062 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:01:58.672579 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:01:58.718420 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:01:58.763563 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:01:58.808830 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:01:58.852609 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:01:58.876268 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:01:58.900312 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+  0%|          | 0/1000 [00:00<?, ?it/s]W1107 11:01:58.967474 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:01:59.040161 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:01:59.116576 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:01:59.484728 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+  0%|          | 1/1000 [00:00<09:47,  1.70it/s]  9%|▉         | 90/1000 [00:00<00:05, 175.25it/s] 18%|█▊        | 183/1000 [00:00<00:02, 339.91it/s] 28%|██▊       | 278/1000 [00:00<00:01, 483.88it/s] 37%|███▋      | 371/1000 [00:00<00:01, 595.77it/s] 46%|████▋     | 464/1000 [00:01<00:00, 682.90it/s] 56%|█████▌    | 558/1000 [00:01<00:00, 751.59it/s] 65%|██████▌   | 651/1000 [00:01<00:00, 800.19it/s] 74%|███████▍  | 745/1000 [00:01<00:00, 838.73it/s] 84%|████████▍ | 839/1000 [00:01<00:00, 866.82it/s] 93%|█████████▎| 933/1000 [00:01<00:00, 887.82it/s]100%|██████████| 1000/1000 [00:01<00:00, 600.83it/s]
+W1107 11:02:00.618369 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:01.083262 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:01.128656 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:01.173684 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:01.700944 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:01.847501 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:01.920819 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:01.978204 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:02.045409 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:02.110566 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:02.163252 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:02.210220 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:02.258114 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+  0%|          | 0/5000 [00:00<?, ?it/s]W1107 11:02:02.310189 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:02.365869 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+  0%|          | 1/5000 [00:00<09:12,  9.04it/s]  2%|▏         | 99/5000 [00:00<00:08, 553.08it/s]  4%|▎         | 187/5000 [00:00<00:06, 697.75it/s]  6%|▌         | 276/5000 [00:00<00:06, 769.61it/s]  7%|▋         | 364/5000 [00:00<00:05, 808.85it/s]  9%|▉         | 453/5000 [00:00<00:05, 834.75it/s] 11%|█         | 542/5000 [00:00<00:05, 851.04it/s] 13%|█▎        | 631/5000 [00:00<00:05, 860.61it/s] 14%|█▍        | 721/5000 [00:00<00:04, 872.04it/s] 16%|█▌        | 809/5000 [00:01<00:04, 872.74it/s] 18%|█▊        | 899/5000 [00:01<00:04, 880.36it/s] 20%|█▉        | 988/5000 [00:01<00:04, 881.26it/s] 22%|██▏       | 1078/5000 [00:01<00:04, 886.41it/s] 23%|██▎       | 1167/5000 [00:01<00:04, 884.70it/s] 25%|██▌       | 1259/5000 [00:01<00:04, 893.46it/s] 27%|██▋       | 1352/5000 [00:01<00:04, 903.64it/s] 29%|██▉       | 1447/5000 [00:01<00:03, 914.79it/s] 31%|███       | 1542/5000 [00:01<00:03, 923.70it/s] 33%|███▎      | 1637/5000 [00:01<00:03, 930.68it/s] 35%|███▍      | 1731/5000 [00:02<00:03, 930.93it/s] 36%|███▋      | 1825/5000 [00:02<00:03, 929.99it/s] 38%|███▊      | 1919/5000 [00:02<00:03, 926.56it/s] 40%|████      | 2012/5000 [00:02<00:03, 926.45it/s] 42%|████▏     | 2106/5000 [00:02<00:03, 928.82it/s] 44%|████▍     | 2199/5000 [00:02<00:03, 927.51it/s] 46%|████▌     | 2292/5000 [00:02<00:02, 926.58it/s] 48%|████▊     | 2385/5000 [00:02<00:02, 926.37it/s] 50%|████▉     | 2478/5000 [00:02<00:02, 927.26it/s] 51%|█████▏    | 2571/5000 [00:02<00:02, 927.65it/s] 53%|█████▎    | 2664/5000 [00:03<00:02, 927.68it/s] 55%|█████▌    | 2758/5000 [00:03<00:02, 929.40it/s] 57%|█████▋    | 2851/5000 [00:03<00:02, 929.26it/s] 59%|█████▉    | 2945/5000 [00:03<00:02, 930.63it/s] 61%|██████    | 3039/5000 [00:03<00:02, 931.41it/s] 63%|██████▎   | 3133/5000 [00:03<00:02, 931.77it/s] 65%|██████▍   | 3227/5000 [00:03<00:01, 930.51it/s] 66%|██████▋   | 3321/5000 [00:03<00:01, 929.11it/s] 68%|██████▊   | 3414/5000 [00:03<00:01, 929.25it/s] 70%|███████   | 3507/5000 [00:03<00:01, 927.93it/s] 72%|███████▏  | 3601/5000 [00:04<00:01, 929.71it/s] 74%|███████▍  | 3694/5000 [00:04<00:01, 929.28it/s] 76%|███████▌  | 3787/5000 [00:04<00:01, 927.32it/s] 78%|███████▊  | 3880/5000 [00:04<00:01, 921.71it/s] 79%|███████▉  | 3973/5000 [00:04<00:01, 918.03it/s] 81%|████████▏ | 4065/5000 [00:04<00:01, 914.40it/s] 83%|████████▎ | 4157/5000 [00:04<00:00, 915.74it/s] 85%|████████▌ | 4251/5000 [00:04<00:00, 921.07it/s] 87%|████████▋ | 4344/5000 [00:04<00:00, 922.42it/s] 89%|████████▊ | 4437/5000 [00:04<00:00, 921.39it/s] 91%|█████████ | 4531/5000 [00:05<00:00, 925.59it/s] 92%|█████████▏| 4624/5000 [00:05<00:00, 926.78it/s] 94%|█████████▍| 4717/5000 [00:05<00:00, 925.14it/s] 96%|█████████▌| 4810/5000 [00:05<00:00, 924.19it/s] 98%|█████████▊| 4904/5000 [00:05<00:00, 928.13it/s]100%|██████████| 5000/5000 [00:05<00:00, 935.53it/s]100%|██████████| 5000/5000 [00:05<00:00, 900.99it/s]
+W1107 11:02:07.861190 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:10.876600 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:10.941754 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:11.010763 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:11.064015 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:11.168561 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:11.236994 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+  0%|          | 0/2 [00:00<?, ?it/s]W1107 11:02:11.288577 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:11.369727 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:11.829227 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:12.454556 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+ 50%|█████     | 1/2 [00:01<00:01,  1.29s/it]W1107 11:02:12.573688 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:12.627763 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:12.978680 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+100%|██████████| 2/2 [00:02<00:00,  1.18s/it]100%|██████████| 2/2 [00:02<00:00,  1.19s/it]
+W1107 11:02:13.678045 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:13.724622 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:13.770291 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:13.817355 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:13.862300 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:13.907414 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:13.959115 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:13.989169 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:14.054405 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:14.115211 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:14.164600 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:14.223874 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:14.284724 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:14.343776 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:14.394555 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.50it/s]
+W1107 11:02:14.519492 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:14.543503 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:14.864201 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:15.432464 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:15.773483 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:17.697457 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:17.771559 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:17.925907 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:17.975004 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:18.040789 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:18.083558 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:18.145401 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:18.189854 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:18.255986 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:18.290888 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:18.338362 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:19.869124 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:23.191040 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:23.242566 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:23.268915 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:23.320447 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:23.369004 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:23.417041 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:23.462084 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:23.512822 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:23.538763 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:23.589867 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:23.637554 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:23.687120 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:23.734351 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:23.786002 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:23.809864 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:23.856565 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:23.904123 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:23.951512 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:23.999704 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:24.047103 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:24.094099 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:24.143104 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:24.189953 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:24.236265 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:24.262348 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:24.314306 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:24.363690 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:24.408460 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:24.431658 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:24.459085 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:24.524550 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:24.571634 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:24.614863 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:24.643096 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:24.709599 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:24.734225 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:24.787733 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:24.834291 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:24.879516 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:24.922181 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:24.946433 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:24.992591 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:25.015728 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:25.040089 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:25.095932 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:25.144593 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:25.192214 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:25.239957 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:25.263517 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:25.287738 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:25.335764 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:25.383703 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:25.428797 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:25.479348 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:25.525227 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:25.575345 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:25.601815 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:25.651670 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:25.676556 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:25.723329 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:25.909884 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:26.238792 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:26.402648 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:26.426979 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:26.451392 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:26.502692 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:26.554239 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:26.634174 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:26.712563 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:26.877228 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:26.934609 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:26.980511 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:27.035853 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:27.087298 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:27.163984 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:27.277221 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:27.323136 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:27.372465 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:27.420411 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:27.466727 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:27.515018 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:27.539042 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:27.585947 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:27.610429 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:27.656016 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:27.682328 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:27.735303 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:27.794461 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:27.862377 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:27.920263 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:27.967135 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:27.993438 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:28.051170 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:02:28.097289 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 42.75it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.74it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.51it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.86it/s]
+W1107 11:03:21.312256 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:03:21.639934 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.11it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.94it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.53it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.91it/s]
+W1107 11:04:15.310041 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:04:15.638600 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 42.77it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.78it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.27it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.87it/s]
+W1107 11:05:09.234317 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:05:09.562621 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 42.81it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.75it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.37it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.76it/s]
+W1107 11:06:03.292597 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:06:03.619356 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 42.81it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.71it/s]
+  0%|          | 0/16 [00:00<?, ?it/s]W1107 11:06:56.564365 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:06:56.615990 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+  6%|▋         | 1/16 [00:00<00:01,  7.66it/s] 25%|██▌       | 4/16 [00:00<00:00, 18.03it/s] 44%|████▍     | 7/16 [00:00<00:00, 21.70it/s] 62%|██████▎   | 10/16 [00:00<00:00, 23.45it/s] 81%|████████▏ | 13/16 [00:00<00:00, 24.45it/s]W1107 11:06:57.224735 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:06:57.276195 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:06:57.752341 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+100%|██████████| 16/16 [00:01<00:00,  5.64it/s]100%|██████████| 16/16 [00:01<00:00,  8.56it/s]
+W1107 11:06:58.488754 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:06:58.554959 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:06:58.607105 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:06:58.656952 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:06:58.725911 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:06:58.795829 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:06:58.860794 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:06:58.919655 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+  0%|          | 0/16 [00:00<?, ?it/s] 19%|█▉        | 3/16 [00:00<00:00, 28.80it/s] 38%|███▊      | 6/16 [00:00<00:00, 27.36it/s] 56%|█████▋    | 9/16 [00:00<00:00, 26.91it/s] 75%|███████▌  | 12/16 [00:00<00:00, 26.61it/s] 94%|█████████▍| 15/16 [00:00<00:00, 26.47it/s]100%|██████████| 16/16 [00:00<00:00, 27.70it/s]
+W1107 11:06:59.605803 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:06:59.629365 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:06:59.907665 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:07:00.525088 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 42.97it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.72it/s]
+W1107 11:07:01.500780 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:07:01.828562 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.22it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 44.09it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.65it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 44.11it/s]
+W1107 11:07:55.419057 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:07:55.748239 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 42.31it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.77it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.23it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.86it/s]
+W1107 11:08:49.356420 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:08:49.685023 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 42.60it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.71it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.33it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.72it/s]
+W1107 11:09:43.267886 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:09:43.598995 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 42.81it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.79it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.46it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.86it/s]
+W1107 11:10:37.593678 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:10:37.920854 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+  0%|          | 0/2 [00:00<?, ?it/s] 50%|█████     | 1/2 [00:00<00:00,  5.53it/s]100%|██████████| 2/2 [00:00<00:00, 10.53it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 44.11it/s]
+  0%|          | 0/16 [00:00<?, ?it/s] 19%|█▉        | 3/16 [00:00<00:00, 28.75it/s] 38%|███▊      | 6/16 [00:00<00:00, 27.37it/s] 56%|█████▋    | 9/16 [00:00<00:00, 26.93it/s] 75%|███████▌  | 12/16 [00:00<00:00, 26.73it/s] 94%|█████████▍| 15/16 [00:00<00:00, 26.62it/s]100%|██████████| 16/16 [00:00<00:00, 27.81it/s]
+  0%|          | 0/16 [00:00<?, ?it/s] 19%|█▉        | 3/16 [00:00<00:00, 28.94it/s] 38%|███▊      | 6/16 [00:00<00:00, 27.45it/s] 56%|█████▋    | 9/16 [00:00<00:00, 27.01it/s] 75%|███████▌  | 12/16 [00:00<00:00, 26.81it/s] 94%|█████████▍| 15/16 [00:00<00:00, 26.72it/s]100%|██████████| 16/16 [00:00<00:00, 27.91it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.92it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 44.10it/s]
+W1107 11:11:33.232926 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:11:33.562220 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 42.90it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.73it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.41it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.78it/s]
+W1107 11:12:27.362968 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:12:27.692329 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 42.82it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.86it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.57it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.96it/s]
+W1107 11:13:21.404733 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:13:21.736010 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.16it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.92it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.53it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.93it/s]
+W1107 11:14:15.341900 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:14:15.671774 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 42.79it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.45it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.58it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.95it/s]
+W1107 11:15:09.245877 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:15:09.573262 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 42.88it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.87it/s]
+  0%|          | 0/16 [00:00<?, ?it/s] 19%|█▉        | 3/16 [00:00<00:00, 28.70it/s] 38%|███▊      | 6/16 [00:00<00:00, 27.30it/s] 56%|█████▋    | 9/16 [00:00<00:00, 26.88it/s] 75%|███████▌  | 12/16 [00:00<00:00, 26.70it/s] 94%|█████████▍| 15/16 [00:00<00:00, 26.59it/s]100%|██████████| 16/16 [00:00<00:00, 27.77it/s]
+  0%|          | 0/16 [00:00<?, ?it/s] 19%|█▉        | 3/16 [00:00<00:00, 28.93it/s] 38%|███▊      | 6/16 [00:00<00:00, 27.44it/s] 56%|█████▋    | 9/16 [00:00<00:00, 26.98it/s] 75%|███████▌  | 12/16 [00:00<00:00, 26.77it/s] 94%|█████████▍| 15/16 [00:00<00:00, 26.67it/s]100%|██████████| 16/16 [00:00<00:00, 27.87it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.81it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.99it/s]
+W1107 11:16:04.862762 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:16:05.190482 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 42.84it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.82it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.50it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.91it/s]
+W1107 11:16:58.742541 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:16:59.071756 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 42.96it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.96it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.39it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 44.02it/s]
+W1107 11:17:52.665534 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:17:52.993906 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 42.84it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.82it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.49it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.84it/s]
+W1107 11:18:46.546493 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:18:46.877568 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.11it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.82it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.50it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.89it/s]
+W1107 11:19:40.389968 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:19:40.718569 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 42.24it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.01it/s]
+  0%|          | 0/16 [00:00<?, ?it/s] 19%|█▉        | 3/16 [00:00<00:00, 28.55it/s] 38%|███▊      | 6/16 [00:00<00:00, 27.10it/s] 56%|█████▋    | 9/16 [00:00<00:00, 26.65it/s] 75%|███████▌  | 12/16 [00:00<00:00, 26.47it/s] 94%|█████████▍| 15/16 [00:00<00:00, 26.39it/s]100%|██████████| 16/16 [00:00<00:00, 27.57it/s]
+  0%|          | 0/16 [00:00<?, ?it/s] 19%|█▉        | 3/16 [00:00<00:00, 28.78it/s] 38%|███▊      | 6/16 [00:00<00:00, 27.30it/s] 56%|█████▋    | 9/16 [00:00<00:00, 26.86it/s] 75%|███████▌  | 12/16 [00:00<00:00, 26.66it/s] 94%|█████████▍| 15/16 [00:00<00:00, 26.55it/s]100%|██████████| 16/16 [00:00<00:00, 27.75it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 42.92it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.08it/s]
+W1107 11:20:36.246363 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:20:36.575335 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.14it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.94it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.57it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.98it/s]
+W1107 11:21:30.191987 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:21:30.521547 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 42.76it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.86it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.54it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.94it/s]
+W1107 11:22:24.143883 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:22:24.474212 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.01it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.81it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.47it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.88it/s]
+W1107 11:23:18.111801 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:23:18.442958 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 42.62it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.71it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.32it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.72it/s]
+W1107 11:24:12.118194 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:24:12.447440 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 42.56it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.71it/s]
+  0%|          | 0/16 [00:00<?, ?it/s] 19%|█▉        | 3/16 [00:00<00:00, 28.55it/s] 38%|███▊      | 6/16 [00:00<00:00, 27.14it/s] 56%|█████▋    | 9/16 [00:00<00:00, 26.71it/s] 75%|███████▌  | 12/16 [00:00<00:00, 26.54it/s] 94%|█████████▍| 15/16 [00:00<00:00, 26.43it/s]100%|██████████| 16/16 [00:00<00:00, 27.61it/s]
+  0%|          | 0/16 [00:00<?, ?it/s] 19%|█▉        | 3/16 [00:00<00:00, 28.48it/s] 38%|███▊      | 6/16 [00:00<00:00, 27.03it/s] 56%|█████▋    | 9/16 [00:00<00:00, 26.69it/s] 75%|███████▌  | 12/16 [00:00<00:00, 26.47it/s] 94%|█████████▍| 15/16 [00:00<00:00, 26.36it/s]100%|██████████| 16/16 [00:00<00:00, 27.55it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.58it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.80it/s]
+W1107 11:25:08.026820 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:25:08.356078 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 42.74it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.86it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.34it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.88it/s]
+W1107 11:26:02.163029 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:26:02.491561 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 42.64it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.83it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.45it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.91it/s]
+W1107 11:26:56.236603 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:26:56.565526 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 42.57it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.63it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.32it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.76it/s]
+W1107 11:27:50.253577 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:27:50.581153 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 42.52it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.55it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.36it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.85it/s]
+W1107 11:28:44.203132 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:28:44.532743 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.03it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.80it/s]
+  0%|          | 0/16 [00:00<?, ?it/s] 19%|█▉        | 3/16 [00:00<00:00, 28.58it/s] 38%|███▊      | 6/16 [00:00<00:00, 27.20it/s] 56%|█████▋    | 9/16 [00:00<00:00, 26.79it/s] 75%|███████▌  | 12/16 [00:00<00:00, 26.61it/s] 94%|█████████▍| 15/16 [00:00<00:00, 26.51it/s]100%|██████████| 16/16 [00:00<00:00, 27.69it/s]
+  0%|          | 0/16 [00:00<?, ?it/s] 19%|█▉        | 3/16 [00:00<00:00, 28.55it/s] 38%|███▊      | 6/16 [00:00<00:00, 27.17it/s] 56%|█████▋    | 9/16 [00:00<00:00, 26.75it/s] 75%|███████▌  | 12/16 [00:00<00:00, 26.56it/s] 94%|█████████▍| 15/16 [00:00<00:00, 26.51it/s]100%|██████████| 16/16 [00:00<00:00, 27.68it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.65it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.92it/s]
+W1107 11:29:39.893781 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:29:40.224207 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 42.96it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.76it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.44it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.81it/s]
+W1107 11:30:33.986090 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:30:34.527681 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 42.90it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.79it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.34it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.82it/s]
+W1107 11:31:28.329474 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:31:28.659943 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 42.43it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.89it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.58it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.95it/s]
+W1107 11:32:22.385570 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:32:22.716754 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 42.87it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.72it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.41it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.83it/s]
+W1107 11:33:16.486244 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:33:16.816015 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 42.64it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.61it/s]
+  0%|          | 0/16 [00:00<?, ?it/s] 19%|█▉        | 3/16 [00:00<00:00, 28.26it/s] 38%|███▊      | 6/16 [00:00<00:00, 27.05it/s] 56%|█████▋    | 9/16 [00:00<00:00, 26.59it/s] 75%|███████▌  | 12/16 [00:00<00:00, 26.46it/s] 94%|█████████▍| 15/16 [00:00<00:00, 26.33it/s]100%|██████████| 16/16 [00:00<00:00, 27.49it/s]
+  0%|          | 0/16 [00:00<?, ?it/s] 19%|█▉        | 3/16 [00:00<00:00, 28.73it/s] 38%|███▊      | 6/16 [00:00<00:00, 27.25it/s] 56%|█████▋    | 9/16 [00:00<00:00, 26.80it/s] 75%|███████▌  | 12/16 [00:00<00:00, 26.59it/s] 94%|█████████▍| 15/16 [00:00<00:00, 26.48it/s]100%|██████████| 16/16 [00:00<00:00, 27.68it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.54it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.73it/s]
+W1107 11:34:12.217850 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:34:12.547426 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 42.77it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.85it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.51it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.95it/s]
+W1107 11:35:06.216502 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:35:06.546625 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 42.90it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.87it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.59it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.98it/s]
+W1107 11:36:00.262495 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:36:00.592968 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 42.76it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.73it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.41it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.55it/s]
+W1107 11:36:54.223895 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:36:54.553772 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 42.85it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.81it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.57it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.94it/s]
+W1107 11:37:48.373650 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:37:48.702906 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 42.69it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.41it/s]
+  0%|          | 0/16 [00:00<?, ?it/s] 19%|█▉        | 3/16 [00:00<00:00, 28.69it/s] 38%|███▊      | 6/16 [00:00<00:00, 27.28it/s] 56%|█████▋    | 9/16 [00:00<00:00, 26.85it/s] 75%|███████▌  | 12/16 [00:00<00:00, 26.68it/s] 94%|█████████▍| 15/16 [00:00<00:00, 26.60it/s]100%|██████████| 16/16 [00:00<00:00, 27.77it/s]
+  0%|          | 0/16 [00:00<?, ?it/s] 19%|█▉        | 3/16 [00:00<00:00, 28.83it/s] 38%|███▊      | 6/16 [00:00<00:00, 27.35it/s] 56%|█████▋    | 9/16 [00:00<00:00, 26.91it/s] 75%|███████▌  | 12/16 [00:00<00:00, 26.71it/s] 94%|█████████▍| 15/16 [00:00<00:00, 26.60it/s]100%|██████████| 16/16 [00:00<00:00, 27.80it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.26it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.48it/s]
+W1107 11:38:44.049554 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:38:44.380624 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 42.89it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.79it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.45it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.74it/s]
+W1107 11:39:38.094726 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:39:38.426161 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 42.87it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.71it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.33it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.81it/s]
+W1107 11:40:32.134691 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:40:32.463170 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.04it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.79it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.38it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.76it/s]
+W1107 11:41:26.115261 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:41:26.443246 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 42.98it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.79it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.41it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.31it/s]
+W1107 11:42:20.405662 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:42:20.736941 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 42.91it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.69it/s]
+  0%|          | 0/16 [00:00<?, ?it/s] 19%|█▉        | 3/16 [00:00<00:00, 28.55it/s] 38%|███▊      | 6/16 [00:00<00:00, 27.14it/s] 56%|█████▋    | 9/16 [00:00<00:00, 26.73it/s] 75%|███████▌  | 12/16 [00:00<00:00, 26.54it/s] 94%|█████████▍| 15/16 [00:00<00:00, 26.44it/s]100%|██████████| 16/16 [00:00<00:00, 27.62it/s]
+  0%|          | 0/16 [00:00<?, ?it/s] 19%|█▉        | 3/16 [00:00<00:00, 28.75it/s] 38%|███▊      | 6/16 [00:00<00:00, 27.26it/s] 56%|█████▋    | 9/16 [00:00<00:00, 26.82it/s] 75%|███████▌  | 12/16 [00:00<00:00, 26.63it/s] 94%|█████████▍| 15/16 [00:00<00:00, 26.52it/s]100%|██████████| 16/16 [00:00<00:00, 27.72it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.50it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.83it/s]
+W1107 11:43:16.183942 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:43:16.515443 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 42.62it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.71it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.43it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.88it/s]
+W1107 11:44:10.275851 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:44:10.608705 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 42.60it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.81it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.52it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.86it/s]
+W1107 11:45:04.320138 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:45:04.649322 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 42.60it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.66it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.23it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.74it/s]
+W1107 11:45:58.337976 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:45:58.668570 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 42.71it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.70it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.40it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.80it/s]
+W1107 11:46:52.337718 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:46:52.666365 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 42.99it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 43.81it/s]
+  0%|          | 0/16 [00:00<?, ?it/s] 19%|█▉        | 3/16 [00:00<00:00, 28.60it/s] 38%|███▊      | 6/16 [00:00<00:00, 27.22it/s] 56%|█████▋    | 9/16 [00:00<00:00, 26.81it/s] 75%|███████▌  | 12/16 [00:00<00:00, 26.62it/s] 94%|█████████▍| 15/16 [00:00<00:00, 26.52it/s]100%|██████████| 16/16 [00:00<00:00, 27.70it/s]
+  0%|          | 0/16 [00:00<?, ?it/s] 19%|█▉        | 3/16 [00:00<00:00, 28.84it/s] 38%|███▊      | 6/16 [00:00<00:00, 27.36it/s] 56%|█████▋    | 9/16 [00:00<00:00, 26.92it/s] 75%|███████▌  | 12/16 [00:00<00:00, 26.71it/s] 94%|█████████▍| 15/16 [00:00<00:00, 26.61it/s]100%|██████████| 16/16 [00:00<00:00, 27.80it/s]
+W1107 11:47:48.671354 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:47:48.744283 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
+W1107 11:47:48.804888 3144355 sol_gpu_cost_model.cc:102] No SoL config found for device: NVIDIA H100. Using default config.
