@@ -68,6 +68,8 @@ class HyperParameters(typing.NamedTuple):
             net = DelayNetwork.make(self, key)
         elif 'e' in self.netspec:
             net = EpsilonNetwork.make(self, key)
+        elif 'g' in self.netspec:
+            net = GridEpsilonNetwork.make(self, key)
         else:
             net = SpatialNetwork.make(self, key)
         if self.noutput is None:
@@ -79,6 +81,8 @@ class HyperParameters(typing.NamedTuple):
             return float('inf')
         elif 'e' in self.netspec:
             return int(self.netspec.split('e')[0])
+        elif 'g' in self.netspec:
+            return int(self.netspec.split('g')[0])
         else:
             return int(self.netspec)
 
@@ -272,6 +276,79 @@ class EpsilonNetwork(typing.NamedTuple):
                 rerr=rerr,
                 eps=eps
                 )
+
+class GridEpsilonNetwork(typing.NamedTuple):
+    iw: jax.Array
+    rw: jax.Array
+    ndim: jax.Array
+    scale: jax.Array
+    ierr: jax.Array
+    rerr: jax.Array
+    iorigin: jax.Array
+    horigin: jax.Array
+    eps:  float
+    @classmethod
+    def make(cls, hyper: HyperParameters, key: jax.Array):
+        assert 'g' in hyper.netspec
+        parts = hyper.netspec.split('g')
+        ndim = int(parts[0])
+        eps = float(parts[1])
+        keys = jax.random.split(key, 4)
+        return GridEpsilonNetwork(
+            iw = hyper.random_weight(hyper.nhidden, hyper.ninput, keys[0], zero=False, factor=hyper.ifactor),
+            rw = hyper.random_weight(hyper.nhidden, hyper.nhidden, keys[1], factor=hyper.rfactor),
+            ndim = jnp.zeros((1, ndim)), # ugly but we need the int value without grad
+            scale = jnp.array(1.),
+            iorigin = jnp.zeros(ndim, dtype='float32'),
+            horigin = jnp.zeros(ndim, dtype='float32'),
+            ierr = jnp.zeros((hyper.nhidden, hyper.ninput)).flatten(),
+            rerr = jnp.zeros((hyper.nhidden, hyper.nhidden)).flatten(),
+            eps = eps
+            )
+    def sim(self, iapp, **kwargs):
+        eps = jax.lax.stop_gradient(self.eps)
+        ndim = self.ndim.shape[1]
+        ipos = mkgrid(self.iw.shape[1], ndim, scale=self.scale) + self.iorigin[None, :]
+        rpos = mkgrid(self.rw.shape[1], ndim, scale=self.scale) + self.horigin[None, :]
+        constraint_ih = spatial_to_delay(rpos, ipos)
+        constraint_hh = spatial_to_delay(rpos)
+        return DelayNetwork(
+                self.iw,
+                self.rw,
+                (1 + eps*(0.5 + 0.5*jnp.tanh(self.ierr))) * constraint_ih,
+                (1 + eps*(0.5 + 0.5*jnp.tanh(self.rerr))) * constraint_hh).sim(iapp, **kwargs)
+    def save(self, fn):
+        numpy.savez_compressed(fn, iw=self.iw, rw=self.rw, ipos=self.ipos, rpos=self.rpos, ierr=self.ierr, rerr=self.rerr, eps=self.eps)
+    def load(self, fn):
+        with open(fn, 'rb') as f:
+            import numpy
+            f = numpy.load(f)
+            iw = jnp.array(f['iw'])
+            rw = jnp.array(f['rw'])
+            ndim = jnp.array(f['ndim'])
+            scale = jnp.array(f['scale'])
+            ierr = jnp.array(f['ierr'])
+            rerr = jnp.array(f['rerr'])
+            eps = jnp.array(f['eps']).item()
+        return GridEpsilonNetwork(
+                iw=iw,
+                rw=rw,
+                ndim=ndim,
+                scale=scale,
+                ierr=ierr,
+                rerr=rerr,
+                eps=eps
+                )
+
+
+def mkgrid(nneurons: int , ndim: int, scale: float=1.):
+    nside = jnp.ceil(nneurons**(1/3)).astype(int)
+    i = jnp.arange(nneurons)
+    o = []
+    for _ in range(ndim):
+        o.append(scale * (i % nside))
+        i = i // nside
+    return jnp.stack(o, axis=1)
 
 def zero_diagonal(arr):
     n = arr.shape[0]
