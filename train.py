@@ -57,6 +57,8 @@ parser.add_argument('--possigma', type=float, default=20., help='Sigma')
 parser.add_argument('--tgtfreq', type=float, default=5, help='Target frequency Hz')
 parser.add_argument('--population_freq', default=False, action='store_true', help='Target freq after mean')
 parser.add_argument('--tag', type=str, default='default', help='Experiment ids')
+parser.add_argument('--line', default=False, action='store_true', help='Initialize inputs on a line')
+parser.add_argument('--sparse', default=1.0, type=float, help='Sparsify after each epoch')
 args = parser.parse_args()
 
 RUN_ID = str(uuid.uuid4())
@@ -65,6 +67,8 @@ now = datetime.datetime.utcnow()
 
 save_dir = args.save_dir
 fndir = f'{now.year}{now.month:02d}{now.day:02d}_d{args.net}_h{args.nhidden}_lr{args.lr}_ll{args.load_limit}_dt{args.dt}_{RUN_ID}'
+if args.sparse != 1:
+    fndir = 'sparse_' + fndir
 done = -1
 if not args.reload:
     os.makedirs(f'{save_dir}/{fndir}', exist_ok=args.force)
@@ -128,6 +132,7 @@ params = networks.HyperParameters(
         pos_sigma=args.possigma,
         delay_sigma=args.delaysigma,
         delay_mu=args.delaymu,
+        line=args.line
         )
 
 datalog('hyperparams', **params.configdict())
@@ -285,7 +290,22 @@ for epoch_idx in range(args.nepochs):
             t1p_train=float(t1p_train),
             t3p_train=float(t3p_train)
             )
+    if args.sparse != 1:
+        net = networks.sparsify(net, args.sparse) # type: ignore
+        t1p_sp, t3p_sp, f_sp = performance_split(net, inp_test, lbl_test)
+        print(f'#SPARSE# TOP1 {t1p_sp:.1f}%  TOP3 {t3p_sp:.1f}%  FREQ {f_sp.mean():.2e}')
+        datalog('sparse_epoch',
+                i=epoch_idx,
+                t1p=float(t1p),
+                t3p=float(t3p),
+                t1p_sp=float(t1p_sp),
+                t3p_sp=float(t3p_sp),
+                t1p_train=float(t1p_train),
+                t3p_train=float(t3p_train)
+                )
     try:
         net.save(f'{save_dir}/{fndir}/epoch_{epoch_idx:08d}')
     except Exception as ex:
         datalog('error', ex=str(type(ex)), r=repr(ex))
+
+datalog('done')

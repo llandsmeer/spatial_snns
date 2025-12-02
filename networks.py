@@ -60,6 +60,7 @@ class HyperParameters(typing.NamedTuple):
     delay_mu: float = 8.
     delay_sigma: float = 1.
     pos_sigma: float = 10.
+    line: bool = False
     def build(self, key: jax.Array):
         key, readkey = jax.random.split(key)
         if self.netspec == '0':
@@ -86,8 +87,15 @@ class HyperParameters(typing.NamedTuple):
         else:
             return int(self.netspec)
 
-    def random_pos(self, n, key):
-        pos = self.pos_sigma * jax.random.normal(key, (n,  self.ndim))
+    def random_pos(self, n, key, line=False):
+        if not line:
+            pos = self.pos_sigma * jax.random.normal(key, (n,  self.ndim))
+        else:
+            pos_min = -2 * self.pos_sigma
+            pos_max =  2 * self.pos_sigma
+            pos = jnp.zeros((n, self.ndim), dtype=float).at[:,0].set(
+                jnp.linspace(pos_min, pos_max, n)
+                )
         return pos
     def random_delay(self, a, b, key):
         delays = self.delay_mu + self.delay_sigma*jax.random.normal(key, (a,b)).flatten()
@@ -198,7 +206,7 @@ class SpatialNetwork(typing.NamedTuple):
         return SpatialNetwork(
             iw = hyper.random_weight(hyper.nhidden, hyper.ninput, keys[0], zero=False, factor=hyper.ifactor),
             rw = hyper.random_weight(hyper.nhidden, hyper.nhidden, keys[1], factor=hyper.rfactor),
-            ipos = hyper.random_pos(hyper.ninput, keys[2]),
+            ipos = hyper.random_pos(hyper.ninput, keys[2], line=hyper.line),
             rpos = hyper.random_pos(hyper.nhidden, keys[3])
             )
     def sim(self, iapp, **kwargs):
@@ -238,7 +246,7 @@ class EpsilonNetwork(typing.NamedTuple):
         return EpsilonNetwork(
             iw = hyper.random_weight(hyper.nhidden, hyper.ninput, keys[0], zero=False, factor=hyper.ifactor),
             rw = hyper.random_weight(hyper.nhidden, hyper.nhidden, keys[1], factor=hyper.rfactor),
-            ipos = hyper.random_pos(hyper.ninput, keys[2]),
+            ipos = hyper.random_pos(hyper.ninput, keys[2], line=hyper.line),
             rpos = hyper.random_pos(hyper.nhidden, keys[3]),
             ierr = jnp.zeros((hyper.nhidden, hyper.ninput)).flatten(),
             rerr = jnp.zeros((hyper.nhidden, hyper.nhidden)).flatten(),
@@ -309,16 +317,25 @@ class GridEpsilonNetwork(typing.NamedTuple):
         eps = jax.lax.stop_gradient(self.eps)
         ndim = self.ndim.shape[1]
         ipos = mkgrid(self.iw.shape[1], ndim, scale=self.scale) + self.iorigin[None, :]
-        rpos = mkgrid(self.rw.shape[1], ndim, scale=self.scale) + self.horigin[None, :]
-        constraint_ih = spatial_to_delay(rpos, ipos)
-        constraint_hh = spatial_to_delay(rpos)
+        rpos = mkgrid(self.rw.shape[1], ndim, scale=self.scale) #+ self.horigin[None, :]
+        constraint_ih = manhattan_spatial_to_delay(rpos, ipos)
+        constraint_hh = manhattan_spatial_to_delay(rpos)
         return DelayNetwork(
                 self.iw,
                 self.rw,
                 (1 + eps*(0.5 + 0.5*jnp.tanh(self.ierr))) * constraint_ih,
                 (1 + eps*(0.5 + 0.5*jnp.tanh(self.rerr))) * constraint_hh).sim(iapp, **kwargs)
     def save(self, fn):
-        numpy.savez_compressed(fn, iw=self.iw, rw=self.rw, ipos=self.ipos, rpos=self.rpos, ierr=self.ierr, rerr=self.rerr, eps=self.eps)
+        numpy.savez_compressed(fn,
+                        iw=self.iw,
+                        rw=self.rw,
+                        ndim=self.ndim,
+                        scale=self.scale,
+                        ierr=self.ierr,
+                        rerr=self.rerr,
+                        iorigin=self.iorigin,
+                        horigin=self.horigin
+                               )
     def load(self, fn):
         with open(fn, 'rb') as f:
             import numpy
@@ -370,6 +387,18 @@ def spatial_to_delay(r, from_=None):
         d = d.flatten()
         return d
 
+def manhattan_spatial_to_delay(r, from_=None):
+    if from_ is not None:
+        d = jax.vmap(lambda ri: jnp.abs(((from_ - ri)).sum(axis=1)))(r)
+        # d.shape is here (r.shape[0], from_.shape[0])
+        d = d.flatten()
+        return d
+    else:
+        d = jax.vmap(lambda ri: jnp.abs(((r - ri)).sum(axis=1)))(r)
+        d = diagonal_const(d, 1000000)
+        d = d.flatten()
+        return d
+
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
     params = HyperParameters(netspec='0', ninput=10, nhidden=10)
@@ -378,3 +407,23 @@ if __name__ == '__main__':
     o = net.sim(s)
     plt.imshow(jnp.hstack([s, o]).T, aspect='auto')
     plt.show()
+
+def sparsify(self : NoDelayNetwork | DelayNetwork  | GridEpsilonNetwork| SpatialNetwork | EpsilonNetwork | NetworkWithReadout , amount=1.0):
+    def mask_smallest(mat, fraction):
+        if fraction >= 1.0:
+            return mat
+        k = int(mat.size * (1 - fraction))
+        if k == 0:
+            return mat
+        flat = mat.flatten()
+        thresh = jnp.sort(jnp.abs(flat))[k]
+        return jnp.where(jnp.abs(mat) < thresh, 0.0, mat)
+    if isinstance(self, NetworkWithReadout):
+        return self._replace(
+            net=sparsify(self.net, amount=amount)
+        )
+    else:
+        return self._replace(
+            iw=mask_smallest(self.iw, amount),
+            rw=mask_smallest(self.rw, amount)
+        )
