@@ -30,10 +30,10 @@ class NetworkWithReadout(typing.NamedTuple):
     net: 'NoDelayNetwork | DelayNetwork | SpatialNetwork | EpsilonNetwork'
     w: jax.Array 
     def sim(self, iapp, **kwargs):
-        s, v = self.net.sim(iapp, **kwargs)
+        s, v, a = self.net.sim(iapp, **kwargs)
         o = jnp.einsum('oh,th->o', self.w, s)
         # o = jax.tree.map(lambda x: sim.grad_modify(x), o) # not needed
-        return o, v, s.mean(0)
+        return o, v, s.mean(0), a
     def save(self, fn):
         self.net.save(fn)
         numpy.savez_compressed(fn+'_read', w=self.w)
@@ -61,6 +61,7 @@ class HyperParameters(typing.NamedTuple):
     delay_sigma: float = 1.
     pos_sigma: float = 10.
     line: bool = False
+    pos: bool = False
     def build(self, key: jax.Array):
         key, readkey = jax.random.split(key)
         if self.netspec == '0':
@@ -192,6 +193,13 @@ class DelayNetwork(typing.NamedTuple):
             tau_syn=kwargs.get('tau_syn', 2.),
             tau_mem=kwargs.get('tau_mem', 10.),
             max_delay_timesteps=int(1+kwargs.get('max_delay_ms', 20.)/kwargs.get('dt', 0.05)),
+            model=kwargs.get('model', 'lif'),
+            adex_a=kwargs.get('adex_a', 2),
+            adex_b=kwargs.get('adex_b', 0.05),
+            adex_tau=kwargs.get('adex_tau', 200),
+            adex_DT=kwargs.get('adex_DT', 2e-3),
+            pos=kwargs.get('pos', False),
+            iadapt0=kwargs.get('iadapt0', 0.)
             )
 
 class SpatialNetwork(typing.NamedTuple):

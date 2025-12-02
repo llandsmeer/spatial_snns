@@ -16,8 +16,19 @@ def sim(
         tau_syn = 2.,
         tau_mem = 10.,
         checkpoint_every=100,
-        max_delay_timesteps = 256
+        max_delay_timesteps = 256,
+        model='lif',
+        adex_a=2,
+        adex_b=0.05,
+        adex_tau=200,
+        adex_DT=2e-3,
+        pos=False,
+        iadapt0=None
         ):
+    if pos:
+        iweight = jnp.abs(iweight)
+        rweight = jnp.abs(rweight)
+    assert model  in {'lif', 'adex'}
     inp_spikes32, inp_delay, inp_weight, rec_delay, rec_weight = ispikes, idelay, iweight, rdelay, rweight
     ninputs = ninput
     vth = 1.
@@ -39,7 +50,6 @@ def sim(
     isyn = jnp.zeros(nneurons)
     #
     alpha = jnp.exp(-dt/tau_syn)
-    beta = jnp.exp(-dt/tau_mem)
     #
     def state_next(state, inp):
         (synapse, v, isyn, a), (t, ispikes_t) = state, inp
@@ -53,8 +63,7 @@ def sim(
                 inp_delay,
                 inp_tgt,
                 inp_weight * jnp.tile(ispikes_t, nneurons),
-                tau_syn
-                )
+                tau_syn)
         synapse = synapse.enqueue(
                 t + rec_delay_timesteps,
                 rec_delay,
@@ -64,24 +73,58 @@ def sim(
                 jnp.tile(dvdt, nneurons),
                 tau_syn)
         synapse, (i_jump, v_jump) = synapse.pop(t)
-        vnext_noreset = beta * v + isyn*dt + v_jump
-        dvdt_min_noreset = -tau_mem * v + isyn
-        dvdt_plus_reset = isyn + i_jump
-        # PREVIOUS (+superspike): v = (1 - S) * (beta * v + isyn*dt + v_jump)
-        v = v_reset(S, v, dvdt_min_noreset, dvdt_plus_reset, vnext_noreset)
-        # 
+        if model == 'lif':
+            v = step_v_lif(S, v, dt, isyn, v_jump, i_jump, tau_mem)
+        elif model == 'adex':
+            iadapt = a
+            v, a = step_adex(S, v, iadapt, dt, isyn,
+                tau_mem=tau_mem, tau_adapt=adex_tau,
+                a=adex_a, b=adex_b, delta_T=adex_DT,
+                v_jump=v_jump, i_jump=i_jump,
+                )
         isyn = isyn * alpha + i_jump
         state = (synapse, v, isyn, a)
         state = jax.tree.map(lambda x: jnp.where(t % 10 == 0, grad_modify(x), x), state)
-        return state, (Ss, v)
+        return state, (Ss, v, a)
     #
-    a = jnp.zeros_like(v)
+    if iadapt0 is None:
+        a = jnp.zeros_like(v)
+    else:
+        a = jnp.full_like(v, iadapt0)
     state = synapse, v, isyn, a
     if checkpoint_every is None:
-        _, (s, v) = jax.lax.scan(state_next, state, xs=(jnp.arange(len(inp_spikes32)), inp_spikes32))
+        _, (s, v, a) = jax.lax.scan(state_next, state, xs=(jnp.arange(len(inp_spikes32)), inp_spikes32))
     else:
-        _, (s, v) = checkpointed_scan(state_next, state, xs=(jnp.arange(len(inp_spikes32)), inp_spikes32), checkpoint_every=checkpoint_every)
-    return s, v
+        _, (s, v, a) = checkpointed_scan(state_next, state, xs=(jnp.arange(len(inp_spikes32)), inp_spikes32), checkpoint_every=checkpoint_every)
+    return s, v, a
+
+def step_v_lif(S, v, dt, isyn, v_jump, i_jump, tau_mem):
+    # PREVIOUS (+superspike): v = (1 - S) * (beta * v + isyn*dt + v_jump)
+    beta = jnp.exp(-dt/tau_mem)
+    vnext_noreset    = beta * v + isyn*dt + v_jump
+    dvdt_min_noreset = isyn -tau_mem * v
+    dvdt_plus_reset  = isyn + i_jump # v reset to 0, i_jump is spike contribution
+    v = v_reset(S, v, dvdt_min_noreset, dvdt_plus_reset, vnext_noreset)
+    return v
+
+def step_adex(S, v, iadapt, dt, isyn,
+                tau_mem=20e-3, tau_adapt=200e-3,
+                a=2e-9, b=2e-9, delta_T=1e-3,
+                v_jump=0.0, i_jump=0.0,
+                ):
+    beta = jnp.exp(-dt / tau_mem)
+    alpha = jnp.exp(-dt / tau_adapt)
+    exp_term = delta_T * jnp.exp((v - 0.5) / delta_T)
+    exp_term_reset = delta_T * jnp.exp((0. - 0.5) / delta_T)
+    v_noreset = beta * v + dt * (isyn - iadapt + exp_term) + v_jump
+    dvdt_minus = isyn - iadapt       - (v / tau_mem) + exp_term
+    iadapt_jump = mk_iadapt_jump(S, b, tau_adapt, v, dvdt_minus)
+    dvdt_plus  = isyn - (iadapt + iadapt_jump) + i_jump + exp_term_reset
+    iadapt_next = alpha * iadapt + dt * a * v + iadapt_jump
+    #jax.debug.print('{} {} {}', alpha, iadapt, iadapt_next)
+    #jax.debug.print('{} {} {}', alpha, dt * a * v, iadapt_jump)
+    v_next = v_reset(S, v, dvdt_minus, dvdt_plus, v_noreset)
+    return v_next, iadapt_next
 
 class LTIRingSynapse(typing.NamedTuple):
     ijump: jax.Array
@@ -155,6 +198,21 @@ def w_to_isyn_jump_jvp(tau_syn, primals, tangents):
     vpost_jump_t = - 1/tau_syn * tpost_t # eq 32
     vpost_jump_t =  vpost_jump_t * 0
     return (isyn_jump, 0 * isyn_jump), (isyn_jump_t, vpost_jump_t)
+
+@jax.custom_jvp
+def mk_iadapt_jump(S, b, tau_adapt, vpre, dvpre_dt):
+    del dvpre_dt
+    return 0*vpre + b * S
+
+@mk_iadapt_jump.defjvp
+def mk_iadapt_jump_jvp(primals, tangents):
+    S, b, tau_adapt, vpre, dvpre_dt = primals
+    S_t, b_t, tau_adapt_t, vpre_t, dvpre_dt_t = tangents
+    del b_t, tau_adapt_t
+    dvdt = jax.lax.select(dvpre_dt == 0, jnp.ones(dvpre_dt.shape), dvpre_dt)
+    tpre_t = -1./dvdt * vpre_t
+    iadapt_jump_t = b / tau_adapt * tpre_t
+    return 0*vpre + b*S, iadapt_jump_t*S
 
 @functools.partial(jax.custom_jvp, nondiff_argnames=['tau_syn'])
 def w_to_isyn_jump_static(tau_syn, w, delay):
