@@ -54,10 +54,28 @@ parser.add_argument('--delaygradscale', type=float, default=10., help='Scale del
 parser.add_argument('--delaymu', type=float, default=8., help='Mu')
 parser.add_argument('--delaysigma', type=float, default=1., help='Sigma')
 parser.add_argument('--possigma', type=float, default=20., help='Sigma')
-parser.add_argument('--tgtfreq', type=float, default=5, help='Target frequency Hz')
+parser.add_argument('--tgtfreq', type=float, default=10, help='Target frequency Hz')
 parser.add_argument('--population_freq', default=False, action='store_true', help='Target freq after mean')
 parser.add_argument('--tag', type=str, default='default', help='Experiment ids')
+parser.add_argument('--adex', default=False, action='store_true', help='AdEx model')
+parser.add_argument('--adex_a', type=float, default=0.001, help='AdEx a')
+parser.add_argument('--adex_b', type=float, default=0.001, help='AdEx b')
+# parser.add_argument('--adex_a', type=float, default=0.001, help='AdEx a')
+# parser.add_argument('--adex_b', type=float, default=0.0002, help='AdEx b')
+parser.add_argument('--adex_tau', type=float, default=150, help='AdEx w tau')
+parser.add_argument('--adex_dt', type=float, default=0.1, help='AdEx DeltaT')
+parser.add_argument('--vplot', default=False, action='store_true', help='AdEx model')
+
+
 args = parser.parse_args()
+
+sim_kwargs = { }
+if args.adex:
+    sim_kwargs['model'] = 'adex'
+    sim_kwargs['adex_a'] = args.adex_a
+    sim_kwargs['adex_b'] = args.adex_b
+    sim_kwargs['adex_tau'] = args.adex_tau
+    sim_kwargs['adex_DT'] = args.adex_dt
 
 RUN_ID = str(uuid.uuid4())
 
@@ -65,6 +83,10 @@ now = datetime.datetime.utcnow()
 
 save_dir = args.save_dir
 fndir = f'{now.year}{now.month:02d}{now.day:02d}_d{args.net}_h{args.nhidden}_lr{args.lr}_ll{args.load_limit}_dt{args.dt}_{RUN_ID}'
+
+if args.adex:
+    fndir = 'adex_' + fndir
+
 done = -1
 if not args.reload:
     os.makedirs(f'{save_dir}/{fndir}', exist_ok=args.force)
@@ -136,7 +158,7 @@ datalog('hyperparams', **params.configdict())
 tau_mem = 10.
 @functools.partial(jax.jit, static_argnames=['aux'])
 def loss(net, in_spikes, label, aux=True):
-    ws, v, f = net.sim(in_spikes, tau_mem=tau_mem, dt=args.dt)
+    ws, v, f = net.sim(in_spikes, tau_mem=tau_mem, dt=args.dt, **sim_kwargs)
     logits = ws
     f = f * args.dt
     l = optax.softmax_cross_entropy_with_integer_labels(logits, label)
@@ -157,7 +179,7 @@ def batched_loss(net, in_spikes, labels):
 def performance(net, in_spikes, labels):
     @jax.jit
     def get_logits(x):
-        ws, v, f = net.sim(x, tau_mem=tau_mem, dt=args.dt)
+        ws, v, f = net.sim(x, tau_mem=tau_mem, dt=args.dt, **sim_kwargs)
         return ws, f
     # logits, f = jax.lax.map(get_logits, in_spikes, batch_size=64)
     logits, f = jax.vmap(get_logits)(in_spikes)
@@ -257,6 +279,11 @@ inp_train, lbl_train = train.indicators_labels32(idxs=jnp.arange(train.size), dt
 batch_size = args.batch_size
 for epoch_idx in range(args.nepochs):
     print('Epoch', epoch_idx)
+    if args.vplot:
+        _, v, _f = net.sim(inp_test[0], tau_mem=tau_mem, dt=args.dt, **sim_kwargs)
+        for i in range(v.shape[1]):
+            plt.plot(v[:,i]+i)
+        plt.show()
     key, nxt = jax.random.split(key)
     epoch_perm = jax.random.permutation(nxt, inp_train.shape[0])
     ncorrect_total = 0

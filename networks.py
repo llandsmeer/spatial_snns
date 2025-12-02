@@ -60,6 +60,7 @@ class HyperParameters(typing.NamedTuple):
     delay_mu: float = 8.
     delay_sigma: float = 1.
     pos_sigma: float = 10.
+    pos: bool = False
     def build(self, key: jax.Array):
         key, readkey = jax.random.split(key)
         if self.netspec == '0':
@@ -184,6 +185,11 @@ class DelayNetwork(typing.NamedTuple):
             tau_syn=kwargs.get('tau_syn', 2.),
             tau_mem=kwargs.get('tau_mem', 10.),
             max_delay_timesteps=int(1+kwargs.get('max_delay_ms', 20.)/kwargs.get('dt', 0.05)),
+            model=kwargs.get('model', 'lif'),
+            adex_a=kwargs.get('adex_a', 2),
+            adex_b=kwargs.get('adex_b', 0.05),
+            adex_tau=kwargs.get('adex_tau', 200),
+            adex_DT=kwargs.get('adex_DT', 2e-3)
             )
 
 class SpatialNetwork(typing.NamedTuple):
