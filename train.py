@@ -1,3 +1,7 @@
+
+import os
+os.environ['XLA_FLAGS'] = "--xla_force_host_platform_device_count=4"
+
 import sys
 import json
 import datetime
@@ -70,6 +74,7 @@ parser.add_argument('--adex_dt', type=float, default=0.1, help='AdEx DeltaT')
 parser.add_argument('--vplot', default=False, action='store_true', help='AdEx model')
 parser.add_argument('--pos', default=False, action='store_true', help='Force pos')
 parser.add_argument('--iadapt0', type=float, default=0.1, help='Init iadapt')
+parser.add_argument('--shard', default=False, action='store_true', help='target all devices')
 
 args = parser.parse_args()
 
@@ -203,6 +208,7 @@ def performance(net, in_spikes, labels):
     top1p = 100 * (top3[:,-1] == labels).mean()
     top3p = 100 * (top3 == labels[:,None]).any(1).mean()
     return top1p, top3p, f
+
 def performance_split(net, in_spikes, labels):
     BATCH_SIZE=64
     n = len(in_spikes)
@@ -228,6 +234,9 @@ def batched_update(opt_state, net, in_spikes, label):
     updates, opt_state = optimizer.update(g, opt_state, net)
     net = optax.apply_updates(net, updates)
     return opt_state, net, l, ncorrect, jax.tree.map(lambda x: x.ptp(), g)
+
+
+
 
 # idx = 0
 # inp = train.indicator(idx=idx, pad=True)
@@ -295,14 +304,39 @@ if args.vplot:
     plt.ion()
     plt.show()
 
+if args.shard:
+    n_devices = jax.local_device_count()
+    print('running on', n_devices)
+    batched_update = jax.pmap(batched_update, axis_name='batch')
+    net = jax.tree.map(lambda x: jnp.stack([x]*n_devices), net)
+    opt_state = jax.tree.map(lambda x: jnp.stack([x]*n_devices), opt_state)
+    ntest = len(inp_test) // n_devices
+    ntrain = len(inp_train) // n_devices
+    inp_test = inp_test[:ntest*n_devices].reshape(n_devices, ntest, *inp_test.shape[1:])
+    inp_train = inp_train[:ntrain*n_devices].reshape(n_devices, ntrain, *inp_train.shape[1:])
+    lbl_test = lbl_test[:ntest*n_devices].reshape(n_devices, ntest, *lbl_test.shape[1:])
+    lbl_train = lbl_train[:ntrain*n_devices].reshape(n_devices, ntrain, *lbl_train.shape[1:])
+    performance_split_device = performance_split
+    @functools.partial(jax.pmap, axis_name='batch')
+    def performance_split(net, in_spikes_shard, labels_shard):
+        avg_top1, avg_top3, f = performance_split_device(net, in_spikes_shard, labels_shard)
+        avg_top1 = jax.lax.pmean(avg_top1, axis_name='batch')
+        avg_top3 = jax.lax.pmean(avg_top3, axis_name='batch')
+        # f is concatenated manually after pmap
+        return avg_top1, avg_top3, f
+else:
+    ntrain = inp_train.shape[0]
+
+
 batch_size = args.batch_size
 for epoch_idx in range(args.nepochs):
     print('Epoch', epoch_idx)
     key, nxt = jax.random.split(key)
-    epoch_perm = jax.random.permutation(nxt, inp_train.shape[0])
+    epoch_perm = jax.random.permutation(nxt, ntrain)
     ncorrect_total = 0
-    for batch_idx in (bar := tqdm.tqdm(range(0, batch_size*int(inp_train.shape[0]/batch_size), batch_size))):
+    for batch_idx in (bar := tqdm.tqdm(range(0, batch_size*int(ntrain/batch_size), batch_size))):
         if args.vplot:
+            assert not args.shard
             _, v, _f, a = net.sim(inp_test[0], tau_mem=tau_mem, dt=args.dt, **sim_kwargs)
             plt.pause(0.1)
             plt.clf()
@@ -310,21 +344,32 @@ for epoch_idx in range(args.nepochs):
                 plt.plot(v[:,i]+i)
             plt.pause(0.1)
         batch_idxs = epoch_perm[batch_idx:batch_idx+batch_size]
-        inp = inp_train[batch_idxs]
-        lbl = lbl_train[batch_idxs]
-        net_old = net
-        opt_state, net, l, ncorrect_batch, g = batched_update(opt_state, net, inp, lbl)
-        d = jax.tree.map(lambda a, b: jnp.mean(jnp.abs(a - b)), net_old, net)
-        x = jax.tree.flatten_with_path(d)
-        for path, a in jax.tree.flatten_with_path(d)[0]:
-            print('.'.join(x.name for x in path).ljust(20), float(a))
+        if args.shard:
+            inp = inp_train[:,batch_idxs]
+            lbl = lbl_train[:,batch_idxs]
+        else:
+            inp = inp_train[batch_idxs]
+            lbl = lbl_train[batch_idxs]
+        if args.shard:
+            opt_state, net, l, ncorrect_batch, g = batched_update(opt_state, net, inp, lbl)
+        else:
+            net_old = net
+            opt_state, net, l, ncorrect_batch, g = batched_update(opt_state, net, inp, lbl)
+            d = jax.tree.map(lambda a, b: jnp.mean(jnp.abs(a - b)), net_old, net)
+            x = jax.tree.flatten_with_path(d)
+            for path, a in jax.tree.flatten_with_path(d)[0]:
+                print('.'.join(x.name for x in path).ljust(20), float(a))
+        ncorrect_batch = ncorrect_batch.sum()
         ncorrect_total += ncorrect_batch
         accuracy = ncorrect_total / (batch_idx + batch_size)
+        l = l.mean() # for shard
         bar.set_postfix_str(f'{accuracy*100:.1f}% {l:.2f}')
         datalog('batch', epoch=epoch_idx, i=batch_idx, l=float(l), ncorrect=float(ncorrect_batch))
     t1p, t3p, f = performance_split(net, inp_test, lbl_test)
+    if args.shard: t1p, t3p = t1p[0], t3p[0]
     print(f'#TEST# TOP1 {t1p:.1f}%  TOP3 {t3p:.1f}%  FREQ {f.mean():.2e}')
     t1p_train, t3p_train, ft = performance_split(net, inp_train[:500], lbl_train[:500])
+    if args.shard: t1p_train, t3p_train = t1p_train[0], t3p_train[0]
     print(f'#TRAIN# TOP1 {t1p_train:.1f}%  TOP3 {t3p_train:.1f}%  FREQ {ft.mean():.2e}')
     datalog('epoch',
             i=epoch_idx,
@@ -340,6 +385,7 @@ for epoch_idx in range(args.nepochs):
         else:
             net = networks.sparsify(net, args.sparse) # type: ignore
         t1p_sp, t3p_sp, f_sp = performance_split(net, inp_test, lbl_test)
+        if args.shard: t1p_sp, t3p_sp = t1p_sp[0], t3p_sp[0]
         print(f'#SPARSE# TOP1 {t1p_sp:.1f}%  TOP3 {t3p_sp:.1f}%  FREQ {f_sp.mean():.2e}')
         datalog('sparse_epoch',
                 i=epoch_idx,
@@ -351,7 +397,11 @@ for epoch_idx in range(args.nepochs):
                 t3p_train=float(t3p_train)
                 )
     try:
-        net.save(f'{save_dir}/{fndir}/epoch_{epoch_idx:08d}')
+        if args.shard:
+            first = jax.tree_map(lambda x: x[0], net)
+            first.save(f'{save_dir}/{fndir}/epoch_{epoch_idx:08d}')
+        else:
+            net.save(f'{save_dir}/{fndir}/epoch_{epoch_idx:08d}')
     except Exception as ex:
         datalog('error', ex=str(type(ex)), r=repr(ex))
 
