@@ -1,0 +1,27 @@
+gpu
+NVIDIA H100
+Thu Dec 11 21:51:45 2025
+['train_yy.py', '--ndim', '0', '--nhidden', '45', '--lr', '0.0002', '--dt', '0.01', '--batch_size', '150', '--beta', '8', '--wseed', '22', '--bseed', '2', '--layer', '--force']
+
+ == CONFIG == 
+ndim                 0
+nhidden              45
+batch_size           150
+load_limit           None
+load_limit_test      None
+lr                   0.0002
+ifactor              1
+rfactor              1
+force                True
+skip                 False
+debug                False
+dt                   0.01
+save_dir             saved
+reload               False
+layer                True
+margin               0.0
+beta                 8.0
+wseed                22
+bseed                2
+ttrain               10000
+

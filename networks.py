@@ -136,8 +136,10 @@ class NoDelayLayerNetwork(typing.NamedTuple):
             )
     def sim(self, iapp, **kwargs):
         key = jax.random.PRNGKey(11)
-        idelay = 0.5 + 0.5*jax.random.normal(key, self.iw.shape).flatten() #jnp.full_like(self.iw, -100).flatten()
-        rdelay = 0.5*jax.random.normal(key, self.rw.shape).flatten() #jnp.full_like(self.rw, -100).flatten()
+        # idelay = 0.5 + 0.5*jax.random.normal(key, self.iw.shape).flatten()
+        idelay = jnp.full_like(self.iw, -100).flatten()
+        # rdelay = 0.5*jax.random.normal(key, self.rw.shape).flatten()
+        rdelay = jnp.full_like(self.rw, -100).flatten()
         return DelayLayerNetwork(
                 self.iw,
                 self.rw,
