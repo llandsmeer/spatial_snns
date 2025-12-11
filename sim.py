@@ -174,8 +174,10 @@ def w_to_isyn_jump_jvp(tau_syn, primals, tangents):
     isyn_jump = w
     isyn_jump_t = w_t*1 + w/tau_syn * tpost_t # eq 48., p16., generalized
     isyn_jump_t = jax.lax.select(w != 0, isyn_jump_t, jnp.zeros_like(w))
-    vpost_jump_t = - 1/tau_syn * tpost_t # eq 32
-    vpost_jump_t =  vpost_jump_t * 0
+    # vpost_jump_t = - 1/tau_syn * tpost_t # eq 32
+    # vpost_jump_t =  vpost_jump_t * 0
+    vpost_jump_t = - w * tpost_t
+    vpost_jump_t = jax.lax.select(w != 0, vpost_jump_t, jnp.zeros_like(w))
     return (isyn_jump, 0 * isyn_jump), (isyn_jump_t, vpost_jump_t)
 
 @functools.partial(jax.custom_jvp, nondiff_argnames=['tau_syn'])
@@ -192,8 +194,10 @@ def w_to_isyn_jump_jvp_static(tau_syn, primals, tangents):
     isyn_jump = w
     isyn_jump_t = w_t*1 + w/tau_syn * tpost_t # eq 48., p16., generalized
     isyn_jump_t = jax.lax.select(w != 0, isyn_jump_t, jnp.zeros_like(w))
-    vpost_jump_t = - 1/tau_syn * tpost_t # eq 32
-    vpost_jump_t =  vpost_jump_t * 0
+    # vpost_jump_t = - 1/tau_syn * tpost_t # eq 32
+    # vpost_jump_t =  vpost_jump_t * 0
+    vpost_jump_t = - w * tpost_t
+    vpost_jump_t = jax.lax.select(w != 0, vpost_jump_t, jnp.zeros_like(w))
     return (isyn_jump, 0*isyn_jump), (isyn_jump_t, vpost_jump_t)
 
 
