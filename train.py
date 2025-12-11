@@ -1,6 +1,8 @@
 
-import os
-os.environ['XLA_FLAGS'] = "--xla_force_host_platform_device_count=4"
+import os, platform
+
+if platform.node() == 'spectre':
+    os.environ['XLA_FLAGS'] = "--xla_force_host_platform_device_count=4"
 
 import sys
 import json
@@ -209,14 +211,32 @@ def performance(net, in_spikes, labels):
     top3p = 100 * (top3 == labels[:,None]).any(1).mean()
     return top1p, top3p, f
 
+if args.shard:
+    performance_device = performance
+    @functools.partial(jax.pmap, axis_name='batch')
+    def performance(net, in_spikes_shard, labels_shard):
+        avg_top1, avg_top3, f = performance_device(net, in_spikes_shard, labels_shard)
+        avg_top1 = jax.lax.pmean(avg_top1, axis_name='batch')
+        avg_top3 = jax.lax.pmean(avg_top3, axis_name='batch')
+        # f is concatenated manually after pmap
+        return avg_top1, avg_top3, f
+
 def performance_split(net, in_spikes, labels):
     BATCH_SIZE=64
-    n = len(in_spikes)
+    if args.shard:
+        n = in_spikes.shape[1]
+    else:
+        n = len(in_spikes)
     top1_list, top3_list, f_list = [], [], []
     for i in tqdm.tqdm(range(0, n, BATCH_SIZE)):
-        batch_inputs = in_spikes[i:i+BATCH_SIZE]
-        batch_labels = labels[i:i+BATCH_SIZE]
+        if args.shard:
+            batch_inputs = in_spikes[:,i:i+BATCH_SIZE]
+            batch_labels = labels[:,i:i+BATCH_SIZE]
+        else:
+            batch_inputs = in_spikes[i:i+BATCH_SIZE]
+            batch_labels = labels[i:i+BATCH_SIZE]
         top1, top3, f = performance(net, batch_inputs, batch_labels)
+        if args.shard: top1, top3 = top1[0], top3[0]
         top1_list.append(top1)
         top3_list.append(top3)
         f_list.extend(f)
@@ -316,14 +336,14 @@ if args.shard:
     inp_train = inp_train[:ntrain*n_devices].reshape(n_devices, ntrain, *inp_train.shape[1:])
     lbl_test = lbl_test[:ntest*n_devices].reshape(n_devices, ntest, *lbl_test.shape[1:])
     lbl_train = lbl_train[:ntrain*n_devices].reshape(n_devices, ntrain, *lbl_train.shape[1:])
-    performance_split_device = performance_split
-    @functools.partial(jax.pmap, axis_name='batch')
-    def performance_split(net, in_spikes_shard, labels_shard):
-        avg_top1, avg_top3, f = performance_split_device(net, in_spikes_shard, labels_shard)
-        avg_top1 = jax.lax.pmean(avg_top1, axis_name='batch')
-        avg_top3 = jax.lax.pmean(avg_top3, axis_name='batch')
-        # f is concatenated manually after pmap
-        return avg_top1, avg_top3, f
+#     performance_split_device = performance_split
+#     @functools.partial(jax.pmap, axis_name='batch')
+#     def performance_split(net, in_spikes_shard, labels_shard):
+#         avg_top1, avg_top3, f = performance_split_device(net, in_spikes_shard, labels_shard)
+#         avg_top1 = jax.lax.pmean(avg_top1, axis_name='batch')
+#         avg_top3 = jax.lax.pmean(avg_top3, axis_name='batch')
+#         # f is concatenated manually after pmap
+#         return avg_top1, avg_top3, f
 else:
     ntrain = inp_train.shape[0]
 
@@ -366,10 +386,10 @@ for epoch_idx in range(args.nepochs):
         bar.set_postfix_str(f'{accuracy*100:.1f}% {l:.2f}')
         datalog('batch', epoch=epoch_idx, i=batch_idx, l=float(l), ncorrect=float(ncorrect_batch))
     t1p, t3p, f = performance_split(net, inp_test, lbl_test)
-    if args.shard: t1p, t3p = t1p[0], t3p[0]
+    # if args.shard: t1p, t3p = t1p[0], t3p[0]
     print(f'#TEST# TOP1 {t1p:.1f}%  TOP3 {t3p:.1f}%  FREQ {f.mean():.2e}')
     t1p_train, t3p_train, ft = performance_split(net, inp_train[:500], lbl_train[:500])
-    if args.shard: t1p_train, t3p_train = t1p_train[0], t3p_train[0]
+    # if args.shard: t1p_train, t3p_train = t1p_train[0], t3p_train[0]
     print(f'#TRAIN# TOP1 {t1p_train:.1f}%  TOP3 {t3p_train:.1f}%  FREQ {ft.mean():.2e}')
     datalog('epoch',
             i=epoch_idx,
@@ -385,7 +405,7 @@ for epoch_idx in range(args.nepochs):
         else:
             net = networks.sparsify(net, args.sparse) # type: ignore
         t1p_sp, t3p_sp, f_sp = performance_split(net, inp_test, lbl_test)
-        if args.shard: t1p_sp, t3p_sp = t1p_sp[0], t3p_sp[0]
+        # if args.shard: t1p_sp, t3p_sp = t1p_sp[0], t3p_sp[0]
         print(f'#SPARSE# TOP1 {t1p_sp:.1f}%  TOP3 {t3p_sp:.1f}%  FREQ {f_sp.mean():.2e}')
         datalog('sparse_epoch',
                 i=epoch_idx,
