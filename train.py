@@ -64,11 +64,14 @@ parser.add_argument('--tgtfreq', type=float, default=10, help='Target frequency 
 parser.add_argument('--population_freq', default=False, action='store_true', help='Target freq after mean')
 parser.add_argument('--tag', type=str, default='default', help='Experiment ids')
 parser.add_argument('--line', default=False, action='store_true', help='Initialize inputs on a line')
+parser.add_argument('--circle', default=False, action='store_true', help='Initialize inputs on a circle')
+parser.add_argument('--wstat', default=False, action='store_true', help='Initialize all weights at same value')
+parser.add_argument('--istat', default=False, action='store_true', help='Dont move inputs')
 parser.add_argument('--sparse', default=1.0, type=float, help='Sparsify after each epoch')
 parser.add_argument('--sparse_iter', default=False, action='store_true', help='Iteratively increase')
 parser.add_argument('--adex', default=False, action='store_true', help='AdEx model')
-parser.add_argument('--adex_a', type=float, default=0.005, help='AdEx a')
-parser.add_argument('--adex_b', type=float, default=0.01, help='AdEx b')
+parser.add_argument('--adex_a', type=float, default=0.01, help='AdEx a')
+parser.add_argument('--adex_b', type=float, default=0.02, help='AdEx b')
 # parser.add_argument('--adex_a', type=float, default=0.001, help='AdEx a')
 # parser.add_argument('--adex_b', type=float, default=0.0002, help='AdEx b')
 parser.add_argument('--adex_tau', type=float, default=200, help='AdEx w tau')
@@ -171,7 +174,9 @@ params = networks.HyperParameters(
         pos_sigma=args.possigma,
         delay_sigma=args.delaysigma,
         delay_mu=args.delaymu,
-        line=args.line
+        line=args.line,
+        circle=args.circle,
+        wstat=args.circle
         )
 
 datalog('hyperparams', **params.configdict())
@@ -360,8 +365,13 @@ for epoch_idx in range(args.nepochs):
             _, v, _f, a = net.sim(inp_test[0], tau_mem=tau_mem, dt=args.dt, **sim_kwargs)
             plt.pause(0.1)
             plt.clf()
-            for i in range(v.shape[1]):
-                plt.plot(v[:,i]+i)
+            #for i in range(v.shape[1]):
+            #    plt.plot(v[:,i]+i)
+            plt.scatter(net.net.ipos[:,0], net.net.ipos[:,1], c=jnp.arange(700), cmap='plasma')
+            plt.scatter(net.net.rpos[:,0], net.net.rpos[:,1],)
+            plt.savefig(f'/tmp/figs/{epoch_idx:05d}_{batch_idx:05d}.svg')
+            plt.axis('equal')
+            print(net.net.rpos.shape)
             plt.pause(0.1)
         batch_idxs = epoch_perm[batch_idx:batch_idx+batch_size]
         if args.shard:
