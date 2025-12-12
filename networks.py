@@ -61,6 +61,8 @@ class HyperParameters(typing.NamedTuple):
     delay_sigma: float = 1.
     pos_sigma: float = 10.
     line: bool = False
+    circle: bool= False
+    wstat: bool= False
     pos: bool = False
     def build(self, key: jax.Array):
         key, readkey = jax.random.split(key)
@@ -76,7 +78,9 @@ class HyperParameters(typing.NamedTuple):
             net = SpatialNetwork.make(self, key)
         if self.noutput is None:
             return net
-        return NetworkWithReadout(net, self.random_weight(self.noutput, self.nhidden, key=readkey))
+        return NetworkWithReadout(net,
+                                  self.random_weight(self.noutput, self.nhidden, key=readkey)
+                                  )
     @property
     def ndim(self):
         if self.netspec == 'inf':
@@ -88,20 +92,28 @@ class HyperParameters(typing.NamedTuple):
         else:
             return int(self.netspec)
 
-    def random_pos(self, n, key, line=False):
-        if not line:
-            pos = self.pos_sigma * jax.random.normal(key, (n,  self.ndim))
-        else:
+    def random_pos(self, n, key, line=False, circle=False):
+        if line:
             pos_min = -2 * self.pos_sigma
             pos_max =  2 * self.pos_sigma
             pos = jnp.zeros((n, self.ndim), dtype=float).at[:,0].set(
                 jnp.linspace(pos_min, pos_max, n)
                 )
+        elif circle is not False and self.ndim == 2:
+            t = jnp.linspace(0, 2*jnp.pi, n)
+            x = jnp.sin(t) * 2*self.pos_sigma * circle
+            y = jnp.cos(t) * 2*self.pos_sigma * circle
+            pos = jnp.array([x, y]).T
+        else:
+            pos = self.pos_sigma * jax.random.normal(key, (n,  self.ndim))
         return pos
     def random_delay(self, a, b, key):
         delays = self.delay_mu + self.delay_sigma*jax.random.normal(key, (a,b)).flatten()
         return delays
     def random_weight(self, a, b, key, zero=False, factor=1.):
+        if self.wstat:
+            W = jnp.ones((a, b)) * factor / (a*b) / 10
+            return W
         W = jax.random.uniform(key=key, shape=(a,b), minval=-0.2, maxval=0.8)
         if zero:
             assert a == b
@@ -214,8 +226,8 @@ class SpatialNetwork(typing.NamedTuple):
         return SpatialNetwork(
             iw = hyper.random_weight(hyper.nhidden, hyper.ninput, keys[0], zero=False, factor=hyper.ifactor),
             rw = hyper.random_weight(hyper.nhidden, hyper.nhidden, keys[1], factor=hyper.rfactor),
-            ipos = hyper.random_pos(hyper.ninput, keys[2], line=hyper.line),
-            rpos = hyper.random_pos(hyper.nhidden, keys[3])
+            ipos = hyper.random_pos(hyper.ninput, keys[2], line=hyper.line, circle=hyper.circle),
+            rpos = hyper.random_pos(hyper.nhidden, keys[3], circle=0.5*hyper.circle)
             )
     def sim(self, iapp, **kwargs):
         return DelayNetwork(
@@ -254,8 +266,8 @@ class EpsilonNetwork(typing.NamedTuple):
         return EpsilonNetwork(
             iw = hyper.random_weight(hyper.nhidden, hyper.ninput, keys[0], zero=False, factor=hyper.ifactor),
             rw = hyper.random_weight(hyper.nhidden, hyper.nhidden, keys[1], factor=hyper.rfactor),
-            ipos = hyper.random_pos(hyper.ninput, keys[2], line=hyper.line),
-            rpos = hyper.random_pos(hyper.nhidden, keys[3]),
+            ipos = hyper.random_pos(hyper.ninput, keys[2], line=hyper.line, circle=hyper.circle),
+            rpos = hyper.random_pos(hyper.nhidden, keys[3], circle=0.5*hyper.circle),
             ierr = jnp.zeros((hyper.nhidden, hyper.ninput)).flatten(),
             rerr = jnp.zeros((hyper.nhidden, hyper.nhidden)).flatten(),
             # ierr = hyper.random_weight(hyper.nhidden, hyper.ninput, keys[0], zero=False, factor=1).flatten(),
