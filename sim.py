@@ -4,6 +4,7 @@ import typing
 import jax
 import jax.numpy as jnp
 import sys
+import numpy
 
 def sim(
         ninput: int,
@@ -43,6 +44,9 @@ def sim(
     inp_weight = inp_weight #iweight
     rec_delay = rdelay #reg_rdelay
     rec_weight = rec_weight #rweight
+
+    # print(inp_delay)
+    numpy.savez_compressed("params.npz", iw=inp_weight, rw=rec_weight, idelay=inp_delay, rdelay=rec_delay)
 
     # assert (delay < max_delay_timesteps/dt).all()
     #

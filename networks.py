@@ -32,7 +32,7 @@ class NetworkWithReadout(typing.NamedTuple):
                 )
     
 class NetworkWithTTFS(typing.NamedTuple):
-    net: 'NoDelayNetwork | DelayNetwork | SpatialNetwork'
+    net: 'NoDelayLayerNetwork | DelayLayerNetwork | SpatialLayerNetwork'
     def sim(self, iapp, **kwargs):
         s, v, ttfs = self.net.sim(iapp, **kwargs)
         return ttfs, v, s.mean(0)
@@ -334,7 +334,7 @@ class SpatialLayerNetwork(typing.NamedTuple):
             rw = jnp.array(f['rw'])
             ipos = jnp.array(f['ipos'])
             rpos = jnp.array(f['rpos'])
-        return SpatialNetwork(
+        return SpatialLayerNetwork(
                 iw=iw,
                 rw=rw,
                 ipos=ipos,
@@ -353,12 +353,12 @@ def spatial_to_delay(r, from_=None):
     if from_ is not None:
         d = jax.vmap(lambda ri: jnp.sqrt(1e-2+((from_ - ri)**2).sum(axis=1)))(r)
         # d.shape is here (r.shape[0], from_.shape[0])
-        d = d.flatten()
+        # d = d.flatten()
         return d
     else:
         d = jax.vmap(lambda ri: jnp.sqrt(1e-2+((r - ri)**2).sum(axis=1)))(r)
         d = diagonal_const(d, 1000000)
-        d = d.flatten()
+        # d = d.flatten()
         return d
 
 if __name__ == '__main__':

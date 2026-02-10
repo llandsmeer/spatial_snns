@@ -373,8 +373,10 @@ try:
             print(ispikes)
             for inpi in ispikes:
                 plt.vlines(inpi, ymin= 0, ymax=len(v[0]), color='k')
-            plt.title(str(lbl[0]) + " | 0-> " + f"{o[-3]:.4f}" + "  1-> " + f"{o[-2]:.4f}" + "  2-> " + f"{o[-1]:.4f}")
-            plt.savefig('yy.png')
+            # plt.title(str(lbl[0]) + " | 0-> " + f"{o[-3]:.4f}" + "  1-> " + f"{o[-2]:.4f}" + "  2-> " + f"{o[-1]:.4f}")
+            plt.xlabel("Timestep")
+            plt.ylabel("Neuron")
+            plt.savefig('yy.svg')
         ###
 
         # batch_loss = batched_loss(net, inp, lbl)
