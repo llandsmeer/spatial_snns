@@ -1,5 +1,17 @@
 # Spatial SNNs
 
+![Spatial SNNs embed neurons and delays into n-dimensional space](./intro.png)
+
+## Installation
+
+```
+git clone https://github.com/llandsmeer/spatial_snns/
+pip install 'jax[cuda]' tqdm matplotlib h5py numpy optax pandas
+```
+
+For efficient execution you will need a GPU with a large amount of memory.
+In experiments, RTX PRO 6000 or H100 for larger networks, Quadro 600 for nhidden < 150, and A2000 for small networks. CPU might work for very small networks.
+
 ## SHD, Rate Coded
 
 The SHD dataset must be downloaded from https://zenkelab.org/datasets/
@@ -17,6 +29,8 @@ Some examples:
     `mkdir -p /tmp/figs/`
 
     `python3 train.py --net 2 --circle --dt 0.5 --skip --nhidden 100 --lr 1e-3 --vplot`
+
+To run many experiments, ie on a cluster, generate the submit script via `multirun.py`. It provides from functions for creating grid searches over parameters and seeds, and outputs either a SLURM script of a list of command lines to be invoked sequentially on a single-GPU machine.
 
 ## YY, TTFS
 
@@ -73,7 +87,7 @@ options:
   --istat               Dont move inputs
   --sparse SPARSE       Sparsify after each epoch
   --sparse_iter         Iteratively increase
-  --adex                AdEx model
+  --adex                Use AdEx model instead of LIF
   --adex_a ADEX_A       AdEx a
   --adex_b ADEX_B       AdEx b
   --adex_tau ADEX_TAU   AdEx w tau
@@ -86,4 +100,6 @@ options:
 
 Please cite as
 
-> Landsmeer, Lennart PL, et al. "Spatial Spiking Neural Networks Enable Efficient and Robust Temporal Computation." arXiv preprint arXiv:2512.10011 (2025).
+> Landsmeer, L. P. L., Movahedin, A., Negrello, M., Hamdioui, S., & Strydis, C. (2025). Spatial Spiking Neural Networks Enable Efficient and Robust Temporal Computation. arXiv preprint arXiv:2512.10011.
+
+This work is partially supported by the European-Union Horizon Europe R&I program through projects SEPTON (no. 101094901) and SECURED (no. 101095717) and through the NWO - Gravitation Programme DBI2 (no. 024.005.022). This work used the Dutch national e-infrastructure with the support of the SURF Cooperative using grant no. EINF-10677, EINF-15815, and EINF-16791. The RTX PRO 6000 and Quadro Pro 6000 GPUs used for this research were donated by the NVIDIA Corporation.
