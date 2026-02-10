@@ -10,9 +10,9 @@ pip install 'jax[cuda]' tqdm matplotlib h5py numpy optax pandas
 ```
 
 For efficient execution you will need a GPU with a large amount of memory.
-In experiments, RTX PRO 6000 or H100 for larger networks, Quadro 600 for nhidden < 150, and A2000 for small networks. CPU might work for very small networks.
+In experiments, RTX PRO 6000 or H100 for larger networks, Quadro 6000 for nhidden < 150, and A2000 for small networks. CPU might work for very small networks.
 
-## SHD, Rate Coded
+## Usage (SHD, Rate Coded)
 
 The SHD dataset must be downloaded from https://zenkelab.org/datasets/
 
