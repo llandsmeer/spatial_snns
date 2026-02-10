@@ -1,6 +1,6 @@
 # Spatial SNNs
 
-![Spatial SNNs embed neurons and delays into n-dimensional space](./intro.png)
+![Spatial SNNs embed neurons and delays into n-dimensional space](./intro.png?raw=true)
 
 ## Installation
 
