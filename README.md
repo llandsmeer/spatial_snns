@@ -15,6 +15,7 @@ Some examples:
  - Interactive visualization:
 
     `mkdir -p /tmp/figs/`
+
     `python3 train.py --net 2 --circle --dt 0.5 --skip --nhidden 100 --lr 1e-3 --vplot`
 
 ## YY, TTFS
