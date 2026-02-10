@@ -1,4 +1,4 @@
-# Spatial SNNs
+# Spatial Spiking Neural Networks
 
 ![Spatial SNNs embed neurons and delays into n-dimensional space](./intro.png?raw=true)
 
