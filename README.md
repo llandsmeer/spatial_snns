@@ -34,7 +34,14 @@ To run many experiments, ie on a cluster, generate the submit script via `multir
 
 ## YY, TTFS
 
-....
+Checkout to the yy_spatial branch.
+
+To run the training script for the YY dataset, please run `python3 train_yy.py` with the following options:
+    
+    `python3 train_yy.py --ndim 3 --nhidden 30 --dt 0.01 --lr 0.00015 --batch_size 150 --layer --force`
+
+You can change the `ndim` and `nhidden` parameters to have networks with different dimensions and hidden neurons respectively.
+    
 
 ## SHD train.py help
 
